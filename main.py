@@ -1,18 +1,19 @@
+```python
 import streamlit as st
 import random
 import time
 import math
 
 # ============================================================
-# 🎣 FISHING LEGENDS
-# Streamlit Fishing RPG
+# 🎣 FISHING GAME
+# Streamlit Single File Version
 # ============================================================
 
 st.set_page_config(
-    page_title="Fishing Legends",
+    page_title="LEGEND FISHING",
     page_icon="🎣",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # ============================================================
@@ -22,3138 +23,703 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap');
-
-* {
-    font-family: 'Noto Sans KR', sans-serif;
-}
-
 html, body, [class*="css"] {
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: Arial, sans-serif;
 }
 
-.stApp {
-    background:
-        radial-gradient(
-            circle at 15% 10%,
-            rgba(38, 130, 255, 0.16),
-            transparent 28%
-        ),
-        radial-gradient(
-            circle at 85% 15%,
-            rgba(0, 220, 255, 0.10),
-            transparent 25%
-        ),
-        linear-gradient(
-            135deg,
-            #050d18 0%,
-            #081a30 45%,
-            #06101d 100%
-        );
-    color: #ffffff;
+.main {
+    background: #07111f;
 }
 
 .block-container {
-    max-width: 1500px;
-    padding-top: 18px;
-    padding-bottom: 60px;
-}
-
-h1, h2, h3 {
-    letter-spacing: -1px;
-}
-
-button {
-    font-family: 'Noto Sans KR', sans-serif !important;
-}
-
-div.stButton > button {
-    border-radius: 12px;
-    min-height: 44px;
-    font-weight: 800;
-    border: 1px solid rgba(120,180,255,0.22);
-    background: rgba(14,30,50,0.80);
-}
-
-div.stButton > button:hover {
-    border: 1px solid rgba(100,210,255,0.65);
-    transform: translateY(-1px);
+    padding-top: 1rem;
+    padding-bottom: 2rem;
 }
 
 .game-title {
-    font-size: 46px;
-    line-height: 1.0;
+    text-align: center;
+    font-size: 42px;
     font-weight: 900;
-    letter-spacing: -3px;
+    color: #ffffff;
+    margin-bottom: 5px;
+    text-shadow: 0 0 20px #00aaff;
 }
 
 .game-subtitle {
-    color: #7891ad;
-    margin-top: 8px;
-    font-size: 14px;
-}
-
-.topbar {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(12,30,52,0.92),
-            rgba(8,20,37,0.92)
-        );
-    border: 1px solid rgba(110,170,235,0.20);
-    border-radius: 20px;
-    padding: 14px;
-    box-shadow: 0 15px 45px rgba(0,0,0,0.22);
+    text-align: center;
+    color: #8fa8c7;
+    margin-bottom: 25px;
 }
 
 .top-stat {
+    background: linear-gradient(135deg, #10253c, #081522);
+    border: 1px solid #234b6c;
+    border-radius: 15px;
+    padding: 14px;
     text-align: center;
-    padding: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
 }
 
-.top-stat-label {
-    color: #7790ab;
-    font-size: 11px;
-    font-weight: 700;
+.top-stat-title {
+    color: #8fa8c7;
+    font-size: 13px;
 }
 
 .top-stat-value {
-    font-size: 19px;
-    font-weight: 900;
-    margin-top: 2px;
-}
-
-.card {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(12,29,49,0.94),
-            rgba(7,20,36,0.94)
-        );
-    border: 1px solid rgba(100,165,225,0.18);
-    border-radius: 22px;
-    padding: 22px;
-    margin-bottom: 18px;
-    box-shadow:
-        0 15px 50px rgba(0,0,0,0.24),
-        inset 0 1px rgba(255,255,255,0.02);
-}
-
-.water {
-    position: relative;
-    min-height: 500px;
-    overflow: hidden;
-    border-radius: 24px;
-    background:
-        radial-gradient(
-            circle at 50% 10%,
-            rgba(95,220,255,0.20),
-            transparent 30%
-        ),
-        linear-gradient(
-            180deg,
-            #0a789e 0%,
-            #075d87 38%,
-            #06486f 72%,
-            #043858 100%
-        );
-    border: 1px solid rgba(110,220,255,0.30);
-    box-shadow:
-        inset 0 0 80px rgba(0,0,0,0.18),
-        0 20px 60px rgba(0,0,0,0.25);
-}
-
-.water::before {
-    content: "";
-    position: absolute;
-    left: -10%;
-    top: 34%;
-    width: 120%;
-    height: 100px;
-    border-top: 2px solid rgba(190,245,255,0.16);
-    border-radius: 50%;
-    transform: rotate(-2deg);
-}
-
-.water::after {
-    content: "";
-    position: absolute;
-    left: -10%;
-    top: 60%;
-    width: 120%;
-    height: 100px;
-    border-top: 2px solid rgba(190,245,255,0.12);
-    border-radius: 50%;
-    transform: rotate(2deg);
-}
-
-.water-location {
-    position: relative;
-    z-index: 3;
-    padding-top: 24px;
-    text-align: center;
-    font-size: 28px;
-    font-weight: 900;
-}
-
-.water-description {
-    position: relative;
-    z-index: 3;
-    text-align: center;
-    color: #b7e8f8;
-    font-size: 13px;
-}
-
-.rod-display {
-    position: relative;
-    z-index: 3;
-    text-align: center;
-    font-size: 100px;
-    margin-top: 75px;
-    filter:
-        drop-shadow(0 12px 12px rgba(0,0,0,0.25));
-    transform: rotate(-10deg);
-}
-
-.line {
-    position: absolute;
-    z-index: 2;
-    width: 2px;
-    height: 150px;
-    background: rgba(230,250,255,0.65);
-    left: 54%;
-    top: 55%;
-    transform: rotate(12deg);
-}
-
-.float {
-    position: absolute;
-    z-index: 4;
-    left: 53%;
-    top: 81%;
-    font-size: 25px;
-}
-
-.water-info {
-    position: absolute;
-    z-index: 4;
-    left: 20px;
-    bottom: 20px;
-    color: rgba(225,250,255,0.75);
-    font-size: 12px;
-}
-
-.status-card {
-    background: rgba(4,15,27,0.72);
-    border: 1px solid rgba(100,170,230,0.18);
-    border-radius: 16px;
-    padding: 15px;
-}
-
-.status-label {
-    color: #7189a5;
-    font-size: 11px;
-}
-
-.status-value {
+    color: white;
     font-size: 22px;
-    font-weight: 900;
+    font-weight: bold;
 }
 
-.rod-card {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(10,25,43,0.94),
-            rgba(6,17,30,0.94)
-        );
-    border: 1px solid rgba(100,160,220,0.18);
+.panel {
+    background: linear-gradient(145deg, #102238, #07121f);
+    border: 1px solid #244966;
     border-radius: 18px;
-    padding: 18px;
-    margin-bottom: 14px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
 }
 
-.rod-icon {
-    font-size: 58px;
+.panel-title {
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.fishing-water {
+    height: 390px;
+    border-radius: 25px;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(50,180,255,0.18), transparent 20%),
+        radial-gradient(circle at 70% 60%, rgba(0,100,255,0.18), transparent 25%),
+        linear-gradient(180deg, #075985, #062f4f 45%, #041b30);
+    border: 2px solid #1c83b5;
+    position: relative;
+    overflow: hidden;
     text-align: center;
+    padding-top: 35px;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
 }
 
-.rod-name {
-    font-size: 19px;
-    font-weight: 900;
+.water-title {
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
 }
 
-.rod-grade {
-    color: #89b4df;
-    font-size: 12px;
-    font-weight: 700;
+.water-fish {
+    font-size: 100px;
+    margin-top: 50px;
+    animation: swim 3s infinite ease-in-out;
+}
+
+@keyframes swim {
+    0% { transform: translateX(-20px); }
+    50% { transform: translateX(20px); }
+    100% { transform: translateX(-20px); }
+}
+
+.status-box {
+    background: #091a2b;
+    border-radius: 12px;
+    padding: 12px;
+    margin: 7px 0;
+    border: 1px solid #1c405b;
+}
+
+.stat-label {
+    color: #7f9bb5;
+}
+
+.stat-value {
+    color: white;
+    font-weight: bold;
 }
 
 .fish-card {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(10,26,44,0.95),
-            rgba(6,18,31,0.95)
-        );
-    border: 1px solid rgba(90,160,220,0.17);
-    border-radius: 18px;
-    padding: 17px;
-    margin-bottom: 14px;
-    min-height: 190px;
-}
-
-.fish-icon {
-    font-size: 50px;
-}
-
-.fish-name {
-    font-size: 18px;
-    font-weight: 900;
-}
-
-.fish-detail {
-    color: #91a8c0;
-    font-size: 12px;
-    line-height: 1.8;
-}
-
-.catch-result {
-    background:
-        radial-gradient(
-            circle at center,
-            rgba(50,160,255,0.16),
-            transparent 60%
-        ),
-        rgba(6,20,36,0.96);
-    border: 1px solid rgba(100,200,255,0.30);
-    border-radius: 24px;
-    padding: 35px;
-    text-align: center;
-    box-shadow: 0 0 70px rgba(20,150,255,0.12);
-}
-
-.catch-icon {
-    font-size: 100px;
-}
-
-.catch-name {
-    font-size: 32px;
-    font-weight: 900;
-}
-
-.catch-price {
-    color: #ffd86a;
-    font-size: 25px;
-    font-weight: 900;
-}
-
-.trait {
-    display: inline-block;
-    padding: 5px 10px;
-    margin: 3px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.07);
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.event {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(122,73,255,0.18),
-            rgba(25,164,255,0.14)
-        );
-    border: 1px solid rgba(140,120,255,0.35);
-    border-radius: 20px;
-    padding: 18px;
-    text-align: center;
-    margin: 15px 0;
-}
-
-.event-title {
-    font-size: 22px;
-    font-weight: 900;
-}
-
-.event-text {
-    color: #b4c9df;
-    font-size: 13px;
-    line-height: 1.7;
-}
-
-.inventory-slot {
-    background: rgba(5,15,27,0.85);
-    border: 1px solid rgba(105,165,220,0.18);
+    background: linear-gradient(145deg, #102840, #071421);
+    border: 1px solid #275674;
     border-radius: 15px;
-    padding: 12px;
-    min-height: 145px;
-    text-align: center;
-    margin-bottom: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
 }
 
-.empty-slot {
-    color: #526981;
-    padding-top: 42px;
-    font-size: 12px;
+.common {
+    border-left: 5px solid #b9c2ca;
 }
 
-.inventory-icon {
-    font-size: 42px;
+.silver {
+    border-left: 5px solid #c7d1dc;
+    box-shadow: 0 0 10px rgba(200,210,220,0.15);
 }
 
-.inventory-name {
-    font-size: 13px;
-    font-weight: 900;
+.gold {
+    border-left: 5px solid #ffd700;
+    box-shadow: 0 0 15px rgba(255,215,0,0.2);
 }
 
-.inventory-price {
-    color: #ffd36a;
-    font-size: 12px;
+.rainbow {
+    border-left: 5px solid #ff4fd8;
+    box-shadow: 0 0 20px rgba(255,79,216,0.3);
 }
 
-.title-card {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(24,37,59,0.96),
-            rgba(9,20,35,0.96)
-        );
-    border: 1px solid rgba(130,175,235,0.18);
-    border-radius: 20px;
-    padding: 18px;
-    margin-bottom: 13px;
-}
-
-.title-name {
-    font-size: 20px;
-    font-weight: 900;
-}
-
-.title-condition {
-    color: #8ca5c0;
-    font-size: 12px;
-    margin-top: 5px;
-}
-
-.title-effect {
-    color: #9fdcff;
-    font-size: 13px;
-    margin-top: 8px;
-}
-
-.shop-price {
-    color: #ffd76a;
-    font-size: 17px;
-    font-weight: 900;
+.dimension {
+    border-left: 5px solid #7b5cff;
+    box-shadow: 0 0 25px rgba(123,92,255,0.4);
 }
 
 .big-number {
-    font-size: 34px;
+    font-size: 32px;
     font-weight: 900;
+    color: white;
 }
 
-.muted {
-    color: #7189a4;
-    font-size: 12px;
-}
-
-.section-title {
-    font-size: 25px;
-    font-weight: 900;
+.event-box {
+    background: linear-gradient(135deg, #30185c, #14294c);
+    border: 1px solid #7655c9;
+    border-radius: 15px;
+    padding: 16px;
+    text-align: center;
     margin-bottom: 15px;
+}
+
+.event-title {
+    color: #d4c2ff;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.event-value {
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.title-box {
+    background: linear-gradient(135deg, #291c4d, #10213a);
+    border: 1px solid #7555b8;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 10px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-
 # ============================================================
-# 낚싯대
+# DATA
 # ============================================================
 
 RODS = [
-    {
-        "name": "나뭇가지 낚싯대",
-        "emoji": "🪵",
-        "grade": "일반",
-        "price": 0,
-        "power": 5,
-        "luck": 1,
-        "bite": 1,
-        "pull": 5
-    },
-    {
-        "name": "초보자 낚싯대",
-        "emoji": "🎣",
-        "grade": "일반",
-        "price": 100,
-        "power": 10,
-        "luck": 3,
-        "bite": 3,
-        "pull": 10
-    },
-    {
-        "name": "대나무 낚싯대",
-        "emoji": "🎋",
-        "grade": "일반",
-        "price": 300,
-        "power": 17,
-        "luck": 5,
-        "bite": 5,
-        "pull": 17
-    },
-    {
-        "name": "철제 낚싯대",
-        "emoji": "🛠️",
-        "grade": "고급",
-        "price": 800,
-        "power": 28,
-        "luck": 8,
-        "bite": 8,
-        "pull": 28
-    },
-    {
-        "name": "강철 낚싯대",
-        "emoji": "⚙️",
-        "grade": "고급",
-        "price": 2000,
-        "power": 42,
-        "luck": 13,
-        "bite": 13,
-        "pull": 42
-    },
-    {
-        "name": "은빛 낚싯대",
-        "emoji": "🥈",
-        "grade": "희귀",
-        "price": 5000,
-        "power": 65,
-        "luck": 20,
-        "bite": 20,
-        "pull": 65
-    },
-    {
-        "name": "황금 낚싯대",
-        "emoji": "🥇",
-        "grade": "희귀",
-        "price": 12000,
-        "power": 90,
-        "luck": 30,
-        "bite": 30,
-        "pull": 90
-    },
-    {
-        "name": "수정 낚싯대",
-        "emoji": "💎",
-        "grade": "희귀",
-        "price": 25000,
-        "power": 120,
-        "luck": 42,
-        "bite": 38,
-        "pull": 120
-    },
-    {
-        "name": "사파이어 낚싯대",
-        "emoji": "🔷",
-        "grade": "영웅",
-        "price": 50000,
-        "power": 165,
-        "luck": 58,
-        "bite": 50,
-        "pull": 165
-    },
-    {
-        "name": "루비 낚싯대",
-        "emoji": "🔶",
-        "grade": "영웅",
-        "price": 100000,
-        "power": 220,
-        "luck": 78,
-        "bite": 65,
-        "pull": 220
-    },
-    {
-        "name": "다이아몬드 낚싯대",
-        "emoji": "💠",
-        "grade": "영웅",
-        "price": 250000,
-        "power": 300,
-        "luck": 110,
-        "bite": 85,
-        "pull": 300
-    },
-    {
-        "name": "별빛 낚싯대",
-        "emoji": "🌌",
-        "grade": "전설",
-        "price": 500000,
-        "power": 400,
-        "luck": 150,
-        "bite": 110,
-        "pull": 400
-    },
-    {
-        "name": "달빛 낚싯대",
-        "emoji": "🌙",
-        "grade": "전설",
-        "price": 1000000,
-        "power": 540,
-        "luck": 210,
-        "bite": 145,
-        "pull": 540
-    },
-    {
-        "name": "태양 낚싯대",
-        "emoji": "☀️",
-        "grade": "전설",
-        "price": 2500000,
-        "power": 720,
-        "luck": 290,
-        "bite": 190,
-        "pull": 720
-    },
-    {
-        "name": "해신의 낚싯대",
-        "emoji": "🌊",
-        "grade": "신화",
-        "price": 5000000,
-        "power": 950,
-        "luck": 390,
-        "bite": 250,
-        "pull": 950
-    },
-    {
-        "name": "번개의 낚싯대",
-        "emoji": "⚡",
-        "grade": "신화",
-        "price": 10000000,
-        "power": 1250,
-        "luck": 520,
-        "bite": 330,
-        "pull": 1250
-    },
-    {
-        "name": "용의 낚싯대",
-        "emoji": "🔥",
-        "grade": "신화",
-        "price": 25000000,
-        "power": 1650,
-        "luck": 700,
-        "bite": 450,
-        "pull": 1650
-    },
-    {
-        "name": "은하 낚싯대",
-        "emoji": "🌠",
-        "grade": "초월",
-        "price": 60000000,
-        "power": 2200,
-        "luck": 950,
-        "bite": 600,
-        "pull": 2200
-    },
-    {
-        "name": "차원의 낚싯대",
-        "emoji": "🌀",
-        "grade": "초월",
-        "price": 150000000,
-        "power": 3000,
-        "luck": 1400,
-        "bite": 850,
-        "pull": 3000
-    },
-    {
-        "name": "신의 낚싯대",
-        "emoji": "👑",
-        "grade": "초월",
-        "price": 500000000,
-        "power": 4500,
-        "luck": 2200,
-        "bite": 1300,
-        "pull": 4500
-    }
+    {"name":"나무 낚싯대","price":0,"luck":1.00,"bite":1.00,"pull":1.00},
+    {"name":"대나무 낚싯대","price":500,"luck":1.05,"bite":1.05,"pull":1.05},
+    {"name":"강철 낚싯대","price":1500,"luck":1.12,"bite":1.10,"pull":1.15},
+    {"name":"은빛 낚싯대","price":3500,"luck":1.20,"bite":1.16,"pull":1.25},
+    {"name":"황금 낚싯대","price":7000,"luck":1.30,"bite":1.22,"pull":1.38},
+    {"name":"플래티넘 낚싯대","price":12000,"luck":1.42,"bite":1.30,"pull":1.52},
+    {"name":"크리스탈 낚싯대","price":20000,"luck":1.55,"bite":1.38,"pull":1.68},
+    {"name":"다이아몬드 낚싯대","price":35000,"luck":1.70,"bite":1.48,"pull":1.85},
+    {"name":"화염 낚싯대","price":55000,"luck":1.88,"bite":1.58,"pull":2.05},
+    {"name":"얼음 낚싯대","price":80000,"luck":2.05,"bite":1.68,"pull":2.25},
+    {"name":"번개 낚싯대","price":120000,"luck":2.25,"bite":1.82,"pull":2.45},
+    {"name":"심해 낚싯대","price":180000,"luck":2.50,"bite":1.95,"pull":2.70},
+    {"name":"천공 낚싯대","price":260000,"luck":2.80,"bite":2.10,"pull":3.00},
+    {"name":"마계 낚싯대","price":380000,"luck":3.10,"bite":2.28,"pull":3.35},
+    {"name":"신성 낚싯대","price":550000,"luck":3.45,"bite":2.48,"pull":3.75},
+    {"name":"시간의 낚싯대","price":800000,"luck":3.85,"bite":2.70,"pull":4.20},
+    {"name":"공허의 낚싯대","price":1200000,"luck":4.30,"bite":2.95,"pull":4.75},
+    {"name":"차원의 낚싯대","price":1800000,"luck":4.85,"bite":3.25,"pull":5.40},
+    {"name":"무한의 낚싯대","price":3000000,"luck":5.50,"bite":3.60,"pull":6.20},
+    {"name":"창조주의 낚싯대","price":10000000,"luck":7.00,"bite":4.00,"pull":8.00},
 ]
 
-
-# ============================================================
-# 물고기 80종
-# ============================================================
-
-fish_names = [
-    "피라미",
-    "송사리",
-    "붕어",
-    "잉어",
-    "은어",
-    "전어",
-    "고등어",
-    "멸치",
-    "정어리",
-    "꽁치",
-    "청어",
-    "숭어",
-    "갈치",
-    "가자미",
-    "농어",
-    "우럭",
-    "망둥어",
-    "쥐치",
-    "보리멸",
-    "도미",
-
-    "참돔",
-    "광어",
-    "쏘가리",
-    "메기",
-    "장어",
-    "송어",
-    "연어",
-    "방어",
-    "삼치",
-    "복어",
-    "민어",
-    "감성돔",
-    "벵에돔",
-    "전갱이",
-    "대구",
-    "황어",
-    "빙어",
-    "철갑상어",
-    "가물치",
-    "가오리",
-
-    "대왕잉어",
-    "대형연어",
-    "황금송어",
-    "황금도미",
-    "청새치",
-    "참치",
-    "다랑어",
-    "대왕오징어",
-    "대왕문어",
-    "전기뱀장어",
-    "대형농어",
-    "거대메기",
-    "왕연어",
-    "거대복어",
-    "흑참치",
-
-    "황금잉어",
-    "황금참치",
-    "심해아귀",
-    "거대상어",
-    "백상아리",
-    "범고래",
-    "거대가오리",
-    "심해용",
-    "대왕참치",
-    "고대상어",
-    "빙하상어",
-    "폭풍참치",
-    "심해문어",
-    "고대철갑상어",
-    "유령고래",
-
-    "해룡",
-    "크라켄",
-    "고대고래",
-    "황금고래",
-    "차원의 물고기",
-    "천공의 용어",
-    "심연의 상어",
-    "시간의 물고기",
-    "우주의 고래",
-    "창조의 물고기"
+FISH_NAMES = [
+    "피라미","붕어","잉어","송사리","메기","가물치","미꾸라지","갈치",
+    "고등어","전갱이","참돔","감성돔","농어","광어","우럭","도미",
+    "연어","송어","무지개송어","참치","방어","삼치","복어","장어",
+    "청어","정어리","오징어","문어","갑오징어","꽃게","대게","새우",
+    "랍스터","해마","복어왕","황금붕어","황금잉어","황금송어","황금참치",
+    "심해메기","심해상어","청새치","돛새치","범고래","상어","백상아리",
+    "귀상어","망치상어","고래상어","대왕오징어","고대어","화석어",
+    "용어","불꽃잉어","얼음송어","번개장어","천공어","마계어","신성어",
+    "시간어","공허어","차원어","무한어","별빛물고기","달빛물고기",
+    "태양물고기","혜성어","은하어","성운어","블랙홀피쉬","창조어",
+    "신의물고기","전설의 잉어","심연의 왕","세계수의 물고기",
+    "태초의 물고기","미지의 물고기","차원포식자","시간의 고래"
 ]
 
-
-fish_grades = (
-    ["일반"] * 20 +
-    ["희귀"] * 20 +
-    ["영웅"] * 15 +
-    ["전설"] * 15 +
-    ["신화"] * 10
-)
-
-grade_base_price = {
-    "일반": 100,
-    "희귀": 1000,
-    "영웅": 8000,
-    "전설": 50000,
-    "신화": 300000
-}
-
-grade_weight = {
-    "일반": (0.05, 8),
-    "희귀": (1, 30),
-    "영웅": (10, 150),
-    "전설": (50, 1000),
-    "신화": (300, 10000)
-}
-
-fish_emojis = [
-    "🐟",
-    "🐠",
-    "🐡",
-    "🦈",
-    "🐋",
-    "🐙",
-    "🦑",
-    "🐬"
-]
-
+# 80종 확인
 FISH = []
 
-for i in range(80):
-
-    grade = fish_grades[i]
-
-    min_w, max_w = grade_weight[grade]
-
-    base = grade_base_price[grade]
-
-    rarity_multiplier = 1 + (
-        (i % 20) * 0.08
-    )
+for i, name in enumerate(FISH_NAMES[:80]):
+    tier = i // 10
+    base_price = 30 + (i * 35) + (tier * 120)
 
     FISH.append({
-        "id": i,
-        "name": fish_names[i],
-        "grade": grade,
-        "emoji": fish_emojis[i % len(fish_emojis)],
-        "base_price": int(base * rarity_multiplier),
-        "min_weight": min_w,
-        "max_weight": max_w,
-        "min_size": round(
-            max(0.08, min_w ** (1/3) * 0.55),
-            2
-        ),
-        "max_size": round(
-            max(0.20, max_w ** (1/3) * 0.85),
-            2
-        )
+        "name": name,
+        "base_price": base_price,
+        "min_size": round(10 + i * 0.7, 1),
+        "max_size": round(35 + i * 1.8, 1),
+        "min_weight": round(0.2 + i * 0.08, 2),
+        "max_weight": round(2.0 + i * 0.35, 2)
     })
 
-
-# ============================================================
-# 타이틀
-# ============================================================
+TRAITS = {
+    "실버": {
+        "chance": 0.08,
+        "multiplier": 1.10,
+        "emoji": "🥈"
+    },
+    "골드": {
+        "chance": 0.04,
+        "multiplier": 1.20,
+        "emoji": "🥇"
+    },
+    "무지개": {
+        "chance": 0.02,
+        "multiplier": 1.50,
+        "emoji": "🌈"
+    },
+    "차원": {
+        "chance": 0.009,
+        "multiplier": 2.00,
+        "emoji": "🌀"
+    }
+}
 
 TITLES = [
-    {
-        "name": "초보 낚시꾼",
-        "condition": "게임 시작",
-        "effect": "기본 타이틀",
-        "stat": {}
-    },
-    {
-        "name": "첫 물고기",
-        "condition": "물고기 1마리 낚기",
-        "effect": "행운 +1%",
-        "stat": {"luck": 0.01}
-    },
-    {
-        "name": "숙련 낚시꾼",
-        "condition": "물고기 100마리 낚기",
-        "effect": "입질 속도 +3%",
-        "stat": {"bite": 0.03}
-    },
-    {
-        "name": "대어 사냥꾼",
-        "condition": "50kg 이상 물고기 낚기",
-        "effect": "끌어올리기 +5%",
-        "stat": {"pull": 0.05}
-    },
-    {
-        "name": "황금 손",
-        "condition": "총 판매액 100,000G",
-        "effect": "판매가격 +5%",
-        "stat": {"sell": 0.05}
-    },
-    {
-        "name": "물고기 수집가",
-        "condition": "물고기 30종 발견",
-        "effect": "행운 +5%",
-        "stat": {"luck": 0.05}
-    },
-    {
-        "name": "전설의 낚시꾼",
-        "condition": "물고기 50종 발견",
-        "effect": "행운 +10%",
-        "stat": {"luck": 0.10}
-    },
-    {
-        "name": "강화의 달인",
-        "condition": "강화 20회 성공",
-        "effect": "강화 성공률 +2%p",
-        "stat": {"enhance": 2}
-    },
-    {
-        "name": "무지개의 낚시꾼",
-        "condition": "무지개 물고기 10마리",
-        "effect": "무지개 특성 확률 +1%p",
-        "stat": {"rainbow": 0.01}
-    },
-    {
-        "name": "차원의 낚시꾼",
-        "condition": "차원 물고기 3마리",
-        "effect": "차원 특성 확률 +0.5%p",
-        "stat": {"dimension": 0.005}
-    },
-    {
-        "name": "낚시왕",
-        "condition": "80종 모두 발견",
-        "effect": "전체 스탯 +10%",
-        "stat": {"all": 0.10}
-    },
-    {
-        "name": "신의 낚시꾼",
-        "condition": "+100 강화 달성",
-        "effect": "전체 스탯 +15%",
-        "stat": {"all": 0.15}
-    }
+    {"name":"🐟 초보 낚시꾼","require":0,"bonus":1.00},
+    {"name":"🎣 낚시꾼","require":10,"bonus":1.02},
+    {"name":"🌊 바다의 친구","require":50,"bonus":1.05},
+    {"name":"🐠 숙련 낚시꾼","require":100,"bonus":1.08},
+    {"name":"💎 낚시 전문가","require":250,"bonus":1.12},
+    {"name":"👑 낚시 마스터","require":500,"bonus":1.18},
+    {"name":"🌌 심해의 지배자","require":1000,"bonus":1.25},
+    {"name":"🌀 차원의 낚시꾼","require":2500,"bonus":1.35},
+    {"name":"⭐ 전설의 낚시꾼","require":5000,"bonus":1.50},
 ]
 
-
 # ============================================================
-# 초기화
-# ============================================================
-
-def initialize_game():
-
-    st.session_state.gold = 5000
-
-    st.session_state.inventory = []
-
-    st.session_state.inventory_capacity = 10
-
-    st.session_state.owned_rods = [0]
-
-    st.session_state.equipped_rod = 0
-
-    st.session_state.rod_levels = {
-        0: 0
-    }
-
-    st.session_state.protection_tickets = 0
-
-    st.session_state.discovered = set()
-
-    st.session_state.titles = [
-        "초보 낚시꾼"
-    ]
-
-    st.session_state.equipped_title = "초보 낚시꾼"
-
-    st.session_state.total_catches = 0
-
-    st.session_state.total_sold = 0
-
-    st.session_state.max_weight = 0
-
-    st.session_state.enhancement_successes = 0
-
-    st.session_state.dimension_catches = 0
-
-    st.session_state.rainbow_catches = 0
-
-    st.session_state.silver_catches = 0
-
-    st.session_state.gold_catches = 0
-
-    st.session_state.page = "낚시"
-
-    st.session_state.last_catch = None
-
-    st.session_state.event_active = False
-
-    st.session_state.event_end = 0
-
-    st.session_state.location = "푸른 바다"
-
-    st.session_state.catching = False
-
-
-if "gold" not in st.session_state:
-    initialize_game()
-
-
-# ============================================================
-# 유틸
+# SESSION INITIALIZATION
 # ============================================================
 
-def fmt(value):
-    return f"{int(value):,} G"
+def init_game():
 
+    if "money" not in st.session_state:
+        st.session_state.money = 1000
+
+    if "rod_index" not in st.session_state:
+        st.session_state.rod_index = 0
+
+    if "rod_level" not in st.session_state:
+        st.session_state.rod_level = 0
+
+    if "inventory" not in st.session_state:
+        st.session_state.inventory = []
+
+    if "inventory_size" not in st.session_state:
+        st.session_state.inventory_size = 10
+
+    if "failsafe" not in st.session_state:
+        st.session_state.failsafe = 0
+
+    if "caught" not in st.session_state:
+        st.session_state.caught = 0
+
+    if "fish_total_sold" not in st.session_state:
+        st.session_state.fish_total_sold = 0
+
+    if "screen" not in st.session_state:
+        st.session_state.screen = "fishing"
+
+    if "event_active" not in st.session_state:
+        st.session_state.event_active = False
+
+    if "event_name" not in st.session_state:
+        st.session_state.event_name = ""
+
+    if "event_bonus" not in st.session_state:
+        st.session_state.event_bonus = 0
+
+    if "last_catch" not in st.session_state:
+        st.session_state.last_catch = None
+
+    if "message" not in st.session_state:
+        st.session_state.message = ""
+
+init_game()
+
+# ============================================================
+# FUNCTIONS
+# ============================================================
 
 def current_rod():
-    return RODS[
-        st.session_state.equipped_rod
-    ]
+    return RODS[st.session_state.rod_index]
 
+def upgraded_stat(base, level):
+    return base * (1.02 ** level)
 
-def rod_level():
-    return st.session_state.rod_levels.get(
-        st.session_state.equipped_rod,
-        0
-    )
-
-
-def title_data():
-
-    for title in TITLES:
-
-        if title["name"] == st.session_state.equipped_title:
-
-            return title
-
-    return TITLES[0]
-
-
-def get_title_stat(stat):
-
-    data = title_data()
-
-    return data["stat"].get(stat, 0)
-
-
-def get_rod_stats(index):
-
-    rod = RODS[index]
-
-    level = st.session_state.rod_levels.get(
-        index,
-        0
-    )
-
-    multiplier = 1.02 ** level
-
-    all_bonus = get_title_stat("all")
+def rod_stats():
+    rod = current_rod()
 
     return {
-        "power": rod["power"] * multiplier * (1 + all_bonus),
-        "luck": rod["luck"] * multiplier * (1 + all_bonus),
-        "bite": rod["bite"] * multiplier * (1 + all_bonus),
-        "pull": rod["pull"] * multiplier * (1 + all_bonus)
+        "luck": upgraded_stat(rod["luck"], st.session_state.rod_level),
+        "bite": upgraded_stat(rod["bite"], st.session_state.rod_level),
+        "pull": upgraded_stat(rod["pull"], st.session_state.rod_level)
     }
 
+def upgrade_cost():
+    rod = current_rod()
 
-# ============================================================
-# 강화 비용
-# ============================================================
+    base = max(100, int(rod["price"] * 0.12))
 
-def enhancement_cost(level, rod_index):
+    multiplier = 1 + (st.session_state.rod_level * 0.35)
 
-    rod_price = RODS[rod_index]["price"]
+    return int(base * multiplier)
 
-    if rod_price <= 0:
-        rod_price = 100
+def upgrade_success_rate():
+    level = st.session_state.rod_level
 
-    base_cost = max(
-        100,
-        int(rod_price * 0.08)
-    )
+    # 기본 성공률
+    rate = 95 - (level * 4)
 
-    return int(
-        base_cost *
-        (1.18 ** level)
-    )
+    # 최소 5%
+    return max(5, rate)
 
+def failsafe_cost():
+    rod = current_rod()
 
-def enhancement_success_rate(level):
+    return max(500, int(rod["price"] * 0.25))
 
-    # +0 = 100%
-    # +1 = 99%
-    # ...
-    # +99 = 1%
-    # +100부터 1%
-    return max(
-        1,
-        100 - level
-    )
+def get_title():
 
+    caught = st.session_state.caught
 
-# ============================================================
-# 이벤트
-# ============================================================
+    selected = TITLES[0]
 
-def check_event():
+    for title in TITLES:
+        if caught >= title["require"]:
+            selected = title
 
-    now = time.time()
+    return selected
 
-    if st.session_state.event_active:
+def title_bonus():
+    return get_title()["bonus"]
 
-        if now >= st.session_state.event_end:
+def inventory_full():
+    return len(st.session_state.inventory) >= st.session_state.inventory_size
 
-            st.session_state.event_active = False
+def generate_trait():
 
-            st.session_state.event_end = 0
+    bonus = st.session_state.event_bonus if st.session_state.event_active else 0
 
-    else:
+    # 각각 독립적으로 판정
+    # 이벤트가 발생하면 각 특성 확률에 +5%p
+    for trait_name in ["차원", "무지개", "골드", "실버"]:
 
-        if random.random() < 0.025:
+        chance = TRAITS[trait_name]["chance"] + bonus
 
-            st.session_state.event_active = True
+        if random.random() < chance:
+            return trait_name
 
-            duration = random.randint(
-                90,
-                240
-            )
-
-            st.session_state.event_end = (
-                now + duration
-            )
-
-
-def event_bonus():
-
-    if st.session_state.event_active:
-        return 0.05
-
-    return 0
-
-
-def event_remaining():
-
-    if not st.session_state.event_active:
-        return 0
-
-    return max(
-        0,
-        int(
-            st.session_state.event_end
-            - time.time()
-        )
-    )
-
-
-check_event()
-
-
-# ============================================================
-# 특성
-# ============================================================
-
-def roll_traits():
-
-    event = event_bonus()
-
-    silver_chance = 0.08 + event
-
-    gold_chance = 0.04 + event
-
-    rainbow_chance = (
-        0.02
-        + event
-        + get_title_stat("rainbow")
-    )
-
-    dimension_chance = (
-        0.009
-        + event
-        + get_title_stat("dimension")
-    )
-
-    traits = []
-
-    # 각각 독립 판정
-    if random.random() < silver_chance:
-
-        traits.append({
-            "name": "실버",
-            "emoji": "🥈",
-            "bonus": 0.10
-        })
-
-        st.session_state.silver_catches += 1
-
-    if random.random() < gold_chance:
-
-        traits.append({
-            "name": "골드",
-            "emoji": "🥇",
-            "bonus": 0.20
-        })
-
-        st.session_state.gold_catches += 1
-
-    if random.random() < rainbow_chance:
-
-        traits.append({
-            "name": "무지개",
-            "emoji": "🌈",
-            "bonus": 0.50
-        })
-
-        st.session_state.rainbow_catches += 1
-
-    if random.random() < dimension_chance:
-
-        traits.append({
-            "name": "차원",
-            "emoji": "🌀",
-            "bonus": 1.00
-        })
-
-        st.session_state.dimension_catches += 1
-
-    return traits
-
-
-# ============================================================
-# 물고기 가격
-# ============================================================
-
-def calculate_price(
-    fish,
-    weight,
-    size,
-    traits
-):
-
-    price = fish["base_price"]
-
-    average_weight = (
-        fish["min_weight"]
-        + fish["max_weight"]
-    ) / 2
-
-    average_size = (
-        fish["min_size"]
-        + fish["max_size"]
-    ) / 2
-
-    weight_multiplier = (
-        weight / average_weight
-    )
-
-    size_multiplier = (
-        size / average_size
-    )
-
-    # 무게와 크기의 영향
-    price *= (
-        0.55
-        + weight_multiplier * 0.45
-    )
-
-    price *= (
-        0.60
-        + size_multiplier * 0.40
-    )
-
-    # 특성
-    for trait in traits:
-
-        price *= (
-            1 + trait["bonus"]
-        )
-
-    # 타이틀 판매 보너스
-    sell_bonus = get_title_stat("sell")
-
-    price *= (
-        1 + sell_bonus
-    )
-
-    return max(
-        1,
-        int(price)
-    )
-
-
-# ============================================================
-# 물고기 낚기
-# ============================================================
+    return "일반"
 
 def catch_fish():
 
-    if len(
-        st.session_state.inventory
-    ) >= st.session_state.inventory_capacity:
+    if inventory_full():
+        st.warning("🎒 인벤토리가 가득 찼습니다!")
+        return
 
-        st.error(
-            "🎒 인벤토리가 가득 찼습니다!"
-        )
+    stats = rod_stats()
 
-        return False
+    # 행운에 따른 고급 물고기 등장 확률
+    weights = []
 
-    index = st.session_state.equipped_rod
+    for i in range(len(FISH)):
+        rarity_factor = 1 + (stats["luck"] - 1) * (i / len(FISH))
+        weights.append(rarity_factor)
 
-    stats = get_rod_stats(index)
+    fish = random.choices(FISH, weights=weights, k=1)[0]
 
-    luck = stats["luck"]
-
-    grade_weights = {
-
-        "일반":
-            max(
-                10,
-                1000 - luck * 1.5
-            ),
-
-        "희귀":
-            180 + luck * 0.45,
-
-        "영웅":
-            45 + luck * 0.13,
-
-        "전설":
-            10 + luck * 0.04,
-
-        "신화":
-            1 + luck * 0.012
-    }
-
-    grades = list(
-        grade_weights.keys()
+    size = round(
+        random.uniform(
+            fish["min_size"],
+            fish["max_size"]
+        ),
+        1
     )
 
-    weights = list(
-        grade_weights.values()
+    weight = round(
+        random.uniform(
+            fish["min_weight"],
+            fish["max_weight"]
+        ),
+        2
     )
 
-    grade = random.choices(
-        grades,
-        weights=weights,
-        k=1
-    )[0]
+    trait = generate_trait()
 
-    candidates = [
-        fish
-        for fish in FISH
-        if fish["grade"] == grade
-    ]
+    # 기본 가격
+    price = fish["base_price"]
 
-    fish = random.choice(
-        candidates
-    )
+    # 크기 보정
+    average_size = (fish["min_size"] + fish["max_size"]) / 2
+    size_multiplier = size / average_size
 
-    weight = random.uniform(
-        fish["min_weight"],
-        fish["max_weight"]
-    )
+    # 무게 보정
+    average_weight = (fish["min_weight"] + fish["max_weight"]) / 2
+    weight_multiplier = weight / average_weight
 
-    size = random.uniform(
-        fish["min_size"],
-        fish["max_size"]
-    )
+    price *= (size_multiplier * 0.55 + weight_multiplier * 0.45)
 
-    traits = roll_traits()
+    # 특성 가격 보정
+    if trait != "일반":
+        price *= TRAITS[trait]["multiplier"]
 
-    price = calculate_price(
-        fish,
-        weight,
-        size,
-        traits
-    )
+    # 타이틀 보정
+    price *= title_bonus()
 
-    result = {
-        "fish_id": fish["id"],
+    price = int(max(1, price))
+
+    fish_data = {
         "name": fish["name"],
-        "grade": fish["grade"],
-        "emoji": fish["emoji"],
-        "weight": weight,
         "size": size,
-        "traits": traits,
-        "price": price,
-        "base_price": fish["base_price"]
+        "weight": weight,
+        "trait": trait,
+        "price": price
     }
 
-    st.session_state.inventory.append(
-        result
-    )
+    st.session_state.inventory.append(fish_data)
+    st.session_state.caught += 1
+    st.session_state.last_catch = fish_data
 
-    st.session_state.discovered.add(
-        fish["id"]
-    )
+def start_random_event():
 
-    st.session_state.total_catches += 1
-
-    st.session_state.max_weight = max(
-        st.session_state.max_weight,
-        weight
-    )
-
-    st.session_state.last_catch = result
-
-    check_titles()
-
-    return True
-
-
-# ============================================================
-# 타이틀 체크
-# ============================================================
-
-def unlock_title(name):
-
-    if name not in st.session_state.titles:
-
-        st.session_state.titles.append(
-            name
-        )
-
-        return True
-
-    return False
-
-
-def check_titles():
-
-    if st.session_state.total_catches >= 1:
-
-        unlock_title(
-            "첫 물고기"
-        )
-
-    if st.session_state.total_catches >= 100:
-
-        unlock_title(
-            "숙련 낚시꾼"
-        )
-
-    if st.session_state.max_weight >= 50:
-
-        unlock_title(
-            "대어 사냥꾼"
-        )
-
-    if st.session_state.total_sold >= 100000:
-
-        unlock_title(
-            "황금 손"
-        )
-
-    if len(
-        st.session_state.discovered
-    ) >= 30:
-
-        unlock_title(
-            "물고기 수집가"
-        )
-
-    if len(
-        st.session_state.discovered
-    ) >= 50:
-
-        unlock_title(
-            "전설의 낚시꾼"
-        )
-
-    if st.session_state.enhancement_successes >= 20:
-
-        unlock_title(
-            "강화의 달인"
-        )
-
-    if st.session_state.rainbow_catches >= 10:
-
-        unlock_title(
-            "무지개의 낚시꾼"
-        )
-
-    if st.session_state.dimension_catches >= 3:
-
-        unlock_title(
-            "차원의 낚시꾼"
-        )
-
-    if len(
-        st.session_state.discovered
-    ) >= 80:
-
-        unlock_title(
-            "낚시왕"
-        )
-
-    if rod_level() >= 100:
-
-        unlock_title(
-            "신의 낚시꾼"
-        )
-
-
-# ============================================================
-# 판매
-# ============================================================
-
-def sell_one(index):
-
-    if index >= len(
-        st.session_state.inventory
-    ):
-
+    # 이벤트가 이미 진행 중이면 실행하지 않음
+    if st.session_state.event_active:
         return
 
-    fish = st.session_state.inventory.pop(
-        index
-    )
+    if random.random() < 0.18:
 
-    st.session_state.gold += fish["price"]
+        st.session_state.event_active = True
+        st.session_state.event_bonus = 0.05
 
-    st.session_state.total_sold += fish["price"]
+        events = [
+            "✨ 행운의 파도",
+            "🌈 무지개 바다 이벤트",
+            "🌀 차원 균열 발생",
+            "🥇 황금 물결 이벤트",
+            "🌌 심해 축제"
+        ]
 
-    check_titles()
+        st.session_state.event_name = random.choice(events)
 
+def fishing_minigame():
 
-def sell_all():
+    stats = rod_stats()
 
-    total = sum(
-        fish["price"]
-        for fish in st.session_state.inventory
-    )
+    # 입질 시간
+    base_wait = random.uniform(2.5, 5.5)
 
-    count = len(
-        st.session_state.inventory
-    )
+    wait_time = base_wait / stats["bite"]
 
-    st.session_state.gold += total
+    wait_time = max(1.2, min(wait_time, 6.0))
 
-    st.session_state.total_sold += total
+    # 입질
+    with st.spinner("🎣 물고기를 기다리는 중..."):
 
-    st.session_state.inventory = []
+        time.sleep(wait_time)
 
-    check_titles()
+    st.success("🐟 입질이 왔습니다!")
 
-    return count, total
+    # 힘겨루기
+    max_fish_strength = random.uniform(60, 130)
 
+    # 끌어오기 스탯으로 난이도 완화
+    difficulty = max_fish_strength / stats["pull"]
 
-# ============================================================
-# 낚싯대 구매
-# ============================================================
+    # 너무 쉽게 도망가지 않도록 기본 탈출 시간 증가
+    fight_time = max(2.5, min(9.0, difficulty * 0.75))
 
-def buy_rod(index):
+    progress = 0.0
 
-    rod = RODS[index]
+    start = time.time()
 
-    if index in st.session_state.owned_rods:
+    placeholder = st.empty()
 
-        return
+    # 버튼 클릭 방식의 단순화된 힘겨루기
+    # Streamlit 특성상 실시간 게임보다는 턴 방식으로 구성
+    while progress < 100 and time.time() - start < fight_time:
 
-    if st.session_state.gold < rod["price"]:
-
-        st.error(
-            "💰 골드가 부족합니다."
+        placeholder.markdown(
+            f"""
+            <div class="panel">
+                <div class="panel-title">🐟 물고기와 힘겨루기</div>
+                <div style="font-size:20px;color:white;">
+                    물고기가 도망가기 전에 끌어오세요!
+                </div>
+                <div style="
+                    background:#17283a;
+                    border-radius:20px;
+                    height:28px;
+                    margin-top:15px;
+                    overflow:hidden;
+                ">
+                    <div style="
+                        background:linear-gradient(90deg,#00c6ff,#00ff9d);
+                        width:{min(progress,100)}%;
+                        height:100%;
+                    "></div>
+                </div>
+                <div style="text-align:center;color:white;margin-top:8px;">
+                    {int(progress)}%
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
-        return
+        # Streamlit은 한 실행 중 버튼 입력을 반복적으로 받을 수 없기 때문에
+        # 자동 전투 방식으로 구현
+        gain = random.uniform(4.0, 8.0) * stats["pull"]
+        loss = random.uniform(0.5, 2.0)
 
-    st.session_state.gold -= rod["price"]
+        progress += gain - loss
 
-    st.session_state.owned_rods.append(
-        index
-    )
+        time.sleep(0.15)
 
-    st.session_state.rod_levels[index] = 0
+    if progress >= 100:
 
-    st.success(
-        f"{rod['emoji']} {rod['name']} 구매 완료!"
-    )
+        catch_fish()
 
+        placeholder.empty()
 
-# ============================================================
-# 낚싯대 강화
-# ============================================================
+        st.balloons()
+        st.success("🎉 물고기를 낚았습니다!")
 
-def enhance_rod():
-
-    index = st.session_state.equipped_rod
-
-    level = st.session_state.rod_levels.get(
-        index,
-        0
-    )
-
-    cost = enhancement_cost(
-        level,
-        index
-    )
-
-    if st.session_state.gold < cost:
-
-        st.error(
-            "💰 골드가 부족합니다."
-        )
-
-        return
-
-    st.session_state.gold -= cost
-
-    rate = (
-        enhancement_success_rate(
-            level
-        )
-    )
-
-    rate += get_title_stat(
-        "enhance"
-    )
-
-    rate = min(
-        100,
-        rate
-    )
-
-    success = (
-        random.random() * 100
-        < rate
-    )
-
-    if success:
-
-        st.session_state.rod_levels[index] = (
-            level + 1
-        )
-
-        st.session_state.enhancement_successes += 1
-
-        st.success(
-            f"✨ 강화 성공! +{level + 1}"
-        )
-
-        check_titles()
+        # 이벤트 종료
+        if st.session_state.event_active:
+            if random.random() < 0.35:
+                st.session_state.event_active = False
+                st.session_state.event_bonus = 0
+                st.session_state.event_name = ""
 
     else:
 
-        if st.session_state.protection_tickets > 0:
+        placeholder.empty()
 
-            st.session_state.protection_tickets -= 1
+        # 도망 확률을 낮춤
+        # 여기서는 대부분의 경우 재시도 기회를 제공
+        if random.random() < 0.70:
 
-            st.warning(
-                f"🛡️ 강화 실패방지권 발동!"
-                f" +{level}을 유지했습니다."
-            )
+            st.warning("🐟 물고기가 힘을 뿌리쳤지만 다시 입질을 기다릴 수 있습니다.")
 
         else:
 
-            st.session_state.rod_levels[index] = 0
-
-            st.error(
-                f"💥 강화 실패!"
-                f" +{level} → +0"
-            )
-
+            st.error("🐟 물고기가 도망갔습니다.")
 
 # ============================================================
-# 인벤토리 업그레이드
-# ============================================================
-
-def inventory_upgrade_cost():
-
-    current = (
-        st.session_state.inventory_capacity
-    )
-
-    level = (
-        current - 10
-    ) // 5
-
-    return int(
-        1000 * (1.55 ** level)
-    )
-
-
-def upgrade_inventory():
-
-    cost = inventory_upgrade_cost()
-
-    if st.session_state.gold < cost:
-
-        st.error(
-            "💰 골드가 부족합니다."
-        )
-
-        return
-
-    st.session_state.gold -= cost
-
-    st.session_state.inventory_capacity += 5
-
-    st.success(
-        f"🎒 인벤토리 확장!"
-        f" 현재 {st.session_state.inventory_capacity}칸"
-    )
-
-
-# ============================================================
-# 실패방지권 가격
-# ============================================================
-
-PROTECTION_TICKET_PRICE = 1000000
-
-
-def buy_protection_ticket():
-
-    if st.session_state.gold < PROTECTION_TICKET_PRICE:
-
-        st.error(
-            "💰 골드가 부족합니다."
-        )
-
-        return
-
-    st.session_state.gold -= (
-        PROTECTION_TICKET_PRICE
-    )
-
-    st.session_state.protection_tickets += 1
-
-    st.success(
-        "🛡️ 강화 실패방지권을 구매했습니다!"
-    )
-
-
-# ============================================================
-# 상단 제목
+# HEADER
 # ============================================================
 
 st.markdown(
-    '<div class="game-title">🎣 FISHING LEGENDS</div>',
+    '<div class="game-title">🎣 LEGEND FISHING</div>',
     unsafe_allow_html=True
 )
 
 st.markdown(
-    '<div class="game-subtitle">'
-    '낚싯대를 강화하고 전설의 물고기를 수집하세요.'
-    '</div>',
+    '<div class="game-subtitle">최고의 낚싯대를 만들고 전설의 물고기를 잡아보세요!</div>',
     unsafe_allow_html=True
 )
 
-st.write("")
-
+rod = current_rod()
+stats = rod_stats()
+title = get_title()
 
 # ============================================================
-# 상단 스탯
+# TOP STATUS
 # ============================================================
 
-st.markdown(
-    '<div class="topbar">',
-    unsafe_allow_html=True
-)
-
-c1, c2, c3, c4, c5, c6 = st.columns(6)
+c1, c2, c3, c4, c5 = st.columns(5)
 
 with c1:
-
     st.markdown(
         f"""
         <div class="top-stat">
-            <div class="top-stat-label">
-                💰 GOLD
-            </div>
-            <div class="top-stat-value">
-                {fmt(st.session_state.gold)}
-            </div>
+            <div class="top-stat-title">💰 골드</div>
+            <div class="top-stat-value">{st.session_state.money:,}</div>
         </div>
         """,
         unsafe_allow_html=True
     )
 
 with c2:
-
     st.markdown(
         f"""
         <div class="top-stat">
-            <div class="top-stat-label">
-                🎒 INVENTORY
-            </div>
-            <div class="top-stat-value">
-                {len(st.session_state.inventory)}
-                /
-                {st.session_state.inventory_capacity}
-            </div>
+            <div class="top-stat-title">🎣 낚싯대</div>
+            <div class="top-stat-value">{rod["name"]}</div>
         </div>
         """,
         unsafe_allow_html=True
     )
 
 with c3:
-
     st.markdown(
         f"""
         <div class="top-stat">
-            <div class="top-stat-label">
-                📖 COLLECTION
-            </div>
-            <div class="top-stat-value">
-                {len(st.session_state.discovered)}
-                / 80
-            </div>
+            <div class="top-stat-title">🔨 강화</div>
+            <div class="top-stat-value">+{st.session_state.rod_level}</div>
         </div>
         """,
         unsafe_allow_html=True
     )
 
 with c4:
-
     st.markdown(
         f"""
         <div class="top-stat">
-            <div class="top-stat-label">
-                🎣 CATCHES
-            </div>
-            <div class="top-stat-value">
-                {st.session_state.total_catches:,}
-            </div>
+            <div class="top-stat-title">🎒 인벤토리</div>
+            <div class="top-stat-value">{len(st.session_state.inventory)} / {st.session_state.inventory_size}</div>
         </div>
         """,
         unsafe_allow_html=True
     )
 
 with c5:
-
     st.markdown(
         f"""
         <div class="top-stat">
-            <div class="top-stat-label">
-                🛡️ PROTECTION
-            </div>
-            <div class="top-stat-value">
-                {st.session_state.protection_tickets}
-            </div>
+            <div class="top-stat-title">🏆 타이틀</div>
+            <div class="top-stat-value">{title["name"]}</div>
         </div>
         """,
         unsafe_allow_html=True
     )
-
-with c6:
-
-    st.markdown(
-        f"""
-        <div class="top-stat">
-            <div class="top-stat-label">
-                🏆 TITLE
-            </div>
-            <div class="top-stat-value">
-                {st.session_state.equipped_title}
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-st.markdown(
-    '</div>',
-    unsafe_allow_html=True
-)
-
-
-# ============================================================
-# 이벤트
-# ============================================================
-
-if st.session_state.event_active:
-
-    remaining = event_remaining()
-
-    minutes = remaining // 60
-    seconds = remaining % 60
-
-    st.markdown(
-        f"""
-        <div class="event">
-
-            <div class="event-title">
-                🌟 특성 확률 UP 이벤트
-            </div>
-
-            <div class="event-text">
-
-                모든 특성 확률이
-                <b>+5%p</b> 증가합니다!
-
-                <br><br>
-
-                🥈 실버 13%
-                ·
-                🥇 골드 9%
-                ·
-                🌈 무지개 7%
-                ·
-                🌀 차원 5.9%
-
-                <br><br>
-
-                ⏱️ 남은 시간
-                <b>
-                    {minutes:02d}:{seconds:02d}
-                </b>
-
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# 메뉴
-# ============================================================
-
-m1, m2, m3, m4, m5, m6, m7 = st.columns(7)
-
-with m1:
-
-    if st.button(
-        "🎣 낚시",
-        use_container_width=True
-    ):
-
-        st.session_state.page = "낚시"
-
-        st.rerun()
-
-with m2:
-
-    if st.button(
-        "🎒 인벤토리",
-        use_container_width=True
-    ):
-
-        st.session_state.page = "인벤토리"
-
-        st.rerun()
-
-with m3:
-
-    if st.button(
-        "🏪 상점",
-        use_container_width=True
-    ):
-
-        st.session_state.page = "상점"
-
-        st.rerun()
-
-with m4:
-
-    if st.button(
-        "💰 판매",
-        use_container_width=True
-    ):
-
-        st.session_state.page = "판매"
-
-        st.rerun()
-
-with m5:
-
-    if st.button(
-        "🔨 강화",
-        use_container_width=True
-    ):
-
-        st.session_state.page = "강화"
-
-        st.rerun()
-
-with m6:
-
-    if st.button(
-        "🏆 타이틀",
-        use_container_width=True
-    ):
-
-        st.session_state.page = "타이틀"
-
-        st.rerun()
-
-with m7:
-
-    if st.button(
-        "📖 도감",
-        use_container_width=True
-    ):
-
-        st.session_state.page = "도감"
-
-        st.rerun()
-
 
 st.write("")
 
-
 # ============================================================
-# 🎣 낚시
-# ============================================================
-
-if st.session_state.page == "낚시":
-
-    left, right = st.columns(
-        [2.25, 1]
-    )
-
-    # --------------------------------------------------------
-    # 낚시터
-    # --------------------------------------------------------
-
-    with left:
-
-        st.markdown(
-            f"""
-            <div class="water">
-
-                <div class="water-location">
-                    🌊 {st.session_state.location}
-                </div>
-
-                <div class="water-description">
-                    잔잔한 물결 아래에서
-                    무언가 움직이고 있습니다...
-                </div>
-
-                <div class="rod-display">
-                    {current_rod()["emoji"]}
-                </div>
-
-                <div class="line"></div>
-
-                <div class="float">
-                    🔴
-                </div>
-
-                <div class="water-info">
-                    🎣 {current_rod()["name"]}
-                    +{rod_level()}
-                    &nbsp; · &nbsp;
-                    ♾️ 내구도 무한
-                </div>
-
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        st.write("")
-
-        if len(
-            st.session_state.inventory
-        ) >= st.session_state.inventory_capacity:
-
-            st.warning(
-                "🎒 인벤토리가 가득 찼습니다."
-            )
-
-        else:
-
-            if st.button(
-                "🎣 낚싯대 던지기",
-                use_container_width=True,
-                type="primary"
-            ):
-
-                stats = get_rod_stats(
-                    st.session_state.equipped_rod
-                )
-
-                bite_time = max(
-                    0.5,
-                    3.0 / (
-                        1 + stats["bite"] / 100
-                    )
-                )
-
-                with st.spinner(
-                    f"🌊 입질을 기다리는 중..."
-                ):
-
-                    time.sleep(
-                        min(
-                            3,
-                            bite_time
-                        )
-                    )
-
-                # 끌어올리기 성공 확률
-                pull_chance = (
-                    stats["pull"]
-                    /
-                    (
-                        stats["pull"]
-                        + 100
-                    )
-                )
-
-                # 기본 성공률 보정
-                success_chance = min(
-                    0.97,
-                    0.45
-                    + pull_chance * 0.55
-                )
-
-                if random.random() < success_chance:
-
-                    if catch_fish():
-
-                        st.success(
-                            "🎣 입질 성공!"
-                        )
-
-                        st.rerun()
-
-                else:
-
-                    st.error(
-                        "💦 물고기가 도망갔습니다!"
-                    )
-
-        # ----------------------------------------------------
-        # 최근 물고기
-        # ----------------------------------------------------
-
-        if st.session_state.last_catch:
-
-            fish = (
-                st.session_state.last_catch
-            )
-
-            if fish["traits"]:
-
-                trait_html = "".join(
-                    f"""
-                    <span class="trait">
-                        {t["emoji"]}
-                        {t["name"]}
-                    </span>
-                    """
-                    for t in fish["traits"]
-                )
-
-            else:
-
-                trait_html = """
-                <span class="trait">
-                    일반
-                </span>
-                """
-
-            st.markdown(
-                f"""
-                <div class="catch-result">
-
-                    <div class="catch-icon">
-                        {fish["emoji"]}
-                    </div>
-
-                    <div class="catch-name">
-                        {fish["name"]}
-                    </div>
-
-                    <div>
-                        {fish["grade"]}
-                    </div>
-
-                    <br>
-
-                    {trait_html}
-
-                    <br><br>
-
-                    📏 크기
-                    <b>{fish["size"]:.2f} m</b>
-
-                    &nbsp;&nbsp;
-
-                    ⚖️ 무게
-                    <b>{fish["weight"]:.2f} kg</b>
-
-                    <br><br>
-
-                    <div class="catch-price">
-                        {fmt(fish["price"])}
-                    </div>
-
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-    # --------------------------------------------------------
-    # 오른쪽 스탯
-    # --------------------------------------------------------
-
-    with right:
-
-        rod = current_rod()
-
-        stats = get_rod_stats(
-            st.session_state.equipped_rod
-        )
-
-        st.markdown(
-            '<div class="card">',
-            unsafe_allow_html=True
-        )
-
-        st.markdown(
-            f"""
-            <div class="section-title">
-                {rod["emoji"]}
-                {rod["name"]}
-            </div>
-
-            <div class="muted">
-                {rod["grade"]}
-                · 강화 +{rod_level()}
-            </div>
-
-            <br>
-            """,
-            unsafe_allow_html=True
-        )
-
-        s1, s2 = st.columns(2)
-
-        with s1:
-
-            st.markdown(
-                f"""
-                <div class="status-card">
-                    <div class="status-label">
-                        💪 힘
-                    </div>
-                    <div class="status-value">
-                        {stats["power"]:,.1f}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with s2:
-
-            st.markdown(
-                f"""
-                <div class="status-card">
-                    <div class="status-label">
-                        🍀 행운
-                    </div>
-                    <div class="status-value">
-                        {stats["luck"]:,.1f}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        st.write("")
-
-        s3, s4 = st.columns(2)
-
-        with s3:
-
-            st.markdown(
-                f"""
-                <div class="status-card">
-                    <div class="status-label">
-                        ⚡ 입질
-                    </div>
-                    <div class="status-value">
-                        {stats["bite"]:,.1f}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with s4:
-
-            st.markdown(
-                f"""
-                <div class="status-card">
-                    <div class="status-label">
-                        🌀 끌어올리기
-                    </div>
-                    <div class="status-value">
-                        {stats["pull"]:,.1f}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        st.write("")
-
-        st.markdown(
-            """
-            <div class="muted">
-                ♾️ 내구도: 무한
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True
-        )
-
-        # 낚시 특성 확률
-        st.markdown(
-            '<div class="card">',
-            unsafe_allow_html=True
-        )
-
-        st.markdown(
-            "### ✨ 특성 확률"
-        )
-
-        event = event_bonus()
-
-        st.write(
-            f"🥈 실버  **{8 + event * 100:.1f}%**"
-        )
-
-        st.write(
-            f"🥇 골드  **{4 + event * 100:.1f}%**"
-        )
-
-        st.write(
-            f"🌈 무지개  **{2 + event * 100 + get_title_stat('rainbow') * 100:.1f}%**"
-        )
-
-        st.write(
-            f"🌀 차원  **{0.9 + event * 100 + get_title_stat('dimension') * 100:.1f}%**"
-        )
-
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True
-        )
-
-
-# ============================================================
-# 🎒 인벤토리
+# EVENT
 # ============================================================
 
-elif st.session_state.page == "인벤토리":
+start_random_event()
 
-    st.markdown(
-        '<div class="card">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "## 🎒 물고기 인벤토리"
-    )
-
-    st.write(
-        f"보관 공간: "
-        f"**{len(st.session_state.inventory)} / "
-        f"{st.session_state.inventory_capacity}칸**"
-    )
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    capacity = (
-        st.session_state.inventory_capacity
-    )
-
-    columns = 5
-
-    for start in range(
-        0,
-        capacity,
-        columns
-    ):
-
-        cols = st.columns(columns)
-
-        for j in range(columns):
-
-            index = start + j
-
-            with cols[j]:
-
-                if index < len(
-                    st.session_state.inventory
-                ):
-
-                    fish = (
-                        st.session_state.inventory[
-                            index
-                        ]
-                    )
-
-                    traits = "일반"
-
-                    if fish["traits"]:
-
-                        traits = " ".join(
-                            t["emoji"]
-                            for t in fish["traits"]
-                        )
-
-                    st.markdown(
-                        f"""
-                        <div class="inventory-slot">
-
-                            <div class="inventory-icon">
-                                {fish["emoji"]}
-                            </div>
-
-                            <div class="inventory-name">
-                                {traits}
-                                {fish["name"]}
-                            </div>
-
-                            <div class="muted">
-                                {fish["weight"]:.1f} kg
-                            </div>
-
-                            <div class="inventory-price">
-                                {fmt(fish["price"])}
-                            </div>
-
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-                    if st.button(
-                        "💰 판매",
-                        key=f"inv_sell_{index}",
-                        use_container_width=True
-                    ):
-
-                        sell_one(index)
-
-                        st.rerun()
-
-                else:
-
-                    st.markdown(
-                        """
-                        <div class="inventory-slot">
-
-                            <div class="empty-slot">
-                                빈 슬롯
-                            </div>
-
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-    st.write("")
-
-    st.markdown(
-        '<div class="card">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "### 📦 인벤토리 확장"
-    )
-
-    cost = inventory_upgrade_cost()
-
-    st.write(
-        f"현재 "
-        f"**{st.session_state.inventory_capacity}칸**"
-        f" → "
-        f"**{st.session_state.inventory_capacity + 5}칸**"
-    )
-
-    st.write(
-        f"업그레이드 비용: "
-        f"**{fmt(cost)}**"
-    )
-
-    if st.button(
-        "📦 5칸 확장",
-        use_container_width=True
-    ):
-
-        upgrade_inventory()
-
-        st.rerun()
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# 🏪 상점
-# ============================================================
-
-elif st.session_state.page == "상점":
-
-    st.markdown(
-        '<div class="card">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "## 🏪 낚싯대 상점"
-    )
-
-    st.write(
-        f"보유 골드: "
-        f"**{fmt(st.session_state.gold)}**"
-    )
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    for i, rod in enumerate(RODS):
-
-        cols = st.columns(
-            [1, 3, 2, 1.4]
-        )
-
-        with cols[0]:
-
-            st.markdown(
-                f"""
-                <div class="rod-card">
-                    <div class="rod-icon">
-                        {rod["emoji"]}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with cols[1]:
-
-            st.markdown(
-                f"""
-                <div class="rod-card">
-
-                    <div class="rod-name">
-                        {rod["name"]}
-                    </div>
-
-                    <div class="rod-grade">
-                        {rod["grade"]}
-                    </div>
-
-                    <br>
-
-                    💪 힘
-                    <b>{rod["power"]:,}</b>
-
-                    &nbsp;
-
-                    🍀 행운
-                    <b>{rod["luck"]:,}</b>
-
-                    <br>
-
-                    ⚡ 입질
-                    <b>{rod["bite"]:,}</b>
-
-                    &nbsp;
-
-                    🌀 끌어올리기
-                    <b>{rod["pull"]:,}</b>
-
-                    <br><br>
-
-                    <div class="muted">
-                        ♾️ 내구도 무한
-                    </div>
-
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with cols[2]:
-
-            if i in st.session_state.owned_rods:
-
-                st.success(
-                    f"보유 중"
-                )
-
-                if (
-                    st.session_state.equipped_rod
-                    == i
-                ):
-
-                    st.info(
-                        "🎣 장착 중"
-                    )
-
-                else:
-
-                    if st.button(
-                        "🎣 장착",
-                        key=f"equip_{i}",
-                        use_container_width=True
-                    ):
-
-                        st.session_state.equipped_rod = i
-
-                        st.rerun()
-
-            else:
-
-                st.markdown(
-                    f"""
-                    <div class="shop-price">
-                        {fmt(rod["price"])}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-                if st.button(
-                    "🛒 구매",
-                    key=f"buy_{i}",
-                    use_container_width=True
-                ):
-
-                    buy_rod(i)
-
-                    st.rerun()
-
-        with cols[3]:
-
-            st.write("")
-
-
-    # 실패방지권
-    st.markdown(
-        '<div class="card">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "## 🛡️ 강화 실패방지권"
-    )
-
-    st.write(
-        "강화 실패 시 현재 강화 단계를 유지합니다."
-    )
-
-    st.write(
-        f"현재 보유: "
-        f"**{st.session_state.protection_tickets}장**"
-    )
+if st.session_state.event_active:
 
     st.markdown(
         f"""
-        <div class="shop-price">
-            {fmt(PROTECTION_TICKET_PRICE)}
+        <div class="event-box">
+            <div class="event-title">🎉 현재 이벤트</div>
+            <div class="event-value">{st.session_state.event_name}</div>
+            <div style="color:#b8c9e0;">
+                모든 특성 등장 확률 +5%p
+            </div>
         </div>
         """,
         unsafe_allow_html=True
     )
-
-    if st.button(
-        "🛡️ 실패방지권 구매",
-        use_container_width=True
-    ):
-
-        buy_protection_ticket()
-
-        st.rerun()
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# 💰 판매
-# ============================================================
-
-elif st.session_state.page == "판매":
-
-    st.markdown(
-        '<div class="card">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "## 💰 물고기 판매"
-    )
-
-    total = sum(
-        fish["price"]
-        for fish in st.session_state.inventory
-    )
-
-    st.write(
-        f"현재 판매 가능한 물고기: "
-        f"**{len(st.session_state.inventory)}마리**"
-    )
-
-    st.markdown(
-        f"""
-        <div class="big-number">
-            💰 {fmt(total)}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    if st.session_state.inventory:
-
-        if st.button(
-            "💰 전부 판매",
-            use_container_width=True,
-            type="primary"
-        ):
-
-            count, value = sell_all()
-
-            st.success(
-                f"{count}마리를 판매하여 "
-                f"{fmt(value)}를 획득했습니다!"
-            )
-
-            st.rerun()
-
-    else:
-
-        st.info(
-            "🎒 판매할 물고기가 없습니다."
-        )
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    for i, fish in enumerate(
-        st.session_state.inventory
-    ):
-
-        cols = st.columns(
-            [1, 4, 2, 1]
-        )
-
-        with cols[0]:
-
-            st.markdown(
-                f"""
-                <div style="font-size:45px">
-                    {fish["emoji"]}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with cols[1]:
-
-            traits = "일반"
-
-            if fish["traits"]:
-
-                traits = " ".join(
-                    t["emoji"]
-                    for t in fish["traits"]
-                )
-
-            st.write(
-                f"**{traits} {fish['name']}**"
-            )
-
-            st.caption(
-                f"{fish['grade']} · "
-                f"{fish['weight']:.2f}kg · "
-                f"{fish['size']:.2f}m"
-            )
-
-        with cols[2]:
-
-            st.markdown(
-                f"### {fmt(fish['price'])}"
-            )
-
-        with cols[3]:
-
-            if st.button(
-                "판매",
-                key=f"sell_{i}"
-            ):
-
-                sell_one(i)
-
-                st.rerun()
-
-
-# ============================================================
-# 🔨 강화
-# ============================================================
-
-elif st.session_state.page == "강화":
-
-    rod = current_rod()
-
-    index = st.session_state.equipped_rod
-
-    level = rod_level()
-
-    stats = get_rod_stats(index)
-
-    cost = enhancement_cost(
-        level,
-        index
-    )
-
-    success_rate = (
-        enhancement_success_rate(level)
-        + get_title_stat("enhance")
-    )
-
-    success_rate = min(
-        100,
-        success_rate
-    )
-
-    st.markdown(
-        '<div class="card">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "## 🔨 낚싯대 강화"
-    )
-
-    st.markdown(
-        f"""
-        <div class="catch-result">
-
-            <div class="catch-icon">
-                {rod["emoji"]}
-            </div>
-
-            <div class="catch-name">
-                {rod["name"]}
-            </div>
-
-            <div>
-                {rod["grade"]}
-            </div>
-
-            <br>
-
-            <div class="big-number">
-                +{level}
-            </div>
-
-            <br>
-
-            💪 {stats["power"]:,.2f}
-
-            <br>
-
-            🍀 {stats["luck"]:,.2f}
-
-            <br>
-
-            ⚡ {stats["bite"]:,.2f}
-
-            <br>
-
-            🌀 {stats["pull"]:,.2f}
-
-            <br><br>
-
-            ♾️ 내구도 무한
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.write("")
-
-    c1, c2, c3, c4 = st.columns(4)
-
-    with c1:
-
-        st.metric(
-            "강화",
-            f"+{level}"
-        )
-
-    with c2:
-
-        st.metric(
-            "성공 확률",
-            f"{success_rate:.1f}%"
-        )
-
-    with c3:
-
-        st.metric(
-            "비용",
-            fmt(cost)
-        )
-
-    with c4:
-
-        st.metric(
-            "실패방지권",
-            st.session_state.protection_tickets
-        )
-
-    st.write("")
-
-    st.info(
-        "✨ 강화 성공 시 모든 기본 스탯이 2%씩 증가합니다."
-    )
-
-    st.warning(
-        "💥 강화 실패 시 +0으로 초기화됩니다."
-        " 실패방지권이 있으면 현재 강화 단계가 유지됩니다."
-    )
-
-    if st.button(
-        f"🔨 강화하기 · {fmt(cost)}",
-        use_container_width=True,
-        type="primary"
-    ):
-
-        enhance_rod()
-
-        st.rerun()
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# 🏆 타이틀
-# ============================================================
-
-elif st.session_state.page == "타이틀":
-
-    st.markdown(
-        '<div class="card">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "## 🏆 타이틀"
-    )
-
-    st.write(
-        f"현재 타이틀: "
-        f"**{st.session_state.equipped_title}**"
-    )
-
-    st.write(
-        f"획득 타이틀: "
-        f"**{len(st.session_state.titles)} / {len(TITLES)}**"
-    )
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    for title in TITLES:
-
-        unlocked = (
-            title["name"]
-            in st.session_state.titles
-        )
-
-        st.markdown(
-            f"""
-            <div class="title-card">
-
-                <div class="title-name">
-                    {"🏆" if unlocked else "🔒"}
-                    {title["name"]}
-                </div>
-
-                <div class="title-condition">
-                    조건: {title["condition"]}
-                </div>
-
-                <div class="title-effect">
-                    ✨ 효과: {title["effect"]}
-                </div>
-
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        if unlocked:
-
-            if (
-                st.session_state.equipped_title
-                == title["name"]
-            ):
-
-                st.success(
-                    "현재 장착 중"
-                )
-
-            else:
-
-                if st.button(
-                    "🏆 타이틀 장착",
-                    key=f"title_{title['name']}",
-                    use_container_width=True
-                ):
-
-                    st.session_state.equipped_title = (
-                        title["name"]
-                    )
-
-                    st.success(
-                        f"{title['name']} 장착!"
-                    )
-
-                    st.rerun()
-
-
-# ============================================================
-# 📖 도감
-# ============================================================
-
-elif st.session_state.page == "도감":
-
-    st.markdown(
-        '<div class="card">',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "## 📖 물고기 도감"
-    )
-
-    discovered = len(
-        st.session_state.discovered
-    )
-
-    st.progress(
-        discovered / 80
-    )
-
-    st.write(
-        f"발견: **{discovered} / 80**"
-    )
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    selected_grade = st.selectbox(
-        "등급 필터",
-        [
-            "전체",
-            "일반",
-            "희귀",
-            "영웅",
-            "전설",
-            "신화"
-        ]
-    )
-
-    filtered = FISH
-
-    if selected_grade != "전체":
-
-        filtered = [
-            fish
-            for fish in FISH
-            if fish["grade"]
-            == selected_grade
-        ]
-
-    cols = st.columns(4)
-
-    for i, fish in enumerate(
-        filtered
-    ):
-
-        with cols[i % 4]:
-
-            if fish["id"] in st.session_state.discovered:
-
-                st.markdown(
-                    f"""
-                    <div class="fish-card">
-
-                        <div class="fish-icon">
-                            {fish["emoji"]}
-                        </div>
-
-                        <div class="fish-name">
-                            {fish["name"]}
-                        </div>
-
-                        <div class="fish-detail">
-
-                            등급:
-                            <b>{fish["grade"]}</b>
-
-                            <br>
-
-                            기본 가격:
-                            {fmt(fish["base_price"])}
-
-                            <br>
-
-                            무게:
-                            {fish["min_weight"]:.1f}
-                            ~
-                            {fish["max_weight"]:.1f} kg
-
-                            <br>
-
-                            크기:
-                            {fish["min_size"]:.2f}
-                            ~
-                            {fish["max_size"]:.2f} m
-
-                        </div>
-
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-            else:
-
-                st.markdown(
-                    """
-                    <div class="fish-card">
-
-                        <div class="fish-icon">
-                            ❓
-                        </div>
-
-                        <div class="fish-name">
-                            미발견
-                        </div>
-
-                        <div class="fish-detail">
-                            아직 이 물고기를
-                            낚지 못했습니다.
-                        </div>
-
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
 
 # ============================================================
 # SIDEBAR
@@ -3161,110 +727,662 @@ elif st.session_state.page == "도감":
 
 with st.sidebar:
 
-    st.markdown(
-        "## 🎣 Fishing Legends"
-    )
+    st.markdown("## 🎮 메뉴")
+
+    if st.button("🎣 낚시", use_container_width=True):
+        st.session_state.screen = "fishing"
+
+    if st.button("🎒 인벤토리", use_container_width=True):
+        st.session_state.screen = "inventory"
+
+    if st.button("🏪 상점", use_container_width=True):
+        st.session_state.screen = "shop"
+
+    if st.button("🔨 낚싯대 강화", use_container_width=True):
+        st.session_state.screen = "upgrade"
+
+    if st.button("🎣 낚싯대", use_container_width=True):
+        st.session_state.screen = "rods"
+
+    if st.button("🏆 타이틀", use_container_width=True):
+        st.session_state.screen = "titles"
 
     st.divider()
+
+    st.markdown("### 📊 현재 능력치")
+
+    st.write(f"🍀 행운: **{stats['luck']:.2f}**")
+    st.write(f"⚡ 입질 속도: **{stats['bite']:.2f}**")
+    st.write(f"💪 끌어오기: **{stats['pull']:.2f}**")
+
+    st.divider()
+
+    st.markdown("### 🏆 기록")
+    st.write(f"🐟 잡은 물고기: **{st.session_state.caught:,}마리**")
+    st.write(f"💰 총 판매 금액: **{st.session_state.fish_total_sold:,}G**")
+
+# ============================================================
+# FISHING SCREEN
+# ============================================================
+
+if st.session_state.screen == "fishing":
+
+    left, right = st.columns([2.1, 1])
+
+    with left:
+
+        st.markdown(
+            """
+            <div class="fishing-water">
+                <div class="water-title">🌊 낚시터</div>
+                <div class="water-fish">🐟</div>
+                <div style="color:#b7dcf3;">
+                    잔잔한 바다에 낚싯줄을 던져보세요.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.write("")
+
+        if st.button(
+            "🎣 낚싯줄 던지기",
+            use_container_width=True,
+            type="primary"
+        ):
+
+            fishing_minigame()
+
+        if st.session_state.last_catch:
+
+            fish = st.session_state.last_catch
+
+            trait = fish["trait"]
+
+            if trait == "일반":
+                emoji = "🐟"
+                css = "common"
+                trait_text = "일반"
+            else:
+                emoji = TRAITS[trait]["emoji"]
+                css = trait.lower()
+                trait_text = trait
+
+            st.markdown(
+                f"""
+                <div class="fish-card {css}">
+                    <div style="font-size:25px;font-weight:bold;color:white;">
+                        {emoji} {fish["name"]}
+                    </div>
+                    <div style="color:#a9bfd3;margin-top:8px;">
+                        특성: <b>{trait_text}</b><br>
+                        크기: <b>{fish["size"]} cm</b><br>
+                        무게: <b>{fish["weight"]} kg</b><br>
+                        판매 가격: <b>{fish["price"]:,} G</b>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+    with right:
+
+        st.markdown(
+            """
+            <div class="panel">
+                <div class="panel-title">🎣 낚싯대 정보</div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.write(f"### {rod['name']}")
+        st.write(f"🔨 강화 단계: **+{st.session_state.rod_level}**")
+
+        st.progress(
+            min(
+                st.session_state.rod_level / 20,
+                1.0
+            )
+        )
+
+        st.markdown(
+            f"""
+            <div class="status-box">
+                <span class="stat-label">🍀 행운</span><br>
+                <span class="stat-value">{stats["luck"]:.2f}</span>
+            </div>
+
+            <div class="status-box">
+                <span class="stat-label">⚡ 입질 속도</span><br>
+                <span class="stat-value">{stats["bite"]:.2f}x</span>
+            </div>
+
+            <div class="status-box">
+                <span class="stat-label">💪 끌어오기</span><br>
+                <span class="stat-value">{stats["pull"]:.2f}x</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown("### ✨ 특성 확률")
+
+        event_bonus = st.session_state.event_bonus
+
+        st.write(
+            f"🥈 실버: **{(0.08 + event_bonus)*100:.1f}%**"
+        )
+
+        st.write(
+            f"🥇 골드: **{(0.04 + event_bonus)*100:.1f}%**"
+        )
+
+        st.write(
+            f"🌈 무지개: **{(0.02 + event_bonus)*100:.1f}%**"
+        )
+
+        st.write(
+            f"🌀 차원: **{(0.009 + event_bonus)*100:.1f}%**"
+        )
+
+# ============================================================
+# INVENTORY
+# ============================================================
+
+elif st.session_state.screen == "inventory":
+
+    st.header("🎒 물고기 인벤토리")
+
+    st.write(
+        f"보관 공간: **{len(st.session_state.inventory)} / "
+        f"{st.session_state.inventory_size}칸**"
+    )
+
+    if st.button("➕ 인벤토리 5칸 확장"):
+
+        cost = int(500 * (st.session_state.inventory_size / 10))
+
+        if st.session_state.money >= cost:
+
+            st.session_state.money -= cost
+            st.session_state.inventory_size += 5
+
+            st.success(
+                f"인벤토리가 5칸 증가했습니다! (-{cost:,}G)"
+            )
+
+        else:
+
+            st.error("골드가 부족합니다.")
+
+    st.divider()
+
+    if not st.session_state.inventory:
+
+        st.info("🎣 아직 잡은 물고기가 없습니다.")
+
+    else:
+
+        for index, fish in enumerate(st.session_state.inventory):
+
+            trait = fish["trait"]
+
+            if trait == "일반":
+                emoji = "🐟"
+                css = "common"
+            else:
+                emoji = TRAITS[trait]["emoji"]
+                css = trait.lower()
+
+            c1, c2 = st.columns([5, 1])
+
+            with c1:
+
+                st.markdown(
+                    f"""
+                    <div class="fish-card {css}">
+                        <b style="font-size:20px;">
+                            {emoji} {fish["name"]}
+                        </b><br>
+                        특성: {trait}<br>
+                        크기: {fish["size"]} cm<br>
+                        무게: {fish["weight"]} kg<br>
+                        가격: <b>{fish["price"]:,} G</b>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with c2:
+
+                if st.button(
+                    "💰 판매",
+                    key=f"sell_{index}"
+                ):
+
+                    st.session_state.money += fish["price"]
+                    st.session_state.fish_total_sold += fish["price"]
+
+                    st.session_state.inventory.pop(index)
+
+                    st.rerun()
+
+# ============================================================
+# SHOP
+# ============================================================
+
+elif st.session_state.screen == "shop":
+
+    st.header("🏪 낚시 상점")
+
+    tab1, tab2, tab3 = st.tabs([
+        "🎣 낚싯대",
+        "🛡️ 실패방지권",
+        "🎒 인벤토리"
+    ])
+
+    with tab1:
+
+        st.subheader("🎣 낚싯대 상점")
+
+        for i, r in enumerate(RODS):
+
+            c1, c2 = st.columns([4, 1])
+
+            with c1:
+
+                owned = i == st.session_state.rod_index
+
+                status = "현재 사용 중" if owned else ""
+
+                st.markdown(
+                    f"""
+                    <div class="panel">
+                        <div class="panel-title">
+                            🎣 {r["name"]}
+                        </div>
+                        <div style="color:#a9bfd3;">
+                            🍀 행운: {r["luck"]:.2f}<br>
+                            ⚡ 입질 속도: {r["bite"]:.2f}<br>
+                            💪 끌어오기: {r["pull"]:.2f}<br>
+                            💰 가격: {r["price"]:,}G
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with c2:
+
+                if i == 0:
+
+                    st.success("기본 지급")
+
+                elif i <= st.session_state.rod_index:
+
+                    if st.button(
+                        "장착",
+                        key=f"equip_{i}",
+                        use_container_width=True
+                    ):
+
+                        st.session_state.rod_index = i
+                        st.session_state.rod_level = 0
+                        st.success("낚싯대를 장착했습니다.")
+                        st.rerun()
+
+                else:
+
+                    if st.button(
+                        "구매",
+                        key=f"buy_{i}",
+                        use_container_width=True
+                    ):
+
+                        if st.session_state.money >= r["price"]:
+
+                            st.session_state.money -= r["price"]
+
+                            st.session_state.rod_index = i
+                            st.session_state.rod_level = 0
+
+                            st.success(
+                                f"{r['name']} 구매 완료!"
+                            )
+
+                            st.rerun()
+
+                        else:
+
+                            st.error("골드 부족")
+
+    with tab2:
+
+        st.subheader("🛡️ 강화 실패방지권")
+
+        cost = failsafe_cost()
+
+        st.markdown(
+            f"""
+            <div class="panel">
+                <div class="panel-title">🛡️ 강화 실패방지권</div>
+                <div style="color:#a9bfd3;">
+                    강화 실패 시 강화 단계와 능력치가 초기화되는 것을
+                    한 번 막아줍니다.
+                    <br><br>
+                    보유 수량: <b>{st.session_state.failsafe}장</b><br>
+                    가격: <b>{cost:,}G</b>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        if st.button(
+            f"🛡️ 실패방지권 구매 ({cost:,}G)",
+            use_container_width=True
+        ):
+
+            if st.session_state.money >= cost:
+
+                st.session_state.money -= cost
+                st.session_state.failsafe += 1
+
+                st.success("실패방지권을 구매했습니다!")
+
+            else:
+
+                st.error("골드가 부족합니다.")
+
+    with tab3:
+
+        st.subheader("🎒 인벤토리 확장")
+
+        cost = int(
+            500 *
+            (st.session_state.inventory_size / 10)
+        )
+
+        st.write(
+            f"현재 인벤토리: "
+            f"**{st.session_state.inventory_size}칸**"
+        )
+
+        st.write(
+            f"다음 확장: **+5칸**"
+        )
+
+        st.write(
+            f"비용: **{cost:,}G**"
+        )
+
+        if st.button(
+            "➕ 5칸 확장",
+            use_container_width=True
+        ):
+
+            if st.session_state.money >= cost:
+
+                st.session_state.money -= cost
+                st.session_state.inventory_size += 5
+
+                st.success("인벤토리가 확장되었습니다!")
+
+                st.rerun()
+
+            else:
+
+                st.error("골드가 부족합니다.")
+
+# ============================================================
+# UPGRADE
+# ============================================================
+
+elif st.session_state.screen == "upgrade":
+
+    st.header("🔨 낚싯대 강화")
 
     rod = current_rod()
+    stats = rod_stats()
 
-    st.markdown(
-        f"""
-        ### {rod["emoji"]} {rod["name"]}
+    left, right = st.columns([1.5, 1])
 
-        **강화 +{rod_level()}**
+    with left:
 
-        ♾️ 내구도 무한
-        """
-    )
+        st.markdown(
+            f"""
+            <div class="panel">
+                <div class="panel-title">
+                    🎣 {rod["name"]} +{st.session_state.rod_level}
+                </div>
 
-    stats = get_rod_stats(
-        st.session_state.equipped_rod
-    )
+                <div class="status-box">
+                    🍀 행운<br>
+                    <span class="big-number">
+                        {stats["luck"]:.2f}
+                    </span>
+                </div>
+
+                <div class="status-box">
+                    ⚡ 입질 속도<br>
+                    <span class="big-number">
+                        {stats["bite"]:.2f}
+                    </span>
+                </div>
+
+                <div class="status-box">
+                    💪 끌어오기<br>
+                    <span class="big-number">
+                        {stats["pull"]:.2f}
+                    </span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    with right:
+
+        cost = upgrade_cost()
+        success = upgrade_success_rate()
+
+        st.markdown(
+            f"""
+            <div class="panel">
+                <div class="panel-title">🔨 강화 정보</div>
+                <div style="color:#a9bfd3;">
+                    강화 비용<br>
+                    <span class="big-number">
+                        {cost:,} G
+                    </span>
+                    <br><br>
+
+                    성공 확률<br>
+                    <span class="big-number">
+                        {success}%
+                    </span>
+                    <br><br>
+
+                    성공 시<br>
+                    모든 능력치 <b>+2%</b>
+                    <br><br>
+
+                    실패 시<br>
+                    강화 단계 및 능력치 초기화
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.write(
+            f"🛡️ 실패방지권 보유: "
+            f"**{st.session_state.failsafe}장**"
+        )
+
+        if st.button(
+            f"🔨 강화하기 ({cost:,}G)",
+            use_container_width=True,
+            type="primary"
+        ):
+
+            if st.session_state.money < cost:
+
+                st.error("골드가 부족합니다.")
+
+            else:
+
+                st.session_state.money -= cost
+
+                success_roll = random.random() < (
+                    success / 100
+                )
+
+                if success_roll:
+
+                    st.session_state.rod_level += 1
+
+                    st.success(
+                        f"🎉 강화 성공! "
+                        f"+{st.session_state.rod_level}"
+                    )
+
+                    st.rerun()
+
+                else:
+
+                    if st.session_state.failsafe > 0:
+
+                        st.session_state.failsafe -= 1
+
+                        st.warning(
+                            "🛡️ 강화 실패방지권이 발동했습니다!"
+                        )
+
+                        st.rerun()
+
+                    else:
+
+                        st.session_state.rod_level = 0
+
+                        st.error(
+                            "💥 강화 실패! "
+                            "강화 단계와 능력치가 초기화되었습니다."
+                        )
+
+                        st.rerun()
+
+# ============================================================
+# RODS
+# ============================================================
+
+elif st.session_state.screen == "rods":
+
+    st.header("🎣 낚싯대 목록")
+
+    for i, r in enumerate(RODS):
+
+        equipped = (
+            i == st.session_state.rod_index
+        )
+
+        st.markdown(
+            f"""
+            <div class="panel">
+                <div class="panel-title">
+                    {"⭐ " if equipped else ""}
+                    {r["name"]}
+                </div>
+
+                <div style="color:#a9bfd3;">
+                    가격: {r["price"]:,} G<br>
+                    🍀 행운: {r["luck"]:.2f}<br>
+                    ⚡ 입질 속도: {r["bite"]:.2f}<br>
+                    💪 끌어오기: {r["pull"]:.2f}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+# ============================================================
+# TITLES
+# ============================================================
+
+elif st.session_state.screen == "titles":
+
+    st.header("🏆 타이틀")
 
     st.write(
-        f"💪 힘: {stats['power']:,.1f}"
+        f"현재 잡은 물고기: "
+        f"**{st.session_state.caught:,}마리**"
     )
 
-    st.write(
-        f"🍀 행운: {stats['luck']:,.1f}"
-    )
+    for t in TITLES:
 
-    st.write(
-        f"⚡ 입질: {stats['bite']:,.1f}"
-    )
+        unlocked = (
+            st.session_state.caught >= t["require"]
+        )
 
-    st.write(
-        f"🌀 끌어올리기: {stats['pull']:,.1f}"
-    )
+        if unlocked:
 
-    st.divider()
+            st.markdown(
+                f"""
+                <div class="title-box">
+                    <div style="font-size:23px;font-weight:bold;color:white;">
+                        {t["name"]}
+                    </div>
 
-    st.markdown(
-        "### 🏆 타이틀"
-    )
+                    <div style="color:#a9bfd3;margin-top:7px;">
+                        필요 물고기: {t["require"]:,}마리<br>
+                        판매 가격 보너스: +{int((t["bonus"]-1)*100)}%
+                    </div>
 
-    st.write(
-        st.session_state.equipped_title
-    )
+                    <div style="color:#7dffb2;margin-top:8px;">
+                        ✅ 획득 완료
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-    st.divider()
+        else:
 
-    st.markdown(
-        "### ✨ 특성"
+            st.markdown(
+                f"""
+                <div class="title-box" style="opacity:0.5;">
+                    <div style="font-size:23px;font-weight:bold;color:white;">
+                        🔒 ??? 타이틀
+                    </div>
 
-    )
+                    <div style="color:#a9bfd3;margin-top:7px;">
+                        필요 물고기: {t["require"]:,}마리
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-    st.write(
-        "🥈 실버 · +10%"
-    )
+# ============================================================
+# FOOTER
+# ============================================================
 
-    st.write(
-        "🥇 골드 · +20%"
-    )
+st.divider()
 
-    st.write(
-        "🌈 무지개 · +50%"
-    )
-
-    st.write(
-        "🌀 차원 · +100%"
-    )
-
-    st.divider()
-
-    st.markdown(
-        "### 📊 기록"
-    )
-
-    st.write(
-        f"🐟 낚은 물고기: "
-        f"{st.session_state.total_catches:,}"
-    )
-
-    st.write(
-        f"🏆 발견한 종류: "
-        f"{len(st.session_state.discovered)}/80"
-    )
-
-    st.write(
-        f"⚖️ 최대 무게: "
-        f"{st.session_state.max_weight:.2f}kg"
-    )
-
-    st.write(
-        f"💰 총 판매액: "
-        f"{fmt(st.session_state.total_sold)}"
-    )
-
-    st.divider()
-
-    if st.button(
-        "🔄 게임 초기화",
-        use_container_width=True
-    ):
-
-        initialize_game()
-
-        st.rerun()
+st.markdown(
+    """
+    <div style="
+        text-align:center;
+        color:#607d96;
+        padding:20px;
+    ">
+        🎣 LEGEND FISHING<br>
+        낚싯대를 강화하고 전설의 물고기를 찾아보세요!
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+```
