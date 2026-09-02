@@ -11,7 +11,30 @@ st.set_page_config(
     page_title="판타지 3D 낚시 게임 v8.0", page_icon="🎣", layout="wide"
 )
 
-# 20종 낚시대 데이터
+# 20종 낚시대 데이터 (순서 고정을 위해 리스트로 정의)
+ROD_ORDER = [
+    "대나무 낚시대",
+    "나무 낚시대",
+    "강화 글래스파이버",
+    "카본 흑연 로드",
+    "티타늄 스틸 로드",
+    "네온 펄스 로드",
+    "플래티넘 가디언",
+    "다이아몬드 캐스터",
+    "화염 드래곤 로드",
+    "빙결의 심해 로드",
+    "뇌전의 수호자",
+    "바람의 서곡",
+    "그림자 포획자",
+    "천사의 은총",
+    "악마의 삼지창",
+    "시공간 균열 로드",
+    "은하수 캐스케이드",
+    "코스믹 스타로드",
+    "태양신 라의 분노",
+    "차원 창조주의 로드",
+]
+
 FISHING_RODS = {
     "대나무 낚시대": {
         "price": 0,
@@ -324,10 +347,10 @@ SPECIAL_TRAITS = [
 ]
 
 SHOP_BAITS = {
-    "초강력 미끼": {"price": 2500, "desc": "Uncommon / Rare 등급 등장 확률 증가"},
-    "행운의 미끼": {"price": 12000, "desc": "Epic / Legendary / Mythic 등급 등장 확정"},
-    "황금 미끼": {"price": 55000, "desc": "전설 특성 고정 및 골드 배수 적용"},
-    "보스 미끼": {"price": 200000, "desc": "보스 물고기 출현 확률 100% 확정"},
+    "초강력 미끼": {"price": 2500, "desc": "Uncommon / Rare 등급 등장 확률 증가", "req_rarity": None},
+    "행운의 미끼": {"price": 12000, "desc": "Epic / Legendary / Mythic 등급 등장 확정 (해금: 전설 이상 포획)", "req_rarity": ["Legendary", "Mythic", "Ancient", "Celestial", "Cosmic", "Boss"]},
+    "황금 미끼": {"price": 55000, "desc": "전설 특성 고정 및 골드 배수 적용 (해금: 천상 이상 포획)", "req_rarity": ["Celestial", "Cosmic", "Boss"]},
+    "보스 미끼": {"price": 200000, "desc": "보스 물고기 출현 확률 100% 확정 (해금: 코스믹 이상 포획)", "req_rarity": ["Cosmic", "Boss"]},
 }
 
 
@@ -366,6 +389,17 @@ def init_game():
 
 
 init_game()
+
+
+# 특정 등급 이상의 물고기를 잡았는지 확인하는 함수
+def has_caught_rarity(rarity_list):
+    if not rarity_list:
+        return True
+    for fish_name, count in st.session_state.records.items():
+        if count > 0:
+            if FISH_BOOK_TEMPLATE[fish_name]["rarity"] in rarity_list:
+                return True
+    return False
 
 
 def check_event_status():
@@ -1105,10 +1139,17 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
 with tab1:
     st.subheader("🌊 실시간 3D 바다 낚시터")
 
-    bait_options = [
-        f"{b_name} ({count if count != float('inf') else '무제한'}개)"
-        for b_name, count in st.session_state.baits.items()
-    ]
+    # 사용할 미끼 필터링 및 조건 표시
+    bait_options = []
+    for b_name, count in st.session_state.baits.items():
+        req_list = SHOP_BAITS.get(b_name, {}).get("req_rarity")
+        can_use = has_caught_rarity(req_list)
+        
+        status_str = f"{count if count != float('inf') else '무제한'}개"
+        if not can_use:
+            status_str = "🔒 사용 잠금"
+        bait_options.append(f"{b_name} ({status_str})")
+
     selected_option = st.selectbox("사용할 미끼 선택", bait_options)
     selected_bait = selected_option.split(" (")[0]
 
@@ -1137,14 +1178,20 @@ with tab1:
         finalize_catch()
         st.rerun()
 
+    # 현재 선택된 미끼 조건 검사
+    req_list = SHOP_BAITS.get(selected_bait, {}).get("req_rarity")
+    can_use_selected = has_caught_rarity(req_list)
+
     col_manual, col_auto = st.columns(2)
     with col_manual:
         if st.button(
             "🎣 낚시 시작 (찌 던지기)",
             use_container_width=True,
-            disabled=(st.session_state.fishing_state != "idle"),
+            disabled=(st.session_state.fishing_state != "idle" or not can_use_selected),
         ):
-            if prepare_fish(selected_bait):
+            if not can_use_selected:
+                st.error("해당 미끼의 해금 조건을 만족하지 못했습니다.")
+            elif prepare_fish(selected_bait):
                 st.rerun()
 
     with col_auto:
@@ -1153,6 +1200,7 @@ with tab1:
                 "▶️ 자동 낚시 시작",
                 use_container_width=True,
                 type="primary",
+                disabled=(not can_use_selected),
             ):
                 st.session_state.auto_fishing = True
                 st.rerun()
@@ -1162,6 +1210,9 @@ with tab1:
                 st.session_state.fishing_state = "idle"
                 st.session_state.last_catch_status = "idle"
                 st.rerun()
+
+    if not can_use_selected:
+        st.error(f"🔒 {selected_bait}는 해금 조건을 만족해야 사용할 수 있습니다!")
 
     if st.session_state.last_catch_msg:
         if (
@@ -1174,15 +1225,23 @@ with tab1:
 
     if st.session_state.auto_fishing and st.session_state.fishing_state == "idle":
         time.sleep(1.0)
-        if prepare_fish(selected_bait):
-            st.rerun()
+        if can_use_selected:
+            if prepare_fish(selected_bait):
+                st.rerun()
+        else:
+            st.session_state.auto_fishing = False
+            st.error("미끼 조건 미달로 자동 낚시가 중지되었습니다.")
 
 # TAB 2: 낚시대 상점
 with tab2:
-    st.subheader("🎣 낚시대 상점 & 장비 관리")
-    for r_name, r_data in FISHING_RODS.items():
+    st.subheader("🎣 낚시대 상점 & 장비 관리 (순차 구매)")
+    for idx, r_name in enumerate(ROD_ORDER):
+        r_data = FISHING_RODS[r_name]
         is_owned = r_name in st.session_state.owned_rods
         is_equipped = st.session_state.equipped_rod == r_name
+        
+        # 순차적 구매 조건: 이전 단계의 낚시대를 보유하고 있어야 함
+        prev_owned = True if idx == 0 else (ROD_ORDER[idx - 1] in st.session_state.owned_rods)
 
         ca, cb, cc = st.columns([2.5, 4, 1.5])
         with ca:
@@ -1191,6 +1250,8 @@ with tab2:
                 st.caption("🟢 **장착 중**")
             elif is_owned:
                 st.caption("🔵 **보유 중**")
+            elif not prev_owned:
+                st.caption(f"🔒 **이전 낚시대 ({ROD_ORDER[idx-1]}) 구매 필요**")
             else:
                 st.caption(f"가격: **{r_data['price']:,} G**")
         with cb:
@@ -1207,8 +1268,10 @@ with tab2:
                     st.success(f"{r_name}(으)로 변경 완료!")
                     st.rerun()
             else:
-                if st.button("구매", key=f"buy_rod_{r_name}"):
-                    if st.session_state.gold >= r_data["price"]:
+                if st.button("구매", key=f"buy_rod_{r_name}", disabled=not prev_owned):
+                    if not prev_owned:
+                        st.error("이전 단계의 낚시대를 먼저 구매해야 합니다.")
+                    elif st.session_state.gold >= r_data["price"]:
                         st.session_state.gold -= r_data["price"]
                         st.session_state.owned_rods.append(r_name)
                         st.session_state.equipped_rod = r_name
@@ -1244,20 +1307,28 @@ with tab4:
     st.subheader("🛒 미끼 상점")
     for name, data in SHOP_BAITS.items():
         c_b1, c_b2, c_b3 = st.columns([2, 3, 1])
+        req_list = data.get("req_rarity")
+        can_buy = has_caught_rarity(req_list)
+
         with c_b1:
             st.write(f"**{name}**")
             st.caption(f"가격: {data['price']:,} G")
+            if not can_buy:
+                st.caption("🔒 **해금 필요**")
         with c_b2:
             st.write(f"{data['desc']}")
         with c_b3:
-            if st.button("구매", key=f"buy_bait_{name}"):
-                if st.session_state.gold >= data["price"]:
+            if st.button("구매", key=f"buy_bait_{name}", disabled=not can_buy):
+                if not can_buy:
+                    st.error("해금 조건을 만족해야 구매할 수 있습니다.")
+                elif st.session_state.gold >= data["price"]:
                     st.session_state.gold -= data["price"]
                     st.session_state.baits[name] += 1
                     st.success(f"{name} 구매 완료!")
                     st.rerun()
                 else:
                     st.error("골드가 부족합니다.")
+        st.divider()
 
 # TAB 5: 물고기 도감
 with tab5:
