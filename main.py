@@ -438,7 +438,7 @@ def render_3d_ocean_view(
             moonLight.position.set(15, 25, -10);
             scene.add(moonLight);
 
-            const rodLight = new THREE.PointLight({rod_color_hex}, 4.0, 18);
+            const rodLight = new THREE.PointLight({rod_color_hex}, 6.0, 25);
             rodLight.position.set(2.2, 2.5, 5.0);
             scene.add(rodLight);
 
@@ -457,13 +457,13 @@ def render_3d_ocean_view(
             scene.add(ocean);
 
             // ==========================================
-            // 🔥 고퀄리티 낚싯대 커스텀 모델링 & 모양별 이펙트
+            // 🔥 초고퀄리티 20종 독자적 낚싯대 모델링 시스템
             // ==========================================
             const rodGroup = new THREE.Group();
             const rodColor = {rod_color_hex};
             const rodShape = "{rod_shape}";
 
-            // 1. 고급 손잡이 및 릴
+            // 고급 손잡이 & 릴 세부 표현
             const handleGeo = new THREE.CylinderGeometry(0.09, 0.13, 1.8, 16);
             const handleMat = new THREE.MeshStandardMaterial({{ color: 0x111111, roughness: 0.7, metalness: 0.3 }});
             const handleMesh = new THREE.Mesh(handleGeo, handleMat);
@@ -472,7 +472,7 @@ def render_3d_ocean_view(
 
             const reelGroup = new THREE.Group();
             const reelBodyGeo = new THREE.SphereGeometry(0.18, 16, 16);
-            const reelMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.9, roughness: 0.1, emissive: rodColor, emissiveIntensity: 0.2 }});
+            const reelMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.9, roughness: 0.1, emissive: rodColor, emissiveIntensity: 0.6 }});
             const reelBody = new THREE.Mesh(reelBodyGeo, reelMat);
             reelGroup.add(reelBody);
 
@@ -483,15 +483,23 @@ def render_3d_ocean_view(
             reelGroup.position.set(0, -0.1, -0.15);
             rodGroup.add(reelGroup);
 
-            // 2. shape 기반 낚싯대 블랭크 메쉬 생성
+            // 메인 낚싯대 본체 재질
             const mainRodMat = new THREE.MeshStandardMaterial({{ 
                 color: rodColor, 
-                metalness: 0.85, 
-                roughness: 0.15, 
+                metalness: 0.9, 
+                roughness: 0.1, 
                 emissive: rodColor, 
-                emissiveIntensity: 0.5 
+                emissiveIntensity: 0.7 
             }});
 
+            const glowMat = new THREE.MeshBasicMaterial({{
+                color: rodColor,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.4
+            }});
+
+            // 낚싯대 모양(Shape)에 따른 20가지 개별 3D 커스텀 구조물
             if (rodShape === "bamboo") {{
                 for(let i=0; i<6; i++) {{
                     const segGeo = new THREE.CylinderGeometry(0.06 - i*0.008, 0.07 - i*0.008, 1.1, 12);
@@ -504,25 +512,133 @@ def render_3d_ocean_view(
                     node.rotation.x = Math.PI / 2;
                     rodGroup.add(node);
                 }}
-            }} else if (rodShape === "dragon_horns" || rodShape === "trident" || rodShape === "scythe") {{
-                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
-                const mainRodMesh = new THREE.Mesh(mainRodGeo, mainRodMat);
-                mainRodMesh.position.set(0, 3.25, 0);
-                rodGroup.add(mainRodMesh);
-
-                const headGeo = (rodShape === "trident") ? new THREE.ConeGeometry(0.3, 0.8, 4) : new THREE.TorusGeometry(0.3, 0.05, 8, 16);
-                const headMesh = new THREE.Mesh(headGeo, mainRodMat);
-                headMesh.position.set(0, 6.5, 0);
-                rodGroup.add(headMesh);
-            }} else {{
+            }} else if (rodShape === "simple" || rodShape === "glass" || rodShape === "modern" || rodShape === "heavy") {{
                 const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.07, 6.5, 16);
                 const mainRodMesh = new THREE.Mesh(mainRodGeo, mainRodMat);
                 mainRodMesh.position.set(0, 3.25, 0);
                 rodGroup.add(mainRodMesh);
+            }} else if (rodShape === "neon_rings") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.07, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                for(let i=1; i<=7; i++) {{
+                    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.12 - i*0.01, 0.02, 8, 16), mainRodMat);
+                    ring.position.set(0, i * 0.8, 0);
+                    ring.rotation.x = Math.PI / 2;
+                    rodGroup.add(ring);
+                }}
+            }} else if (rodShape === "guardian") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                const shield = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.1), mainRodMat);
+                shield.position.set(0, 1.2, 0);
+                rodGroup.add(shield);
+            }} else if (rodShape === "crystal") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                for(let i=1; i<=5; i++) {{
+                    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.18 - i*0.02), mainRodMat);
+                    gem.position.set(0, i * 1.2, 0);
+                    rodGroup.add(gem);
+                }}
+            }} else if (rodShape === "dragon_horns") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                for(let i=-1; i<=1; i+=2) {{
+                    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.12, 1.2, 8), mainRodMat);
+                    horn.position.set(i*0.25, 6.0, 0);
+                    horn.rotation.z = -i * 0.4;
+                    rodGroup.add(horn);
+                }}
+            }} else if (rodShape === "ice_spikes") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                for(let i=0; i<8; i++) {{
+                    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.6, 4), mainRodMat);
+                    spike.position.set(Math.sin(i)*0.15, i * 0.75, Math.cos(i)*0.15);
+                    spike.rotation.x = Math.PI / 2;
+                    rodGroup.add(spike);
+                }}
+            }} else if (rodShape === "lightning") {{
+                for(let i=0; i<6; i++) {{
+                    const seg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.05, 1.2, 8), mainRodMat);
+                    seg.position.set((i%2 === 0 ? 0.08 : -0.08), 0.6 + i*1.0, 0);
+                    seg.rotation.z = (i%2 === 0 ? 0.15 : -0.15);
+                    rodGroup.add(seg);
+                }}
+            }} else if (rodShape === "feather") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.01, 0.06, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                const wing = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 3.0), mainRodMat);
+                wing.position.set(0, 4.0, 0);
+                wing.rotation.y = Math.PI / 4;
+                rodGroup.add(wing);
+            }} else if (rodShape === "scythe") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                const blade = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.04, 4, 16, Math.PI), mainRodMat);
+                blade.position.set(0.6, 6.3, 0);
+                blade.rotation.z = -Math.PI / 3;
+                rodGroup.add(blade);
+            }} else if (rodShape === "wings") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                for(let i=-1; i<=1; i+=2) {{
+                    const wing = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.03, 8, 16, Math.PI), mainRodMat);
+                    wing.position.set(i*0.4, 4.5, 0);
+                    wing.rotation.y = i * Math.PI / 3;
+                    rodGroup.add(wing);
+                }}
+            }} else if (rodShape === "trident") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                for(let i=-1; i<=1; i++) {{
+                    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.06, 1.0, 4), mainRodMat);
+                    tip.position.set(i*0.3, 6.5, 0);
+                    rodGroup.add(tip);
+                }}
+            }} else if (rodShape === "portal_orb") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                const orb = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), glowMat);
+                orb.position.set(0, 6.5, 0);
+                rodGroup.add(orb);
+            }} else if (rodShape === "galaxy_helix") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                for(let i=0; i<30; i++) {{
+                    const hMesh = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), mainRodMat);
+                    hMesh.position.set(Math.sin(i*0.5)*0.3, i*0.22, Math.cos(i*0.5)*0.3);
+                    rodGroup.add(hMesh);
+                }}
+            }} else if (rodShape === "star_staff") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.6), glowMat);
+                star.position.set(0, 6.5, 0);
+                rodGroup.add(star);
+            }} else if (rodShape === "sun_disc") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.02, 0.09, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                const disc = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.08, 16, 32), mainRodMat);
+                disc.position.set(0, 6.3, 0);
+                rodGroup.add(disc);
+            }} else if (rodShape === "creator_crown") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.02, 0.1, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
+                const crown = new THREE.Mesh(new THREE.IcosahedronGeometry(0.7, 1), glowMat);
+                crown.position.set(0, 6.5, 0);
+                rodGroup.add(crown);
+                const halo = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.03, 16, 32), mainRodMat);
+                halo.position.set(0, 6.5, 0);
+                halo.rotation.x = Math.PI / 2;
+                rodGroup.add(halo);
+            }} else {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.07, 6.5, 16);
+                rodGroup.add(new THREE.Mesh(mainRodGeo, mainRodMat));
             }}
 
-            // 3. 가이드링
-            const guideMat = new THREE.MeshStandardMaterial({{ color: 0xffffff, metalness: 1.0, roughness: 0.0, emissive: rodColor, emissiveIntensity: 0.8 }});
+            // 가이드링
+            const guideMat = new THREE.MeshStandardMaterial({{ color: 0xffffff, metalness: 1.0, roughness: 0.0, emissive: rodColor, emissiveIntensity: 0.9 }});
             for(let i = 1; i <= 5; i++) {{
                 const ringGeo = new THREE.TorusGeometry(0.08 - i*0.012, 0.01, 8, 16);
                 const ring = new THREE.Mesh(ringGeo, guideMat);
@@ -531,25 +647,25 @@ def render_3d_ocean_view(
                 rodGroup.add(ring);
             }}
 
-            // 4. 로드 파티클 이펙트 시스템
+            // 로드 이펙트 및 광원 파티클 시스템
             const particleType = "{rod_particle}";
             let particleSystem = null;
 
             if (particleType !== "none") {{
-                const pCount = 80;
+                const pCount = 150;
                 const pGeo = new THREE.BufferGeometry();
                 const pPos = new Float32Array(pCount * 3);
                 for(let i=0; i<pCount*3; i+=3) {{
-                    pPos[i] = (Math.random() - 0.5) * 0.8;
-                    pPos[i+1] = Math.random() * 6.5;
-                    pPos[i+2] = (Math.random() - 0.5) * 0.8;
+                    pPos[i] = (Math.random() - 0.5) * 1.2;
+                    pPos[i+1] = Math.random() * 7.0;
+                    pPos[i+2] = (Math.random() - 0.5) * 1.2;
                 }}
                 pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
                 const pMat = new THREE.PointsMaterial({{
                     color: rodColor,
-                    size: 0.12,
+                    size: 0.16,
                     transparent: true,
-                    opacity: 0.85,
+                    opacity: 0.9,
                     blending: THREE.AdditiveBlending
                 }});
                 particleSystem = new THREE.Points(pGeo, pMat);
@@ -598,7 +714,6 @@ def render_3d_ocean_view(
 
             const fMat = new THREE.MeshStandardMaterial({{ color: fColor, wireframe: true, emissive: fColor, emissiveIntensity: emissiveInt }});
 
-            // 등급별 가변 외형 메쉬
             let fBodyGeo;
             if (rarity === "Boss") {{
                 fBodyGeo = new THREE.DodecahedronGeometry(0.7 * scaleBase);
@@ -623,7 +738,6 @@ def render_3d_ocean_view(
             tailPivot.add(fTailMesh);
             fishGroup.add(tailPivot);
 
-            // 물고기 초기 위치 설정
             let fishStartPos = new THREE.Vector3(-4.0, -0.6, -2.0);
             fishGroup.position.copy(fishStartPos);
             scene.add(fishGroup);
@@ -648,7 +762,7 @@ def render_3d_ocean_view(
                 if (particleSystem) {{
                     const pArr = particleSystem.geometry.attributes.position.array;
                     for(let i=1; i<pArr.length; i+=3) {{
-                        pArr[i] += 0.02;
+                        pArr[i] += 0.03;
                         if(pArr[i] > 6.5) pArr[i] = 0;
                     }}
                     particleSystem.geometry.attributes.position.needsUpdate = true;
@@ -662,11 +776,9 @@ def render_3d_ocean_view(
                     document.getElementById("status-banner").style.display = "block";
                     floatGroup.position.y = Math.sin(time * 16) * 0.22 - 0.1;
                     
-                    // 낚싯대 입질 진동
                     rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * 16) * 0.1;
                     rodGroup.rotation.z = -Math.PI / 7.5 + Math.cos(time * 14) * 0.04;
                     
-                    // 🔥 [핵심] 입질 시 화면 외부/바다에서 찌 위치(floatGroup)로 물고기가 직접 헤엄쳐서 찌에 걸림
                     fishGroup.position.lerp(new THREE.Vector3(floatGroup.position.x, floatGroup.position.y - 0.35, floatGroup.position.z), 0.08);
                     fishGroup.lookAt(floatGroup.position);
                 }} else if (status === "success") {{
@@ -678,7 +790,6 @@ def render_3d_ocean_view(
                     document.getElementById("status-banner").style.display = "none";
                     floatGroup.position.y = Math.sin(time * 3) * 0.08 + 0.05;
                     
-                    // 정적 상태: 물고기가 주변에서 자유롭게 원형으로 유영
                     const fishX = Math.sin(time * 1.5) * 3.2;
                     const fishZ = Math.cos(time * 1.5) * 2.2 + 1.0;
                     fishGroup.position.set(fishX, -0.6 + Math.sin(time * 2) * 0.1, fishZ);
