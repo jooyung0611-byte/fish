@@ -1,3056 +1,1557 @@
-import streamlit as st
-import random
-import math
 import json
-import os
+import random
 import time
-import base64
-from pathlib import Path
-
+import streamlit as st
 import streamlit.components.v1 as components
 
-
-# ============================================================
-# 페이지 설정
-# ============================================================
-
+# -----------------------------------------------------------------------------
+# 1. 앱 설정 및 기본 데이터베이스 정의
+# -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="3D 낚시 게임",
-    page_icon="🎣",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    page_title="판타지 3D 낚시 게임 v7.0", page_icon="🎣", layout="wide"
 )
 
-
-# ============================================================
-# 기본 데이터
-# ============================================================
-
-RARITY_DATA = {
-    "일반": {
-        "color": "#BFC7D5",
-        "multiplier": 1,
-        "weight_range": (0.3, 3.0)
-    },
-    "희귀": {
-        "color": "#4DA6FF",
-        "multiplier": 2,
-        "weight_range": (1.0, 6.0)
-    },
-    "레어": {
-        "color": "#9B59FF",
-        "multiplier": 5,
-        "weight_range": (2.0, 12.0)
-    },
-    "전설": {
-        "color": "#FFB020",
-        "multiplier": 15,
-        "weight_range": (5.0, 25.0)
-    },
-    "신화": {
-        "color": "#FF4D8D",
-        "multiplier": 40,
-        "weight_range": (10.0, 50.0)
-    },
-    "고대": {
-        "color": "#FF6B35",
-        "multiplier": 100,
-        "weight_range": (20.0, 100.0)
-    },
-    "천상": {
-        "color": "#E8F7FF",
-        "multiplier": 500,
-        "weight_range": (50.0, 250.0)
-    },
-    "차원": {
-        "color": "#D900FF",
-        "multiplier": 2500,
-        "weight_range": (100.0, 1000.0)
-    }
-}
-
-
-# ============================================================
-# 특성 데이터
-# ============================================================
-
-TRAIT_DATA = {
-    "없음": {
-        "chance": 0.82,
-        "multiplier": 1,
-        "color": "#FFFFFF"
-    },
-    "실버": {
-        "chance": 0.10,
-        "multiplier": 25,
-        "color": "#D8E1EA"
-    },
-    "골드": {
-        "chance": 0.05,
-        "multiplier": 100,
-        "color": "#FFD700"
-    },
-    "무지개": {
-        "chance": 0.02,
-        "multiplier": 625,
-        "color": "#FF4DFF"
-    },
-    "차원": {
-        "chance": 0.01,
-        "multiplier": 2500,
-        "color": "#9B00FF"
-    }
-}
-
-
-# ============================================================
-# 낚싯대 20종
-# ============================================================
-
-RODS = [
-    {
-        "name": "나무 낚싯대",
+# 20종 낚시대 데이터 (외형, 파티클, 퀄리티 업그레이드 스펙 적용)
+FISHING_RODS = {
+    "대나무 낚시대": {
         "price": 0,
-        "power": 1,
-        "luck": 0.00,
-        "speed": 1.00,
-        "color": "#8B5A2B",
-        "shape": "wood"
+        "catch_rate": 60,
+        "rare_bonus": 0,
+        "exp_mult": 1.0,
+        "gold_mult": 1.0,
+        "color": 0x8B5A2B,
+        "shape": "bamboo",
+        "particle": "none",
+        "desc": "가장 기본적이고 가벼운 대나무 낚시대.",
     },
-    {
-        "name": "대나무 낚싯대",
-        "price": 100,
-        "power": 2,
-        "luck": 0.01,
-        "speed": 1.05,
-        "color": "#C9A227",
-        "shape": "bamboo"
-    },
-    {
-        "name": "초보자 낚싯대",
+    "나무 낚시대": {
         "price": 250,
-        "power": 3,
-        "luck": 0.02,
-        "speed": 1.10,
-        "color": "#4A90E2",
-        "shape": "basic"
+        "catch_rate": 63,
+        "rare_bonus": 2,
+        "exp_mult": 1.05,
+        "gold_mult": 1.05,
+        "color": 0xA0522D,
+        "shape": "simple",
+        "particle": "none",
+        "desc": "조금 더 튼튼하게 깎아 만든 목재 낚시대.",
     },
-    {
-        "name": "강철 낚싯대",
-        "price": 600,
-        "power": 5,
-        "luck": 0.03,
-        "speed": 1.15,
-        "color": "#AAB2BD",
-        "shape": "steel"
+    "강화 글래스파이버": {
+        "price": 700,
+        "catch_rate": 66,
+        "rare_bonus": 4,
+        "exp_mult": 1.1,
+        "gold_mult": 1.1,
+        "color": 0x4682B4,
+        "shape": "glass",
+        "particle": "bubbles",
+        "desc": "탄력성 높은 유리섬유 재질의 낚시대.",
     },
-    {
-        "name": "은빛 낚싯대",
-        "price": 1200,
-        "power": 7,
-        "luck": 0.05,
-        "speed": 1.20,
-        "color": "#DDE6F0",
-        "shape": "silver"
+    "카본 흑연 로드": {
+        "price": 1500,
+        "catch_rate": 70,
+        "rare_bonus": 7,
+        "exp_mult": 1.15,
+        "gold_mult": 1.2,
+        "color": 0x2F4F4F,
+        "shape": "modern",
+        "particle": "none",
+        "desc": "가볍고 단단하여 입질 감지가 뛰어납니다.",
     },
-    {
-        "name": "황금 낚싯대",
-        "price": 3000,
-        "power": 10,
-        "luck": 0.07,
-        "speed": 1.25,
-        "color": "#FFD700",
-        "shape": "gold"
+    "티타늄 스틸 로드": {
+        "price": 3500,
+        "catch_rate": 73,
+        "rare_bonus": 10,
+        "exp_mult": 1.2,
+        "gold_mult": 1.3,
+        "color": 0xC0C0C0,
+        "shape": "heavy",
+        "particle": "sparks",
+        "desc": "어떤 중량급 물고기도 버티는 고강도 낚시대.",
     },
-    {
-        "name": "다이아 낚싯대",
-        "price": 7000,
-        "power": 15,
-        "luck": 0.10,
-        "speed": 1.30,
-        "color": "#7FDBFF",
-        "shape": "diamond"
+    "네온 펄스 로드": {
+        "price": 8000,
+        "catch_rate": 76,
+        "rare_bonus": 14,
+        "exp_mult": 1.3,
+        "gold_mult": 1.4,
+        "color": 0x00FFCC,
+        "shape": "neon_rings",
+        "particle": "neon_glow",
+        "desc": "야간 미끼 시야 확보에 특화된 네온 빛 로드.",
     },
-    {
-        "name": "화염 낚싯대",
-        "price": 15000,
-        "power": 20,
-        "luck": 0.12,
-        "speed": 1.35,
-        "color": "#FF4B20",
-        "shape": "fire"
+    "플래티넘 가디언": {
+        "price": 18000,
+        "catch_rate": 79,
+        "rare_bonus": 18,
+        "exp_mult": 1.4,
+        "gold_mult": 1.5,
+        "color": 0xE5E4E2,
+        "shape": "guardian",
+        "particle": "silver_dust",
+        "desc": "백금 장식으로 기품이 느껴지는 고급 로드.",
     },
-    {
-        "name": "빙결 낚싯대",
-        "price": 25000,
-        "power": 25,
-        "luck": 0.15,
-        "speed": 1.40,
-        "color": "#66DDFF",
-        "shape": "ice"
+    "다이아몬드 캐스터": {
+        "price": 35000,
+        "catch_rate": 82,
+        "rare_bonus": 23,
+        "exp_mult": 1.5,
+        "gold_mult": 1.7,
+        "color": 0xB9F2FF,
+        "shape": "crystal",
+        "particle": "glitter",
+        "desc": "다이아몬드로 코팅되어 강도가 극대화된 로드.",
     },
-    {
-        "name": "번개 낚싯대",
-        "price": 40000,
-        "power": 32,
-        "luck": 0.18,
-        "speed": 1.45,
-        "color": "#FFFF66",
-        "shape": "lightning"
+    "화염 드래곤 로드": {
+        "price": 70000,
+        "catch_rate": 85,
+        "rare_bonus": 28,
+        "exp_mult": 1.6,
+        "gold_mult": 1.9,
+        "color": 0xFF3300,
+        "shape": "dragon_horns",
+        "particle": "fire",
+        "desc": "드래곤의 숨결이 스며든 뜨거운 붉은 낚시대.",
     },
-    {
-        "name": "심해 낚싯대",
-        "price": 65000,
-        "power": 40,
-        "luck": 0.20,
-        "speed": 1.50,
-        "color": "#154C79",
-        "shape": "deep"
+    "빙결의 심해 로드": {
+        "price": 120000,
+        "catch_rate": 87,
+        "rare_bonus": 34,
+        "exp_mult": 1.7,
+        "gold_mult": 2.1,
+        "color": 0x00FFFF,
+        "shape": "ice_spikes",
+        "particle": "snow",
+        "desc": "차가운 기운으로 물고기의 방심을 유도합니다.",
     },
-    {
-        "name": "용의 낚싯대",
-        "price": 100000,
-        "power": 50,
-        "luck": 0.23,
-        "speed": 1.55,
-        "color": "#E63946",
-        "shape": "dragon"
+    "뇌전의 수호자": {
+        "price": 200000,
+        "catch_rate": 89,
+        "rare_bonus": 40,
+        "exp_mult": 1.8,
+        "gold_mult": 2.4,
+        "color": 0xFFFF00,
+        "shape": "lightning",
+        "particle": "electric",
+        "desc": "전기 파동으로 물고기를 빠르게 채어 올립니다.",
     },
-    {
-        "name": "천상의 낚싯대",
-        "price": 180000,
-        "power": 65,
-        "luck": 0.27,
-        "speed": 1.60,
-        "color": "#FFFFFF",
-        "shape": "heaven"
+    "바람의 서곡": {
+        "price": 350000,
+        "catch_rate": 91,
+        "rare_bonus": 47,
+        "exp_mult": 2.0,
+        "gold_mult": 2.7,
+        "color": 0x7FFFD4,
+        "shape": "feather",
+        "particle": "wind_swirl",
+        "desc": "바람처럼 가벼워 입질 손실을 최소화합니다.",
     },
-    {
-        "name": "고대의 낚싯대",
-        "price": 300000,
-        "power": 80,
-        "luck": 0.30,
-        "speed": 1.65,
-        "color": "#B87333",
-        "shape": "ancient"
+    "그림자 포획자": {
+        "price": 600000,
+        "catch_rate": 92,
+        "rare_bonus": 55,
+        "exp_mult": 2.2,
+        "gold_mult": 3.1,
+        "color": 0x4B0082,
+        "shape": "scythe",
+        "particle": "shadow_smoke",
+        "desc": "물고기에게 모습을 숨기는 은밀한 그림자 로드.",
     },
-    {
-        "name": "신화의 낚싯대",
-        "price": 500000,
-        "power": 100,
-        "luck": 0.35,
-        "speed": 1.70,
-        "color": "#FF4DFF",
-        "shape": "mythic"
+    "천사의 은총": {
+        "price": 1000000,
+        "catch_rate": 93,
+        "rare_bonus": 64,
+        "exp_mult": 2.5,
+        "gold_mult": 3.6,
+        "color": 0xFFF8DC,
+        "shape": "wings",
+        "particle": "holy_light",
+        "desc": "천상의 빛으로 희귀 등급 물고기를 홀립니다.",
     },
-    {
-        "name": "공허의 낚싯대",
-        "price": 800000,
-        "power": 130,
-        "luck": 0.40,
-        "speed": 1.80,
-        "color": "#7A00FF",
-        "shape": "void"
+    "악마의 삼지창": {
+        "price": 1600000,
+        "catch_rate": 94,
+        "rare_bonus": 74,
+        "exp_mult": 2.8,
+        "gold_mult": 4.2,
+        "color": 0x800000,
+        "shape": "trident",
+        "particle": "hell_fire",
+        "desc": "압도적인 파괴력으로 거대 몬스터를 제압합니다.",
     },
-    {
-        "name": "차원의 낚싯대",
-        "price": 1500000,
-        "power": 170,
-        "luck": 0.45,
-        "speed": 1.90,
-        "color": "#FF00FF",
-        "shape": "dimension"
+    "시공간 균열 로드": {
+        "price": 2500000,
+        "catch_rate": 95,
+        "rare_bonus": 85,
+        "exp_mult": 3.2,
+        "gold_mult": 5.0,
+        "color": 0x9932CC,
+        "shape": "portal_orb",
+        "particle": "void_portal",
+        "desc": "시공간을 뒤틀어 신비한 고대종을 끌어당깁니다.",
     },
-    {
-        "name": "무한의 낚싯대",
-        "price": 3000000,
-        "power": 220,
-        "luck": 0.50,
-        "speed": 2.00,
-        "color": "#00FFFF",
-        "shape": "infinity"
+    "은하수 캐스케이드": {
+        "price": 4000000,
+        "catch_rate": 96,
+        "rare_bonus": 98,
+        "exp_mult": 3.7,
+        "gold_mult": 6.0,
+        "color": 0x4169E1,
+        "shape": "galaxy_helix",
+        "particle": "stardust",
+        "desc": "별빛의 기운이 서려 있는 매혹적인 낚시대.",
     },
-    {
-        "name": "신의 낚싯대",
-        "price": 7000000,
-        "power": 300,
-        "luck": 0.60,
-        "speed": 2.20,
-        "color": "#FFF5AA",
-        "shape": "god"
+    "코스믹 스타로드": {
+        "price": 6500000,
+        "catch_rate": 97,
+        "rare_bonus": 115,
+        "exp_mult": 4.3,
+        "gold_mult": 7.5,
+        "color": 0xFF00FF,
+        "shape": "star_staff",
+        "particle": "cosmic_rays",
+        "desc": "우주의 인력으로 물고기가 스스로 끌려옵니다.",
     },
-    {
-        "name": "창조주의 낚싯대",
-        "price": 15000000,
-        "power": 500,
-        "luck": 0.75,
-        "speed": 2.50,
-        "color": "#FFFFFF",
-        "shape": "creator"
-    }
+    "태양신 라의 분노": {
+        "price": 10000000,
+        "catch_rate": 98,
+        "rare_bonus": 135,
+        "exp_mult": 5.0,
+        "gold_mult": 9.5,
+        "color": 0xFFD700,
+        "shape": "sun_disc",
+        "particle": "solar_flares",
+        "desc": "태양의 축복을 받은 최고 등급 신화 낚시대.",
+    },
+    "차원 창조주의 로드": {
+        "price": 16000000,
+        "catch_rate": 99,
+        "rare_bonus": 160,
+        "exp_mult": 6.0,
+        "gold_mult": 12.0,
+        "color": 0x00FFFF,
+        "shape": "creator_crown",
+        "particle": "godly_aura",
+        "desc": "모든 바다 생태계를 지배하는 신의 도구.",
+    },
+}
+
+# 60종 물고기 데이터베이스
+FISH_BOOK_TEMPLATE = {
+    # Common
+    "피라미": {
+        "rarity": "Common",
+        "min_w": 0.1,
+        "max_w": 0.5,
+        "base_p": 1,
+        "xp": 15,
+    },
+    "붕어": {
+        "rarity": "Common",
+        "min_w": 0.5,
+        "max_w": 2.0,
+        "base_p": 2,
+        "xp": 25,
+    },
+    "송사리": {
+        "rarity": "Common",
+        "min_w": 0.05,
+        "max_w": 0.3,
+        "base_p": 1,
+        "xp": 10,
+    },
+    "망둥어": {
+        "rarity": "Common",
+        "min_w": 0.2,
+        "max_w": 0.8,
+        "base_p": 2,
+        "xp": 20,
+    },
+    "미꾸라지": {
+        "rarity": "Common",
+        "min_w": 0.1,
+        "max_w": 0.6,
+        "base_p": 1,
+        "xp": 18,
+    },
+    "블루길": {
+        "rarity": "Common",
+        "min_w": 0.4,
+        "max_w": 1.5,
+        "base_p": 3,
+        "xp": 30,
+    },
+    "꺽지": {
+        "rarity": "Common",
+        "min_w": 0.3,
+        "max_w": 1.2,
+        "base_p": 3,
+        "xp": 35,
+    },
+    "빙어": {
+        "rarity": "Common",
+        "min_w": 0.05,
+        "max_w": 0.2,
+        "base_p": 1,
+        "xp": 12,
+    },
+    "피라니아": {
+        "rarity": "Common",
+        "min_w": 0.5,
+        "max_w": 2.5,
+        "base_p": 4,
+        "xp": 40,
+    },
+    "정어리": {
+        "rarity": "Common",
+        "min_w": 0.1,
+        "max_w": 0.4,
+        "base_p": 1,
+        "xp": 16,
+    },
+    # Uncommon
+    "배스": {
+        "rarity": "Uncommon",
+        "min_w": 1.0,
+        "max_w": 4.0,
+        "base_p": 5,
+        "xp": 50,
+    },
+    "메기": {
+        "rarity": "Uncommon",
+        "min_w": 2.0,
+        "max_w": 6.0,
+        "base_p": 8,
+        "xp": 75,
+    },
+    "가물치": {
+        "rarity": "Uncommon",
+        "min_w": 2.5,
+        "max_w": 7.5,
+        "base_p": 10,
+        "xp": 95,
+    },
+    "광어": {
+        "rarity": "Uncommon",
+        "min_w": 1.5,
+        "max_w": 5.0,
+        "base_p": 9,
+        "xp": 80,
+    },
+    "우럭": {
+        "rarity": "Uncommon",
+        "min_w": 1.2,
+        "max_w": 4.5,
+        "base_p": 7,
+        "xp": 70,
+    },
+    "연어": {
+        "rarity": "Uncommon",
+        "min_w": 3.0,
+        "max_w": 9.0,
+        "base_p": 12,
+        "xp": 110,
+    },
+    "방어": {
+        "rarity": "Uncommon",
+        "min_w": 4.0,
+        "max_w": 12.0,
+        "base_p": 15,
+        "xp": 130,
+    },
+    "삼치": {
+        "rarity": "Uncommon",
+        "min_w": 2.0,
+        "max_w": 7.0,
+        "base_p": 10,
+        "xp": 90,
+    },
+    # Rare
+    "비단잉어": {
+        "rarity": "Rare",
+        "min_w": 3.0,
+        "max_w": 8.0,
+        "base_p": 20,
+        "xp": 180,
+    },
+    "참돔": {
+        "rarity": "Rare",
+        "min_w": 3.5,
+        "max_w": 10.0,
+        "base_p": 25,
+        "xp": 220,
+    },
+    "감성돔": {
+        "rarity": "Rare",
+        "min_w": 2.5,
+        "max_w": 7.0,
+        "base_p": 22,
+        "xp": 200,
+    },
+    "다금바리": {
+        "rarity": "Rare",
+        "min_w": 5.0,
+        "max_w": 15.0,
+        "base_p": 35,
+        "xp": 350,
+    },
+    "청새치": {
+        "rarity": "Rare",
+        "min_w": 15.0,
+        "max_w": 45.0,
+        "base_p": 50,
+        "xp": 480,
+    },
+    "민어": {
+        "rarity": "Rare",
+        "min_w": 4.0,
+        "max_w": 12.0,
+        "base_p": 30,
+        "xp": 280,
+    },
+    "황새치": {
+        "rarity": "Rare",
+        "min_w": 20.0,
+        "max_w": 50.0,
+        "base_p": 60,
+        "xp": 500,
+    },
+    # Epic
+    "황금 잉어": {
+        "rarity": "Epic",
+        "min_w": 5.0,
+        "max_w": 12.0,
+        "base_p": 80,
+        "xp": 700,
+    },
+    "심해 아귀": {
+        "rarity": "Epic",
+        "min_w": 8.0,
+        "max_w": 25.0,
+        "base_p": 120,
+        "xp": 950,
+    },
+    "대왕 샐러맨더": {
+        "rarity": "Epic",
+        "min_w": 10.0,
+        "max_w": 30.0,
+        "base_p": 150,
+        "xp": 1200,
+    },
+    "일렉트릭 뱀장어": {
+        "rarity": "Epic",
+        "min_w": 6.0,
+        "max_w": 18.0,
+        "base_p": 110,
+        "xp": 850,
+    },
+    "크리스탈 가오리": {
+        "rarity": "Epic",
+        "min_w": 12.0,
+        "max_w": 35.0,
+        "base_p": 180,
+        "xp": 1400,
+    },
+    "볼케이노 해마": {
+        "rarity": "Epic",
+        "min_w": 2.0,
+        "max_w": 8.0,
+        "base_p": 200,
+        "xp": 1600,
+    },
+    # Legendary
+    "심해 펠리칸장어": {
+        "rarity": "Legendary",
+        "min_w": 15.0,
+        "max_w": 40.0,
+        "base_p": 45,
+        "xp": 2500,
+    },
+    "아비스 블레이드": {
+        "rarity": "Legendary",
+        "min_w": 25.0,
+        "max_w": 70.0,
+        "base_p": 55,
+        "xp": 3200,
+    },
+    "플라즈마 복어": {
+        "rarity": "Legendary",
+        "min_w": 10.0,
+        "max_w": 30.0,
+        "base_p": 60,
+        "xp": 3800,
+    },
+    "프로스트 샤크": {
+        "rarity": "Legendary",
+        "min_w": 50.0,
+        "max_w": 150.0,
+        "base_p": 75,
+        "xp": 4500,
+    },
+    "루비 메갈로돈": {
+        "rarity": "Legendary",
+        "min_w": 80.0,
+        "max_w": 200.0,
+        "base_p": 90,
+        "xp": 5500,
+    },
+    "에메랄드 청새치": {
+        "rarity": "Legendary",
+        "min_w": 40.0,
+        "max_w": 100.0,
+        "base_p": 80,
+        "xp": 5000,
+    },
+    # Mythic
+    "바다의 환영 발키리": {
+        "rarity": "Mythic",
+        "min_w": 100.0,
+        "max_w": 300.0,
+        "base_p": 120,
+        "xp": 8000,
+    },
+    "신화의 히드라 해뱀": {
+        "rarity": "Mythic",
+        "min_w": 150.0,
+        "max_w": 450.0,
+        "base_p": 150,
+        "xp": 10000,
+    },
+    "포세이돈의 삼지창어": {
+        "rarity": "Mythic",
+        "min_w": 80.0,
+        "max_w": 250.0,
+        "base_p": 180,
+        "xp": 12500,
+    },
+    "성스러운 빛의 해마": {
+        "rarity": "Mythic",
+        "min_w": 30.0,
+        "max_w": 90.0,
+        "base_p": 210,
+        "xp": 15000,
+    },
+    "타이탄 심해 대구": {
+        "rarity": "Mythic",
+        "min_w": 200.0,
+        "max_w": 600.0,
+        "base_p": 250,
+        "xp": 18000,
+    },
+    # Ancient
+    "고대 씨라캔스": {
+        "rarity": "Ancient",
+        "min_w": 100.0,
+        "max_w": 350.0,
+        "base_p": 320,
+        "xp": 22000,
+    },
+    "시공의 암모나이트": {
+        "rarity": "Ancient",
+        "min_w": 80.0,
+        "max_w": 280.0,
+        "base_p": 380,
+        "xp": 28000,
+    },
+    "원시 던클레오스테우스": {
+        "rarity": "Ancient",
+        "min_w": 300.0,
+        "max_w": 900.0,
+        "base_p": 450,
+        "xp": 35000,
+    },
+    "고대 리오플레우로돈": {
+        "rarity": "Ancient",
+        "min_w": 450.0,
+        "max_w": 1200.0,
+        "base_p": 520,
+        "xp": 42000,
+    },
+    "빙하기 아노말로카리스": {
+        "rarity": "Ancient",
+        "min_w": 50.0,
+        "max_w": 200.0,
+        "base_p": 600,
+        "xp": 50000,
+    },
+    # Celestial
+    "천상의 은하 가오리": {
+        "rarity": "Celestial",
+        "min_w": 300.0,
+        "max_w": 800.0,
+        "base_p": 750,
+        "xp": 65000,
+    },
+    "세라핌 피쉬": {
+        "rarity": "Celestial",
+        "min_w": 150.0,
+        "max_w": 500.0,
+        "base_p": 900,
+        "xp": 80000,
+    },
+    "스타더스트 고래": {
+        "rarity": "Celestial",
+        "min_w": 1000.0,
+        "max_w": 3000.0,
+        "base_p": 1100,
+        "xp": 100000,
+    },
+    "빛의 주권자 오라클": {
+        "rarity": "Celestial",
+        "min_w": 500.0,
+        "max_w": 1500.0,
+        "base_p": 1350,
+        "xp": 130000,
+    },
+    # Cosmic
+    "코스믹 퀘이사 피쉬": {
+        "rarity": "Cosmic",
+        "min_w": 800.0,
+        "max_w": 2500.0,
+        "base_p": 1600,
+        "xp": 170000,
+    },
+    "블랙홀 스쿼드": {
+        "rarity": "Cosmic",
+        "min_w": 1200.0,
+        "max_w": 4000.0,
+        "base_p": 2000,
+        "xp": 220000,
+    },
+    "초신성 라이어": {
+        "rarity": "Cosmic",
+        "min_w": 2000.0,
+        "max_w": 6000.0,
+        "base_p": 2500,
+        "xp": 300000,
+    },
+    "차원 파쇄자 다크매터": {
+        "rarity": "Cosmic",
+        "min_w": 3500.0,
+        "max_w": 9999.0,
+        "base_p": 3200,
+        "xp": 400000,
+    },
+    # Boss
+    "심해의 크라켄": {
+        "rarity": "Boss",
+        "min_w": 2000.0,
+        "max_w": 6000.0,
+        "base_p": 4500,
+        "xp": 550000,
+    },
+    "천공의 고래": {
+        "rarity": "Boss",
+        "min_w": 4000.0,
+        "max_w": 12000.0,
+        "base_p": 6000,
+        "xp": 800000,
+    },
+    "차원의 레비아탄": {
+        "rarity": "Boss",
+        "min_w": 8000.0,
+        "max_w": 25000.0,
+        "base_p": 8000,
+        "xp": 1200000,
+    },
+    "종말의 요르문간드": {
+        "rarity": "Boss",
+        "min_w": 15000.0,
+        "max_w": 45000.0,
+        "base_p": 10000,
+        "xp": 1800000,
+    },
+    "창세의 아우라드래곤": {
+        "rarity": "Boss",
+        "min_w": 30000.0,
+        "max_w": 99999.0,
+        "base_p": 15000,
+        "xp": 3000000,
+    },
+}
+
+# 기본 특성 리스트 및 신규 특성 정의
+BASE_TRAITS = [
+    {"name": "일반", "mult": 1.0, "is_pow": False},
+    {"name": "반짝이는", "mult": 1.2, "is_pow": False},
+    {"name": "거대한", "mult": 1.3, "is_pow": False},
+    {"name": "전설의", "mult": 1.5, "is_pow": False},
 ]
 
-
-# ============================================================
-# 물고기 30종
-# ============================================================
-
-FISH = [
-    {
-        "name": "멸치",
-        "rarity": "일반",
-        "base_price": 20,
-        "min_weight": 0.1,
-        "max_weight": 0.5,
-        "size": "소형"
-    },
-    {
-        "name": "정어리",
-        "rarity": "일반",
-        "base_price": 30,
-        "min_weight": 0.2,
-        "max_weight": 0.8,
-        "size": "소형"
-    },
-    {
-        "name": "고등어",
-        "rarity": "일반",
-        "base_price": 45,
-        "min_weight": 0.5,
-        "max_weight": 2.0,
-        "size": "중형"
-    },
-    {
-        "name": "전갱이",
-        "rarity": "일반",
-        "base_price": 50,
-        "min_weight": 0.5,
-        "max_weight": 2.5,
-        "size": "중형"
-    },
-    {
-        "name": "갈치",
-        "rarity": "희귀",
-        "base_price": 100,
-        "min_weight": 1.0,
-        "max_weight": 5.0,
-        "size": "중형"
-    },
-    {
-        "name": "광어",
-        "rarity": "희귀",
-        "base_price": 120,
-        "min_weight": 1.0,
-        "max_weight": 7.0,
-        "size": "중형"
-    },
-    {
-        "name": "우럭",
-        "rarity": "희귀",
-        "base_price": 130,
-        "min_weight": 1.0,
-        "max_weight": 6.0,
-        "size": "중형"
-    },
-    {
-        "name": "도미",
-        "rarity": "희귀",
-        "base_price": 150,
-        "min_weight": 1.5,
-        "max_weight": 8.0,
-        "size": "중형"
-    },
-    {
-        "name": "농어",
-        "rarity": "레어",
-        "base_price": 250,
-        "min_weight": 2.0,
-        "max_weight": 12.0,
-        "size": "대형"
-    },
-    {
-        "name": "참치",
-        "rarity": "레어",
-        "base_price": 400,
-        "min_weight": 5.0,
-        "max_weight": 30.0,
-        "size": "대형"
-    },
-    {
-        "name": "연어",
-        "rarity": "레어",
-        "base_price": 350,
-        "min_weight": 3.0,
-        "max_weight": 20.0,
-        "size": "대형"
-    },
-    {
-        "name": "복어",
-        "rarity": "레어",
-        "base_price": 450,
-        "min_weight": 1.0,
-        "max_weight": 10.0,
-        "size": "중형"
-    },
-    {
-        "name": "상어",
-        "rarity": "전설",
-        "base_price": 1000,
-        "min_weight": 20.0,
-        "max_weight": 150.0,
-        "size": "초대형"
-    },
-    {
-        "name": "청새치",
-        "rarity": "전설",
-        "base_price": 1500,
-        "min_weight": 30.0,
-        "max_weight": 200.0,
-        "size": "초대형"
-    },
-    {
-        "name": "황새치",
-        "rarity": "전설",
-        "base_price": 1800,
-        "min_weight": 40.0,
-        "max_weight": 250.0,
-        "size": "초대형"
-    },
-    {
-        "name": "범고래",
-        "rarity": "신화",
-        "base_price": 5000,
-        "min_weight": 100.0,
-        "max_weight": 800.0,
-        "size": "거대"
-    },
-    {
-        "name": "대왕오징어",
-        "rarity": "신화",
-        "base_price": 7000,
-        "min_weight": 100.0,
-        "max_weight": 1000.0,
-        "size": "거대"
-    },
-    {
-        "name": "고래상어",
-        "rarity": "신화",
-        "base_price": 10000,
-        "min_weight": 300.0,
-        "max_weight": 2000.0,
-        "size": "거대"
-    },
-    {
-        "name": "고대어",
-        "rarity": "고대",
-        "base_price": 20000,
-        "min_weight": 50.0,
-        "max_weight": 500.0,
-        "size": "거대"
-    },
-    {
-        "name": "고대 상어",
-        "rarity": "고대",
-        "base_price": 30000,
-        "min_weight": 200.0,
-        "max_weight": 1200.0,
-        "size": "거대"
-    },
-    {
-        "name": "화염어",
-        "rarity": "고대",
-        "base_price": 40000,
-        "min_weight": 30.0,
-        "max_weight": 300.0,
-        "size": "대형"
-    },
-    {
-        "name": "빙결어",
-        "rarity": "천상",
-        "base_price": 100000,
-        "min_weight": 100.0,
-        "max_weight": 700.0,
-        "size": "거대"
-    },
-    {
-        "name": "천상의 잉어",
-        "rarity": "천상",
-        "base_price": 150000,
-        "min_weight": 50.0,
-        "max_weight": 500.0,
-        "size": "대형"
-    },
-    {
-        "name": "신성한 물고기",
-        "rarity": "천상",
-        "base_price": 250000,
-        "min_weight": 100.0,
-        "max_weight": 1000.0,
-        "size": "거대"
-    },
-    {
-        "name": "차원어",
-        "rarity": "차원",
-        "base_price": 1000000,
-        "min_weight": 100.0,
-        "max_weight": 3000.0,
-        "size": "거대"
-    },
-    {
-        "name": "차원 고래",
-        "rarity": "차원",
-        "base_price": 3000000,
-        "min_weight": 500.0,
-        "max_weight": 10000.0,
-        "size": "초거대"
-    },
-    {
-        "name": "공허의 물고기",
-        "rarity": "차원",
-        "base_price": 5000000,
-        "min_weight": 200.0,
-        "max_weight": 5000.0,
-        "size": "초거대"
-    },
-    {
-        "name": "무한어",
-        "rarity": "차원",
-        "base_price": 10000000,
-        "min_weight": 1000.0,
-        "max_weight": 20000.0,
-        "size": "초거대"
-    },
-    {
-        "name": "창조어",
-        "rarity": "차원",
-        "base_price": 50000000,
-        "min_weight": 5000.0,
-        "max_weight": 100000.0,
-        "size": "초거대"
-    },
-    {
-        "name": "세계의 물고기",
-        "rarity": "차원",
-        "base_price": 100000000,
-        "min_weight": 10000.0,
-        "max_weight": 200000.0,
-        "size": "초거대"
-    }
+# 신규 특성 정의 (확률 및 제곱 배수 연산)
+SPECIAL_TRAITS = [
+    {"name": "차원", "prob": 0.03, "val": 20.0, "is_pow": True},
+    {"name": "무지개", "prob": 0.07, "val": 10.0, "is_pow": True},
+    {"name": "골드", "prob": 0.10, "val": 7.0, "is_pow": True},
+    {"name": "실버", "prob": 0.20, "val": 5.0, "is_pow": True},
 ]
 
-
-# ============================================================
-# 보스 물고기
-# ============================================================
-
-BOSS_FISH = [
-    {
-        "name": "해신 레비아탄",
-        "rarity": "차원",
-        "base_price": 500000000,
-        "min_weight": 10000,
-        "max_weight": 500000,
-        "size": "보스"
+SHOP_BAITS = {
+    "초강력 미끼": {
+        "price": 2500,
+        "desc": "Uncommon / Rare 등급 등장 확률 증가",
     },
-    {
-        "name": "심해의 군주",
-        "rarity": "차원",
-        "base_price": 1000000000,
-        "min_weight": 50000,
-        "max_weight": 1000000,
-        "size": "보스"
+    "행운의 미끼": {
+        "price": 12000,
+        "desc": "Epic / Legendary / Mythic 등급 등장 확정",
     },
-    {
-        "name": "차원의 고래왕",
-        "rarity": "차원",
-        "base_price": 5000000000,
-        "min_weight": 100000,
-        "max_weight": 5000000,
-        "size": "보스"
-    }
-]
+    "황금 미끼": {
+        "price": 55000,
+        "desc": "전설 특성 고정 및 골드 배수 적용",
+    },
+    "보스 미끼": {
+        "price": 200000,
+        "desc": "보스 물고기 출현 확률 100% 확정",
+    },
+}
 
 
-# ============================================================
-# 세션 상태 초기화
-# ============================================================
+# -----------------------------------------------------------------------------
+# 2. 게임 세션 초기화 및 이벤트 타이머 체크
+# -----------------------------------------------------------------------------
+def init_game():
+    if "level" not in st.session_state:
+        st.session_state.level = 1
+        st.session_state.xp = 0
+        st.session_state.max_xp = 100
+        st.session_state.gold = 10000
+        st.session_state.inventory = []
+        st.session_state.max_inventory = 5
+        st.session_state.inventory_upgrades = 0
+        st.session_state.baits = {
+            "일반 미끼": float("inf"),
+            "초강력 미끼": 0,
+            "행운의 미끼": 0,
+            "황금 미끼": 0,
+            "보스 미끼": 0,
+        }
+        st.session_state.equipped_rod = "대나무 낚시대"
+        st.session_state.owned_rods = ["대나무 낚시대"]
+        st.session_state.records = {
+            name: 0 for name in FISH_BOOK_TEMPLATE.keys()
+        }
+        st.session_state.auto_fishing = False
+        st.session_state.last_catch_msg = ""
+        st.session_state.last_catch_status = "idle"
+        st.session_state.fishing_state = "idle"
+        st.session_state.pending_fish = None
 
-if "money" not in st.session_state:
-    st.session_state.money = 1000
-
-if "level" not in st.session_state:
-    st.session_state.level = 1
-
-if "xp" not in st.session_state:
-    st.session_state.xp = 0
-
-if "total_catches" not in st.session_state:
-    st.session_state.total_catches = 0
-
-if "best_price" not in st.session_state:
-    st.session_state.best_price = 0
-
-if "caught_fish" not in st.session_state:
-    st.session_state.caught_fish = []
-
-if "codex" not in st.session_state:
-    st.session_state.codex = {}
-
-if "owned_rods" not in st.session_state:
-    st.session_state.owned_rods = [0]
-
-if "equipped_rod" not in st.session_state:
-    st.session_state.equipped_rod = 0
-
-if "fishing" not in st.session_state:
-    st.session_state.fishing = False
-
-if "last_catch" not in st.session_state:
-    st.session_state.last_catch = None
-
-if "message" not in st.session_state:
-    st.session_state.message = ""
-
-if "game_started" not in st.session_state:
-    st.session_state.game_started = True
+        # 이벤트 상태 초기화 (3분 = 180초)
+        st.session_state.spawn_event_end = 0
+        st.session_state.trait_event_end = 0
 
 
-# ============================================================
-# 함수
-# ============================================================
+init_game()
 
-def get_level_required_xp(level):
-    return int(100 * (level ** 1.5))
+
+# 이벤트 유효 기간 체크
+def check_event_status():
+    now = time.time()
+    spawn_active = now < st.session_state.spawn_event_end
+    trait_active = now < st.session_state.trait_event_end
+    return spawn_active, trait_active
+
+
+def get_inventory_upgrade_cost():
+    return int(10000 * (1.5**st.session_state.inventory_upgrades))
+
+
+# -----------------------------------------------------------------------------
+# 3. Three.js 3D 실감형 시뮬레이터 렌더러 (고퀄리티 그래픽 & 낚시대 3D 개선)
+# -----------------------------------------------------------------------------
+def render_3d_ocean_view(
+    status="idle",
+    rod_name="대나무 낚시대",
+    bait_name="일반 미끼",
+    pending_fish=None,
+):
+    rod_data = FISHING_RODS.get(rod_name, FISHING_RODS["대나무 낚시대"])
+    rod_color_hex = hex(rod_data["color"])
+    rod_shape = rod_data["shape"]
+    rod_particle = rod_data["particle"]
+
+    fish_rarity = pending_fish["rarity"] if pending_fish else "Common"
+    fish_weight = pending_fish["weight"] if pending_fish else 1.0
+
+    html_code = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{ margin: 0; overflow: hidden; background: #030712; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }}
+            #canvas-container {{ width: 100%; height: 480px; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 12px 40px rgba(0,0,0,0.9); border: 1px solid rgba(0, 240, 255, 0.2); }}
+            #ui-overlay {{ position: absolute; top: 14px; left: 14px; color: #00F0FF; font-size: 13px; font-weight: 700; background: rgba(5, 11, 20, 0.85); backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(0,240,255,0.4); text-shadow: 0 0 8px rgba(0,240,255,0.6); letter-spacing: 0.5px; }}
+            #rod-info {{ position: absolute; bottom: 14px; right: 14px; color: #FFFFFF; font-size: 13px; font-weight: 600; background: rgba(5, 11, 20, 0.85); backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); text-shadow: 0 0 5px rgba(255,255,255,0.3); }}
+            #status-banner {{ position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); color: #FFD700; font-size: 22px; font-weight: 800; text-shadow: 0 0 15px #FF8C00, 0 0 5px #000; display: none; pointer-events: none; text-align: center; width: 85%; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); padding: 12px 0; border-radius: 30px; border: 1px solid rgba(255, 215, 0, 0.5); }}
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    </head>
+    <body>
+        <div id="canvas-container">
+            <div id="ui-overlay">✨ ULTRA HIGH-QUALITY 3D REAL-TIME OCEAN ENGINE</div>
+            <div id="status-banner" id="banner">🚨 입질이 왔습니다! 찌를 세게 흔드는 중... 🚨</div>
+            <div id="rod-info">🎣 {rod_name} | 🪱 {bait_name}</div>
+        </div>
+        <script>
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x02050e);
+            scene.fog = new THREE.FogExp2(0x02050e, 0.018);
+
+            const camera = new THREE.PerspectiveCamera(50, container.clientWidth / 480, 0.1, 1000);
+            camera.position.set(0, 4.8, 9.2);
+            camera.lookAt(0, 1.2, 0);
+
+            const renderer = new THREE.WebGLRenderer({{ antialias: true, powerPreference: "high-performance" }});
+            renderer.setSize(container.clientWidth, 480);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.25;
+            container.appendChild(renderer.domElement);
+
+            // 광원 환경 대폭 개선
+            const ambientLight = new THREE.AmbientLight(0x385070, 1.5);
+            scene.add(ambientLight);
+
+            const moonLight = new THREE.DirectionalLight(0x88ccff, 3.0);
+            moonLight.position.set(15, 25, -10);
+            moonLight.castShadow = true;
+            moonLight.shadow.mapSize.width = 2048;
+            moonLight.shadow.mapSize.height = 2048;
+            scene.add(moonLight);
+
+            const rodLight = new THREE.PointLight({rod_color_hex}, 2.8, 12);
+            rodLight.position.set(2.2, 2.5, 5.0);
+            scene.add(rodLight);
+
+            // 바다 수면 개선 (하이엔드 시뮬레이션 메쉬)
+            const oceanGeo = new THREE.PlaneGeometry(100, 100, 100, 100);
+            const oceanMat = new THREE.MeshStandardMaterial({{
+                color: 0x001d3d,
+                roughness: 0.08,
+                metalness: 0.85,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.8
+            }});
+            const ocean = new THREE.Mesh(oceanGeo, oceanMat);
+            ocean.rotation.x = -Math.PI / 2;
+            ocean.receiveShadow = true;
+            scene.add(ocean);
+
+            // --- 고퀄리티 3D 낚시대 렌더링 시스템 ---
+            const rodGroup = new THREE.Group();
+            const rodColor = {rod_color_hex};
+            const shapeType = "{rod_shape}";
+
+            // 1. 하단 고급 EVA/코르크 손잡이
+            const handleGeo = new THREE.CylinderGeometry(0.08, 0.11, 1.6, 32);
+            const handleMat = new THREE.MeshStandardMaterial({{ color: 0x1a1a1a, roughness: 0.5, metalness: 0.2 }});
+            const handleMesh = new THREE.Mesh(handleGeo, handleMat);
+            handleMesh.position.set(0, -0.8, 0);
+            rodGroup.add(handleMesh);
+
+            // 2. 금속 릴 시트 & 릴 메쉬 구현
+            const reelSeatGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.4, 32);
+            const metallicMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.95, roughness: 0.1 }});
+            const reelSeat = new THREE.Mesh(reelSeatGeo, metallicMat);
+            reelSeat.position.set(0, -0.1, 0);
+            rodGroup.add(reelSeat);
+
+            const reelSpoolGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.25, 24);
+            const reelSpool = new THREE.Mesh(reelSpoolGeo, metallicMat);
+            reelSpool.rotation.z = Math.PI / 2;
+            reelSpool.position.set(0, -0.1, -0.18);
+            rodGroup.add(reelSpool);
+
+            const handleArmGeo = new THREE.BoxGeometry(0.04, 0.35, 0.04);
+            const handleArm = new THREE.Mesh(handleArmGeo, metallicMat);
+            handleArm.position.set(0.22, -0.1, -0.18);
+            rodGroup.add(handleArm);
+
+            // 3. 테이퍼드 멀티 세그먼트 메인 낚시대
+            const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.075, 6.2, 32);
+            const mainRodMat = new THREE.MeshStandardMaterial({{
+                color: rodColor,
+                metalness: 0.9,
+                roughness: 0.1,
+                emissive: rodColor,
+                emissiveIntensity: 0.3
+            }});
+            const mainRodMesh = new THREE.Mesh(mainRodGeo, mainRodMat);
+            mainRodMesh.position.set(0, 3.1, 0);
+            rodGroup.add(mainRodMesh);
+
+            // 4. 스틸 가이드 링 (6개 정밀 배치)
+            for(let g = 1; g <= 6; g++) {{
+                const ringSize = 0.08 - g * 0.01;
+                const guideGroup = new THREE.Group();
+                const ringGeo = new THREE.TorusGeometry(ringSize, 0.01, 16, 32);
+                const ringMat = new THREE.MeshStandardMaterial({{ color: 0xdddddd, metalness: 0.95, roughness: 0.05 }});
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.position.set(0, 0, ringSize);
+                guideGroup.add(ring);
+
+                const legGeo = new THREE.CylinderGeometry(0.005, 0.005, ringSize * 1.8);
+                const leg1 = new THREE.Mesh(legGeo, ringMat);
+                leg1.position.set(-ringSize*0.5, -ringSize*0.5, ringSize*0.5);
+                leg1.rotation.z = -0.4;
+                guideGroup.add(leg1);
+
+                guideGroup.position.set(0, g * 0.92, 0);
+                rodGroup.add(guideGroup);
+            }}
+
+            // 5. 형상별 고퀄리티 독자 메쉬 강화
+            if (shapeType === "bamboo") {{
+                for(let b = 0; b < 7; b++) {{
+                    const nodeGeo = new THREE.TorusGeometry(0.075 - b * 0.008, 0.022, 16, 32);
+                    const nodeMat = new THREE.MeshStandardMaterial({{ color: 0x4a2e18, roughness: 0.7 }});
+                    const node = new THREE.Mesh(nodeGeo, nodeMat);
+                    node.position.set(0, b * 0.85 + 0.2, 0);
+                    node.rotation.x = Math.PI / 2;
+                    rodGroup.add(node);
+                }}
+            }} else if (shapeType === "dragon_horns" || shapeType === "trident" || shapeType === "scythe") {{
+                const hornGeo = new THREE.ConeGeometry(0.12, 1.4, 32);
+                const hornMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.95, roughness: 0.05, emissive: rodColor, emissiveIntensity: 0.4 }});
+                const h1 = new THREE.Mesh(hornGeo, hornMat); h1.position.set(-0.25, 5.8, 0); h1.rotation.z = -0.4;
+                const h2 = new THREE.Mesh(hornGeo, hornMat); h2.position.set(0.25, 5.8, 0); h2.rotation.z = 0.4;
+                rodGroup.add(h1); rodGroup.add(h2);
+            }} else if (shapeType === "wings" || shapeType === "feather" || shapeType === "guardian") {{
+                const wingGeo = new THREE.BoxGeometry(0.03, 1.8, 0.6);
+                const wingMat = new THREE.MeshStandardMaterial({{ color: 0xffffff, transparent: true, opacity: 0.85, emissive: rodColor, emissiveIntensity: 0.5 }});
+                const w1 = new THREE.Mesh(wingGeo, wingMat); w1.position.set(-0.35, 3.5, 0); w1.rotation.z = 0.5;
+                const w2 = new THREE.Mesh(wingGeo, wingMat); w2.position.set(0.35, 3.5, 0); w2.rotation.z = -0.5;
+                rodGroup.add(w1); rodGroup.add(w2);
+            }} else if (shapeType === "neon_rings" || shapeType === "portal_orb" || shapeType === "star_staff" || shapeType === "creator_crown") {{
+                const ringGeo = new THREE.TorusGeometry(0.42, 0.04, 16, 32);
+                const ringMat = new THREE.MeshStandardMaterial({{ color: rodColor, emissive: rodColor, emissiveIntensity: 0.9, metalness: 0.8 }});
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.position.set(0, 5.0, 0);
+                rodGroup.add(ring);
+            }} else if (shapeType === "crystal" || shapeType === "ice_spikes") {{
+                const crysGeo = new THREE.OctahedronGeometry(0.35, 0);
+                const crysMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.1, roughness: 0.0, transparent: true, opacity: 0.85, emissive: rodColor, emissiveIntensity: 0.6 }});
+                const crys = new THREE.Mesh(crysGeo, crysMat);
+                crys.position.set(0, 5.2, 0);
+                rodGroup.add(crys);
+            }} else if (shapeType === "lightning" || shapeType === "sun_disc") {{
+                const discGeo = new THREE.TorusGeometry(0.5, 0.05, 16, 32);
+                const discMat = new THREE.MeshStandardMaterial({{ color: rodColor, emissive: rodColor, emissiveIntensity: 1.0 }});
+                const disc = new THREE.Mesh(discGeo, discMat);
+                disc.position.set(0, 5.5, 0);
+                disc.rotation.x = Math.PI / 2;
+                rodGroup.add(disc);
+            }}
+
+            rodGroup.position.set(2.4, -0.4, 5.8);
+            rodGroup.rotation.x = -Math.PI / 5.5;
+            rodGroup.rotation.z = -Math.PI / 7.5;
+            scene.add(rodGroup);
+
+            # 고화질 입체 오라 파티클
+            const pCount = 140;
+            const pGeo = new THREE.BufferGeometry();
+            const pPos = new Float32Array(pCount * 3);
+            for(let i=0; i<pCount*3; i++) {{ pPos[i] = (Math.random() - 0.5) * 2.8; }}
+            pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+            const pMat = new THREE.PointsMaterial({{ size: 0.08, color: rodColor, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending }});
+            const particles = new THREE.Points(pGeo, pMat);
+            particles.position.set(2.4, 2.8, 5.8);
+            scene.add(particles);
+
+            // --- 찌 렌더링 ---
+            const baitType = "{bait_name}";
+            const floatGroup = new THREE.Group();
+            let floatMesh;
+
+            if (baitType === "초강력 미끼") {{
+                floatMesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.28), new THREE.MeshStandardMaterial({{ color: 0x00ff66, metalness: 0.7, roughness: 0.2 }}));
+            }} else if (baitType === "행운의 미끼") {{
+                floatMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(0.28), new THREE.MeshStandardMaterial({{ color: 0xff00ff, metalness: 0.5, roughness: 0.1, emissive: 0xaa00aa, emissiveIntensity: 0.4 }}));
+            }} else if (baitType === "황금 미끼") {{
+                floatMesh = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.32, 0.32), new THREE.MeshStandardMaterial({{ color: 0xffd700, metalness: 0.95, roughness: 0.05 }}));
+            }} else if (baitType === "보스 미끼") {{
+                floatMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(0.38), new THREE.MeshStandardMaterial({{ color: 0xff1100, emissive: 0xff0000, emissiveIntensity: 0.6 }}));
+            }} else {{
+                floatMesh = new THREE.Mesh(new THREE.SphereGeometry(0.24, 32, 32), new THREE.MeshStandardMaterial({{ color: 0xff3300, roughness: 0.3 }}));
+            }}
+            floatGroup.add(floatMesh);
+            floatGroup.position.set(0, 0.1, 1.5);
+            scene.add(floatGroup);
+
+            // 낚싯줄
+            const lineMat = new THREE.LineBasicMaterial({{ color: 0xffffff, transparent: true, opacity: 0.8 }});
+            const lineGeo = new THREE.BufferGeometry();
+            lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+            const fishingLine = new THREE.Line(lineGeo, lineMat);
+            scene.add(fishingLine);
+
+            // --- 3D 물고기 모델 ---
+            const rarity = "{fish_rarity}";
+            const weight = {fish_weight};
+            
+            let scaleBase = 0.35 + Math.log10(Math.max(1, weight)) * 0.28;
+            if (rarity === "Boss") scaleBase *= 2.0;
+            else if (rarity === "Cosmic" || rarity === "Celestial") scaleBase *= 1.5;
+
+            const fishGroup = new THREE.Group();
+            const fBodyGeo = new THREE.ConeGeometry(0.35 * scaleBase, 1.4 * scaleBase, 16);
+            fBodyGeo.rotateX(Math.PI / 2);
+            
+            let fColor = 0x00f0ff;
+            if (rarity === "Epic") fColor = 0xa020f0;
+            else if (rarity === "Legendary") fColor = 0xffa500;
+            else if (rarity === "Mythic" || rarity === "Ancient") fColor = 0xff0055;
+            else if (rarity === "Boss") fColor = 0xff0000;
+
+            const fMat = new THREE.MeshStandardMaterial({{ color: fColor, wireframe: true, emissive: fColor, emissiveIntensity: 0.5 }});
+            const fMesh = new THREE.Mesh(fBodyGeo, fMat);
+            fishGroup.add(fMesh);
+            fishGroup.position.set(2, -0.8, 1.5);
+            scene.add(fishGroup);
+
+            let clock = new THREE.Clock();
+            let status = "{status}";
+
+            function animate() {{
+                requestAnimationFrame(animate);
+                let time = clock.getElapsedTime();
+
+                // 수면 이중 프레스넬 파동 애니메이션
+                const pos = oceanGeo.attributes.position;
+                for (let i = 0; i < pos.count; i++) {{
+                    let u = pos.getX(i);
+                    let v = pos.getY(i);
+                    pos.setZ(i, Math.sin(u * 0.4 + time * 2.2) * 0.22 + Math.cos(v * 0.4 + time * 1.8) * 0.22);
+                }}
+                pos.needsUpdate = true;
+
+                particles.rotation.y = time * 0.5;
+
+                if (status === "biting") {{
+                    document.getElementById("status-banner").style.display = "block";
+                    let touchFreq = (rarity === "Boss" || rarity === "Cosmic") ? 14 : 8;
+                    let approachDist = Math.sin(time * touchFreq) * (0.45 * scaleBase);
+                    
+                    fishGroup.position.x = floatGroup.position.x + Math.cos(time * 6) * (0.6 + approachDist);
+                    fishGroup.position.z = floatGroup.position.z + Math.sin(time * 6) * (0.6 + approachDist);
+                    fishGroup.position.y = -0.3 + Math.sin(time * touchFreq) * 0.25;
+
+                    floatGroup.position.y = Math.sin(time * touchFreq) * (0.18 * scaleBase) - 0.12;
+                    rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * touchFreq) * 0.04;
+
+                }} else if (status === "success") {{
+                    document.getElementById("status-banner").style.display = "none";
+                    floatGroup.position.y = Math.sin(time * 18) * 0.3 - 0.2;
+                    rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * 15) * 0.06;
+                    fishGroup.position.set(floatGroup.position.x, floatGroup.position.y - 0.5, floatGroup.position.z);
+                }} else if (status === "fail") {{
+                    document.getElementById("status-banner").style.display = "none";
+                    floatGroup.position.y = -1.5;
+                    rodGroup.rotation.x = -Math.PI / 4;
+                    fishGroup.position.y = -3.0;
+                }} else {{
+                    document.getElementById("status-banner").style.display = "none";
+                    floatGroup.position.y = Math.sin(time * 3) * 0.08 + 0.05;
+                    rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * 1.5) * 0.02;
+                    
+                    fishGroup.position.x = Math.sin(time * 1.2) * 3;
+                    fishGroup.position.z = Math.cos(time * 1.2) * 2 + 1;
+                }}
+
+                const rodTipWorldPos = new THREE.Vector3(0, 6.2, 0);
+                rodGroup.localToWorld(rodTipWorldPos);
+                const linePositions = fishingLine.geometry.attributes.position.array;
+                linePositions[0] = rodTipWorldPos.x; linePositions[1] = rodTipWorldPos.y; linePositions[2] = rodTipWorldPos.z;
+                linePositions[3] = floatGroup.position.x; linePositions[4] = floatGroup.position.y + 0.2; linePositions[5] = floatGroup.position.z;
+                fishingLine.geometry.attributes.position.needsUpdate = true;
+
+                renderer.render(scene, camera);
+            }}
+            animate();
+
+            window.addEventListener('resize', () => {{
+                camera.aspect = container.clientWidth / 480;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, 480);
+            }});
+        </script>
+    </body>
+    </html>
+    """
+    components.html(html_code, height=490)
+
+
+# -----------------------------------------------------------------------------
+# 4. 낚시 핵심 로직 및 신규 특성/이벤트 수식 적용
+# -----------------------------------------------------------------------------
+def get_current_success_rate():
+    rod_rate = FISHING_RODS[st.session_state.equipped_rod]["catch_rate"]
+    lvl_bonus = (st.session_state.level - 1) * 0.5
+    return min(99.0, rod_rate + lvl_bonus)
 
 
 def add_xp(amount):
-    st.session_state.xp += amount
+    rod_xp_mult = FISHING_RODS[st.session_state.equipped_rod]["exp_mult"]
+    actual_xp = int(amount * rod_xp_mult)
+    st.session_state.xp += actual_xp
 
-    while st.session_state.xp >= get_level_required_xp(
-        st.session_state.level
-    ):
-        st.session_state.xp -= get_level_required_xp(
-            st.session_state.level
-        )
-
+    while st.session_state.xp >= st.session_state.max_xp:
+        st.session_state.xp -= st.session_state.max_xp
         st.session_state.level += 1
+        st.session_state.max_xp = int(st.session_state.max_xp * 1.5)
+        st.toast(f"🎉 레벨업! 현재 레벨: Lv.{st.session_state.level}", icon="⭐")
 
-        st.session_state.message = (
-            f"🎉 레벨 업! 현재 레벨: "
-            f"{st.session_state.level}"
+
+def prepare_fish(selected_bait):
+    if len(st.session_state.inventory) >= st.session_state.max_inventory:
+        st.session_state.last_catch_msg = (
+            "⚠️ 가방이 가득 찼습니다! 물고기를 판매하거나 인벤토리를 업그레이드하세요."
         )
+        st.session_state.auto_fishing = False
+        st.session_state.last_catch_status = "idle"
+        st.session_state.fishing_state = "idle"
+        return False
 
+    if st.session_state.baits[selected_bait] <= 0:
+        st.session_state.last_catch_msg = (
+            "⚠️ 선택한 미끼가 부족하여 낚시를 진행할 수 없습니다."
+        )
+        st.session_state.auto_fishing = False
+        st.session_state.last_catch_status = "idle"
+        st.session_state.fishing_state = "idle"
+        return False
 
-def choose_trait(rod_luck=0.0):
-    roll = random.random()
+    if selected_bait != "일반 미끼":
+        st.session_state.baits[selected_bait] -= 1
 
-    bonus = rod_luck * 0.20
+    spawn_active, trait_active = check_event_status()
+    rod_data = FISHING_RODS[st.session_state.equipped_rod]
+    luck_score = (st.session_state.level * 1.5) + rod_data["rare_bonus"]
 
-    dimension = 0.01 + bonus * 0.20
-    rainbow = 0.02 + bonus * 0.30
-    gold = 0.05 + bonus * 0.50
-    silver = 0.10 + bonus * 0.80
+    # 출현 확률 정의 (이벤트 시 3배)
+    spawn_mult = 3.0 if spawn_active else 1.0
+    p_boss = 0.1 * spawn_mult
+    p_cosmic = 0.4 * spawn_mult
+    p_celestial = 0.9 * spawn_mult
+    p_ancient = 2.0 * spawn_mult
+    p_mythic = 3.5 * spawn_mult
 
-    if roll < dimension:
-        return "차원"
+    rand_tier = random.uniform(0, 100) + (luck_score * 0.1)
 
-    roll -= dimension
+    if selected_bait == "보스 미끼":
+        target_rarity = "Boss"
+    elif selected_bait == "행운의 미끼":
+        target_rarity = random.choice(["Epic", "Legendary", "Mythic"])
+    elif rand_tier >= (100.0 - p_boss):
+        target_rarity = "Boss"
+    elif rand_tier >= (100.0 - p_boss - p_cosmic):
+        target_rarity = "Cosmic"
+    elif rand_tier >= (100.0 - p_boss - p_cosmic - p_celestial):
+        target_rarity = "Celestial"
+    elif rand_tier >= (100.0 - p_boss - p_cosmic - p_celestial - p_ancient):
+        target_rarity = "Ancient"
+    elif rand_tier >= (
+        100.0 - p_boss - p_cosmic - p_celestial - p_ancient - p_mythic
+    ):
+        target_rarity = "Mythic"
+    elif rand_tier >= 87.1:
+        target_rarity = "Legendary"
+    elif rand_tier >= 75.1:
+        target_rarity = "Epic"
+    elif rand_tier >= 55.1:
+        target_rarity = "Rare"
+    elif rand_tier >= 30.1:
+        target_rarity = "Uncommon"
+    else:
+        target_rarity = "Common"
 
-    if roll < rainbow:
-        return "무지개"
-
-    roll -= rainbow
-
-    if roll < gold:
-        return "골드"
-
-    roll -= gold
-
-    if roll < silver:
-        return "실버"
-
-    return "없음"
-
-
-def choose_rarity(rod_power=1):
-    power_bonus = min(
-        rod_power / 1000,
-        0.5
-    )
-
-    roll = random.random()
-
-    weights = {
-        "일반": 55,
-        "희귀": 22,
-        "레어": 12,
-        "전설": 6,
-        "신화": 3,
-        "고대": 1.5,
-        "천상": 0.4,
-        "차원": 0.1
-    }
-
-    weights["희귀"] += power_bonus * 5
-    weights["레어"] += power_bonus * 4
-    weights["전설"] += power_bonus * 3
-    weights["신화"] += power_bonus * 2
-    weights["고대"] += power_bonus
-    weights["천상"] += power_bonus * 0.3
-    weights["차원"] += power_bonus * 0.1
-
-    total = sum(weights.values())
-
-    value = roll * total
-
-    current = 0
-
-    for rarity, weight in weights.items():
-        current += weight
-
-        if value <= current:
-            return rarity
-
-    return "일반"
-
-
-def choose_fish(rod_power=1):
-    rarity = choose_rarity(
-        rod_power
-    )
-
-    possible = [
-        fish for fish in FISH
-        if fish["rarity"] == rarity
+    candidates = [
+        k
+        for k, v in FISH_BOOK_TEMPLATE.items()
+        if v["rarity"] == target_rarity
     ]
-
-    if not possible:
-        possible = [
-            fish for fish in FISH
-            if fish["rarity"] == "일반"
+    if not candidates:
+        candidates = [
+            k for k, v in FISH_BOOK_TEMPLATE.items() if v["rarity"] == "Common"
         ]
 
-    return random.choice(
-        possible
-    )
+    fish_name = random.choice(candidates)
+    info = FISH_BOOK_TEMPLATE[fish_name]
+    weight = round(random.uniform(info["min_w"], info["max_w"]), 2)
 
+    # 특성 결정 로직 (특성 확률 이벤트 시 2배)
+    trait_mult_factor = 2.0 if trait_active else 1.0
+    selected_trait = None
 
-def calculate_price(
-    fish,
-    weight,
-    trait
-):
-    rarity_multiplier = RARITY_DATA[
-        fish["rarity"]
-    ]["multiplier"]
+    if selected_bait == "황금 미끼":
+        selected_trait = {"name": "전설의", "val": 1.5, "is_pow": False}
+    else:
+        # 신규 특성 4종 판정
+        for st_item in SPECIAL_TRAITS:
+            prob = min(1.0, st_item["prob"] * trait_mult_factor)
+            if random.random() < prob:
+                selected_trait = {
+                    "name": st_item["name"],
+                    "val": st_item["val"],
+                    "is_pow": True,
+                }
+                break
 
-    trait_multiplier = TRAIT_DATA[
-        trait
-    ]["multiplier"]
+        # 신규 특성이 붙지 않았을 경우 기본 특성 선택
+        if not selected_trait:
+            bt = random.choice(BASE_TRAITS)
+            selected_trait = {
+                "name": bt["name"],
+                "val": bt["mult"],
+                "is_pow": False,
+            }
 
-    weight_multiplier = max(
-        0.1,
-        weight
-    )
-
-    price = (
-        fish["base_price"]
-        * weight_multiplier
-        * rarity_multiplier
-        * trait_multiplier
-    )
-
-    return int(price)
-
-
-def catch_fish():
-
-    rod = RODS[
-        st.session_state.equipped_rod
-    ]
-
-    fish = choose_fish(
-        rod["power"]
-    )
-
-    weight = random.uniform(
-        fish["min_weight"],
-        fish["max_weight"]
-    )
-
-    trait = choose_trait(
-        rod["luck"]
-    )
-
-    price = calculate_price(
-        fish,
-        weight,
-        trait
-    )
-
-    xp = max(
-        10,
-        int(price / 100)
-    )
-
-    caught = {
-        "name": fish["name"],
-        "rarity": fish["rarity"],
-        "trait": trait,
-        "weight": round(
-            weight,
-            2
-        ),
-        "price": price,
-        "time": time.strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
+    st.session_state.pending_fish = {
+        "name": fish_name,
+        "weight": weight,
+        "trait": selected_trait["name"],
+        "trait_val": selected_trait["val"],
+        "is_pow": selected_trait["is_pow"],
+        "base_price": info["base_p"],
+        "rod_gold_mult": rod_data["gold_mult"],
+        "xp": info["xp"],
+        "rarity": info["rarity"],
     }
 
-    st.session_state.caught_fish.append(
-        caught
+    st.session_state.fishing_state = "biting"
+    st.session_state.last_catch_status = "biting"
+    st.session_state.last_catch_msg = (
+        "🚨 찌가 강하게 흔들립니다! 물고기가 입질 중입니다..."
     )
+    return True
 
-    st.session_state.last_catch = caught
 
-    st.session_state.total_catches += 1
+def finalize_catch():
+    success_rate = get_current_success_rate()
+    roll = random.uniform(0, 100)
 
-    st.session_state.best_price = max(
-        st.session_state.best_price,
-        price
-    )
-
-    key = fish["name"]
-
-    if key not in st.session_state.codex:
-
-        st.session_state.codex[key] = {
-            "name": fish["name"],
-            "rarity": fish["rarity"],
-            "count": 1,
-            "best_weight": round(
-                weight,
-                2
-            ),
-            "best_price": price
-        }
-
+    if roll > success_rate:
+        st.session_state.last_catch_msg = f"💥 낚싯줄이 터졌거나 물고기가 도망쳤습니다! (성공률: {success_rate:.1f}%)"
+        st.session_state.last_catch_status = "fail"
     else:
+        item = st.session_state.pending_fish
+        st.session_state.inventory.append(item)
+        st.session_state.records[item["name"]] += 1
+        add_xp(item["xp"])
+        st.session_state.last_catch_msg = f"🎉 [{item['rarity']}] {item['trait']} {item['name']} (을)를 낚았습니다! ({item['weight']}kg)"
+        st.session_state.last_catch_status = "success"
 
-        st.session_state.codex[key]["count"] += 1
+    st.session_state.pending_fish = None
+    st.session_state.fishing_state = "idle"
 
-        if (
-            weight
-            >
-            st.session_state.codex[key]["best_weight"]
-        ):
-            st.session_state.codex[key][
-                "best_weight"
-            ] = round(
-                weight,
-                2
-            )
 
-        if (
-            price
-            >
-            st.session_state.codex[key]["best_price"]
-        ):
-            st.session_state.codex[key][
-                "best_price"
-            ] = price
+def calculate_fish_price(fish):
+    weight_factor = fish["weight"] ** 0.5
+    # 특성 배수 계산: 제곱 연산형인 경우 (값^2), 일반 연산형인 경우 (값)
+    if fish.get("is_pow", False):
+        trait_factor = fish["trait_val"] ** 2
+    else:
+        trait_factor = fish.get("trait_val", 1.0)
 
-    add_xp(xp)
-
-    return caught
+    price = int(
+        fish["base_price"]
+        * weight_factor
+        * trait_factor
+        * fish.get("rod_gold_mult", 1.0)
+    )
+    return max(1, price)
 
 
 def sell_all_fish():
+    if not st.session_state.inventory:
+        st.warning("판매할 물고기가 없습니다.")
+        return
 
-    total = sum(
-        fish["price"]
-        for fish
-        in st.session_state.caught_fish
+    total = sum(calculate_fish_price(f) for f in st.session_state.inventory)
+    st.session_state.gold += total
+    st.session_state.inventory.clear()
+    st.success(
+        f"💰 모든 물고기를 판매하여 {total:,} 골드를 획득했습니다!"
     )
 
-    st.session_state.money += total
 
-    st.session_state.caught_fish = []
+# -----------------------------------------------------------------------------
+# 5. UI 화면 구성 및 입질 3초 타이머 처리
+# -----------------------------------------------------------------------------
+st.title("🎣 판타지 3D 낚시 게임 v7.0")
 
-    return total
+# 사이드바
+with st.sidebar:
+    st.header("👤 플레이어 정보")
+    st.write(f"**레벨:** Lv.{st.session_state.level}")
+    st.progress(min(st.session_state.xp / st.session_state.max_xp, 1.0))
+    st.caption(f"XP: {st.session_state.xp} / {st.session_state.max_xp}")
+    st.write(f"**소지금:** {st.session_state.gold:,} G")
+    st.write(
+        f"**장착 중인 낚시대:** `{st.session_state.equipped_rod}`"
+    )
 
+    st.divider()
+    st.subheader("🎉 대형 이벤트 컨트롤러")
+    spawn_active, trait_active = check_event_status()
+    now = time.time()
 
-def buy_rod(index):
-
-    rod = RODS[index]
-
-    if index in st.session_state.owned_rods:
-
-        st.session_state.equipped_rod = index
-
-        return (
-            True,
-            f"🎣 {rod['name']} 장착!"
+    # 이벤트 1 버튼: 신화~보스 등급 확률 3배 (3분)
+    if not spawn_active:
+        if st.button("🔥 희귀 등급 3배 이벤트 (3분)", use_container_width=True):
+            st.session_state.spawn_event_end = time.time() + 180
+            st.rerun()
+    else:
+        rem_spawn = int(st.session_state.spawn_event_end - now)
+        st.info(
+            f"🔥 **희귀 등급 3배 이벤트 진행 중!**\n남은 시간: {rem_spawn}초"
         )
 
-    if (
-        st.session_state.money
-        <
-        rod["price"]
-    ):
-
-        return (
-            False,
-            "💰 돈이 부족합니다."
+    # 이벤트 2 버튼: 물고기 특성 붙을 확률 2배 (3분)
+    if not trait_active:
+        if st.button(
+            "🌟 특성 확률 2배 이벤트 (3분)", use_container_width=True
+        ):
+            st.session_state.trait_event_end = time.time() + 180
+            st.rerun()
+    else:
+        rem_trait = int(st.session_state.trait_event_end - now)
+        st.info(
+            f"🌟 **특성 확률 2배 이벤트 진행 중!**\n남은 시간: {rem_trait}초"
         )
 
-    st.session_state.money -= rod["price"]
-
-    st.session_state.owned_rods.append(
-        index
+    st.divider()
+    st.subheader("🎒 인벤토리 관리")
+    st.write(
+        f"**용량:** {len(st.session_state.inventory)} / {st.session_state.max_inventory} 칸"
     )
 
-    st.session_state.equipped_rod = index
+    cost = get_inventory_upgrade_cost()
+    if st.button(f"➕ 인벤토리 +5칸 확장 ({cost:,} G)"):
+        if st.session_state.gold >= cost:
+            st.session_state.gold -= cost
+            st.session_state.max_inventory += 5
+            st.session_state.inventory_upgrades += 1
+            st.success("인벤토리 용량이 +5칸 확장되었습니다!")
+            st.rerun()
+        else:
+            st.error("골드가 부족합니다.")
 
-    return (
-        True,
-        f"🎣 {rod['name']} 구매 및 장착 완료!"
-    )
-
-
-def save_game():
-
-    data = {
-        "money": st.session_state.money,
+    st.divider()
+    st.subheader("💾 게임 저장 / 불러오기")
+    save_data = {
         "level": st.session_state.level,
         "xp": st.session_state.xp,
-        "total_catches": st.session_state.total_catches,
-        "best_price": st.session_state.best_price,
-        "caught_fish": st.session_state.caught_fish,
-        "codex": st.session_state.codex,
+        "max_xp": st.session_state.max_xp,
+        "gold": st.session_state.gold,
+        "equipped_rod": st.session_state.equipped_rod,
         "owned_rods": st.session_state.owned_rods,
-        "equipped_rod": st.session_state.equipped_rod
+        "inventory": st.session_state.inventory,
+        "max_inventory": st.session_state.max_inventory,
+        "inventory_upgrades": st.session_state.inventory_upgrades,
+        "baits": st.session_state.baits,
+        "records": st.session_state.records,
     }
-
-    return json.dumps(
-        data,
-        ensure_ascii=False,
-        indent=2
+    json_str = json.dumps(save_data, ensure_ascii=False, indent=2)
+    st.download_button(
+        "💾 데이터 다운로드",
+        data=json_str,
+        file_name="fishing_save_v7.json",
+        mime="application/json",
     )
 
-
-def load_game(data):
-
-    try:
-
-        obj = json.loads(data)
-
-        st.session_state.money = obj.get(
-            "money",
-            1000
-        )
-
-        st.session_state.level = obj.get(
-            "level",
-            1
-        )
-
-        st.session_state.xp = obj.get(
-            "xp",
-            0
-        )
-
-        st.session_state.total_catches = obj.get(
-            "total_catches",
-            0
-        )
-
-        st.session_state.best_price = obj.get(
-            "best_price",
-            0
-        )
-
-        st.session_state.caught_fish = obj.get(
-            "caught_fish",
-            []
-        )
-
-        st.session_state.codex = obj.get(
-            "codex",
-            {}
-        )
-
-        st.session_state.owned_rods = obj.get(
-            "owned_rods",
-            [0]
-        )
-
-        st.session_state.equipped_rod = obj.get(
-            "equipped_rod",
-            0
-        )
-
-        return True
-
-    except Exception:
-
-        return False
-
-
-# ============================================================
-# CSS
-# ============================================================
-
-st.markdown(
-    """
-<style>
-
-html, body, [class*="css"] {
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-}
-
-.stApp {
-    background:
-        radial-gradient(
-            circle at top,
-            #18395c 0%,
-            #081522 45%,
-            #03070c 100%
-        );
-}
-
-.block-container {
-    max-width: 1500px;
-    padding-top: 1rem;
-}
-
-.game-title {
-    font-size: 42px;
-    font-weight: 900;
-    text-align: center;
-    color: white;
-    text-shadow:
-        0 0 10px #00bfff,
-        0 0 30px #0077ff;
-    margin-bottom: 10px;
-}
-
-.stat-card {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255,255,255,0.08),
-            rgba(255,255,255,0.025)
-        );
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 15px;
-    padding: 15px;
-    text-align: center;
-    box-shadow:
-        0 10px 30px rgba(0,0,0,0.25);
-}
-
-.stat-value {
-    font-size: 25px;
-    font-weight: 900;
-    color: white;
-}
-
-.stat-label {
-    color: #9fb4c8;
-    font-size: 13px;
-}
-
-.rod-card {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255,255,255,0.08),
-            rgba(255,255,255,0.02)
-        );
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 15px;
-    padding: 15px;
-    margin-bottom: 10px;
-}
-
-.fish-card {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255,255,255,0.08),
-            rgba(255,255,255,0.025)
-        );
-    border-radius: 15px;
-    padding: 15px;
-    margin-bottom: 10px;
-    border: 1px solid rgba(255,255,255,0.12);
-}
-
-.big-result {
-    background:
-        radial-gradient(
-            circle,
-            rgba(0,191,255,0.18),
-            rgba(0,0,0,0.15)
-        );
-    border: 2px solid rgba(0,191,255,0.5);
-    border-radius: 20px;
-    padding: 25px;
-    text-align: center;
-    margin-top: 15px;
-}
-
-.big-result-name {
-    font-size: 35px;
-    font-weight: 900;
-    color: white;
-}
-
-.big-result-price {
-    font-size: 27px;
-    font-weight: 900;
-    color: #ffe66d;
-}
-
-.rarity {
-    font-weight: 900;
-}
-
-</style>
-""",
-    unsafe_allow_html=True
-)
-
-
-# ============================================================
-# 제목
-# ============================================================
-
-st.markdown(
-    '<div class="game-title">🎣 3D FISHING WORLD</div>',
-    unsafe_allow_html=True
-)
-
-
-# ============================================================
-# 상단 스탯
-# ============================================================
-
-current_rod = RODS[
-    st.session_state.equipped_rod
-]
-
-xp_required = get_level_required_xp(
-    st.session_state.level
-)
-
-c1, c2, c3, c4, c5 = st.columns(5)
-
-
-with c1:
-
-    st.markdown(
-        f"""
-        <div class="stat-card">
-
-            <div class="stat-label">
-                💰 보유 골드
-            </div>
-
-            <div class="stat-value">
-                {st.session_state.money:,}
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-with c2:
-
-    st.markdown(
-        f"""
-        <div class="stat-card">
-
-            <div class="stat-label">
-                ⭐ 레벨
-            </div>
-
-            <div class="stat-value">
-                {st.session_state.level}
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-with c3:
-
-    st.markdown(
-        f"""
-        <div class="stat-card">
-
-            <div class="stat-label">
-                ✨ 경험치
-            </div>
-
-            <div class="stat-value">
-                {st.session_state.xp:,}
-                /
-                {xp_required:,}
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-with c4:
-
-    st.markdown(
-        f"""
-        <div class="stat-card">
-
-            <div class="stat-label">
-                🐟 낚은 물고기
-            </div>
-
-            <div class="stat-value">
-                {st.session_state.total_catches:,}
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-with c5:
-
-    st.markdown(
-        f"""
-        <div class="stat-card">
-
-            <div class="stat-label">
-                🎣 현재 낚싯대
-            </div>
-
-            <div class="stat-value">
-                {current_rod["name"]}
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# 3D 게임 화면
-# ============================================================
-
-def render_3d_ocean_view(
-    rod_color,
-    rod_shape,
-    rod_power,
-    last_result=None
-):
-
-    result_name = ""
-
-    if last_result:
-
-        result_name = last_result["name"]
-
-    html_code = f"""
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<meta charset="UTF-8">
-
-<style>
-
-html, body {{
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    background: #02070d;
-}}
-
-#game {{
-    width: 100%;
-    height: 100%;
-}}
-
-#hud {{
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    z-index: 10;
-    color: white;
-    font-family: Arial, sans-serif;
-    pointer-events: none;
-}}
-
-.hud-box {{
-    background: rgba(0,0,0,0.35);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 12px;
-    padding: 10px 14px;
-    backdrop-filter: blur(8px);
-}}
-
-#status {{
-    position: absolute;
-    bottom: 18px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-family: Arial, sans-serif;
-    font-size: 18px;
-    font-weight: bold;
-    text-shadow: 0 2px 5px black;
-    z-index: 10;
-}}
-
-</style>
-
-</head>
-
-<body>
-
-<div id="game"></div>
-
-<div id="hud">
-
-    <div class="hud-box">
-
-        🎣 {rod_shape.upper()} ROD
-
-        <br>
-
-        POWER {rod_power}
-
-    </div>
-
-</div>
-
-<div id="status">
-    물고기를 기다리는 중...
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-<script>
-
-const container =
-    document.getElementById("game");
-
-
-const scene =
-    new THREE.Scene();
-
-
-scene.fog =
-    new THREE.FogExp2(
-        0x061421,
-        0.018
-    );
-
-
-const camera =
-    new THREE.PerspectiveCamera(
-        48,
-        window.innerWidth /
-        window.innerHeight,
-        0.1,
-        500
-    );
-
-
-camera.position.set(
-    0,
-    5.5,
-    10
-);
-
-
-camera.lookAt(
-    0,
-    1,
-    -4
-);
-
-
-const renderer =
-    new THREE.WebGLRenderer({{
-        antialias: true
-    }});
-
-
-renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
-);
-
-
-renderer.setPixelRatio(
-    Math.min(
-        window.devicePixelRatio,
-        2
-    )
-);
-
-
-renderer.shadowMap.enabled = true;
-
-
-renderer.shadowMap.type =
-    THREE.PCFSoftShadowMap;
-
-
-renderer.outputEncoding =
-    THREE.sRGBEncoding;
-
-
-renderer.toneMapping =
-    THREE.ACESFilmicToneMapping;
-
-
-renderer.toneMappingExposure =
-    1.15;
-
-
-container.appendChild(
-    renderer.domElement
-);
-
-
-// ========================================================
-// 조명
-// ========================================================
-
-const hemi =
-    new THREE.HemisphereLight(
-        0x8fdcff,
-        0x06101c,
-        1.5
-    );
-
-
-scene.add(hemi);
-
-
-const sun =
-    new THREE.DirectionalLight(
-        0xffffff,
-        2.5
-    );
-
-
-sun.position.set(
-    -10,
-    20,
-    10
-);
-
-
-sun.castShadow = true;
-
-
-sun.shadow.mapSize.width =
-    2048;
-
-
-sun.shadow.mapSize.height =
-    2048;
-
-
-scene.add(sun);
-
-
-const rodLight =
-    new THREE.PointLight(
-        {json.dumps(rod_color)},
-        2.5,
-        15
-    );
-
-
-rodLight.position.set(
-    0,
-    2,
-    2
-);
-
-
-scene.add(rodLight);
-
-
-// ========================================================
-// 하늘
-// ========================================================
-
-const skyGeometry =
-    new THREE.SphereGeometry(
-        100,
-        32,
-        32
-    );
-
-
-const skyMaterial =
-    new THREE.MeshBasicMaterial({{
-        color: 0x061827,
-        side: THREE.BackSide
-    }});
-
-
-const sky =
-    new THREE.Mesh(
-        skyGeometry,
-        skyMaterial
-    );
-
-
-scene.add(sky);
-
-
-// ========================================================
-// 물
-// ========================================================
-
-const waterGeometry =
-    new THREE.PlaneGeometry(
-        100,
-        100,
-        100,
-        100
-    );
-
-
-waterGeometry.rotateX(
-    -Math.PI / 2
-);
-
-
-const waterMaterial =
-    new THREE.MeshPhysicalMaterial({{
-        color: 0x087a9c,
-        metalness: 0.05,
-        roughness: 0.12,
-        transparent: true,
-        opacity: 0.88,
-        clearcoat: 1,
-        clearcoatRoughness: 0.08
-    }});
-
-
-const water =
-    new THREE.Mesh(
-        waterGeometry,
-        waterMaterial
-    );
-
-
-water.position.y = 0;
-
-
-water.receiveShadow = true;
-
-
-scene.add(water);
-
-
-// ========================================================
-// 바닥
-// ========================================================
-
-const seabedGeometry =
-    new THREE.PlaneGeometry(
-        100,
-        100
-    );
-
-
-seabedGeometry.rotateX(
-    -Math.PI / 2
-);
-
-
-const seabedMaterial =
-    new THREE.MeshStandardMaterial({{
-        color: 0x092c3a,
-        roughness: 1
-    }});
-
-
-const seabed =
-    new THREE.Mesh(
-        seabedGeometry,
-        seabedMaterial
-    );
-
-
-seabed.position.y = -4;
-
-
-scene.add(seabed);
-
-
-// ========================================================
-// 부두
-// ========================================================
-
-function createBox(
-    x,
-    y,
-    z,
-    sx,
-    sy,
-    sz,
-    color
-) {{
-
-    const geometry =
-        new THREE.BoxGeometry(
-            sx,
-            sy,
-            sz
-        );
-
-
-    const material =
-        new THREE.MeshStandardMaterial({{
-            color: color,
-            roughness: 0.55
-        }});
-
-
-    const mesh =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-
-    mesh.position.set(
-        x,
-        y,
-        z
-    );
-
-
-    mesh.castShadow = true;
-
-
-    mesh.receiveShadow = true;
-
-
-    scene.add(mesh);
-
-
-    return mesh;
-}}
-
-
-// 넓은 부두
-createBox(
-    0,
-    -0.15,
-    4,
-    18,
-    0.5,
-    7,
-    0x4b2d1d
-);
-
-
-// 나무 판자
-for (
-    let x = -8;
-    x <= 8;
-    x += 1
-) {{
-
-    createBox(
-        x,
-        0.14,
-        4,
-        0.08,
-        0.06,
-        6.8,
-        0x7a4a2b
-    );
-
-}}
-
-
-// 난간
-for (
-    let x = -8;
-    x <= 8;
-    x += 2
-) {{
-
-    createBox(
-        x,
-        1,
-        0.8,
-        0.15,
-        2,
-        0.15,
-        0x4c2d1c
-    );
-
-
-    createBox(
-        x,
-        1,
-        7.2,
-        0.15,
-        2,
-        0.15,
-        0x4c2d1c
-    );
-
-}}
-
-
-// ========================================================
-// 낚싯대
-// ========================================================
-
-const rodGroup =
-    new THREE.Group();
-
-
-rodGroup.position.set(
-    0,
-    1.1,
-    3.0
-);
-
-
-rodGroup.rotation.x =
-    -0.35;
-
-
-scene.add(rodGroup);
-
-
-// 손잡이
-const handleGeometry =
-    new THREE.CylinderGeometry(
-        0.16,
-        0.22,
-        1.8,
-        16
-    );
-
-
-const handleMaterial =
-    new THREE.MeshStandardMaterial({{
-        color: 0x3a2417,
-        roughness: 0.7
-    }});
-
-
-const handle =
-    new THREE.Mesh(
-        handleGeometry,
-        handleMaterial
-    );
-
-
-handle.rotation.z =
-    Math.PI / 2;
-
-
-handle.position.x =
-    -0.7;
-
-
-rodGroup.add(handle);
-
-
-// 손잡이 링
-for (
-    let i = 0;
-    i < 6;
-    i++
-) {{
-
-    const ringGeometry =
-        new THREE.TorusGeometry(
-            0.18,
-            0.025,
-            8,
-            20
-        );
-
-
-    const ringMaterial =
-        new THREE.MeshStandardMaterial({{
-            color: 0x222222,
-            metalness: 0.8,
-            roughness: 0.25
-        }});
-
-
-    const ring =
-        new THREE.Mesh(
-            ringGeometry,
-            ringMaterial
-        );
-
-
-    ring.rotation.y =
-        Math.PI / 2;
-
-
-    ring.position.x =
-        -1.45 +
-        i * 0.25;
-
-
-    rodGroup.add(ring);
-
-}}
-
-
-// 낚싯대 본체
-const rodGeometry =
-    new THREE.CylinderGeometry(
-        0.035,
-        0.10,
-        7.5,
-        14
-    );
-
-
-const rodMaterial =
-    new THREE.MeshPhysicalMaterial({{
-        color: {json.dumps(rod_color)},
-        metalness: 0.35,
-        roughness: 0.22,
-        clearcoat: 1
-    }});
-
-
-const rod =
-    new THREE.Mesh(
-        rodGeometry,
-        rodMaterial
-    );
-
-
-rod.rotation.z =
-    -Math.PI / 2;
-
-
-rod.position.x =
-    2.6;
-
-
-rod.castShadow = true;
-
-
-rodGroup.add(rod);
-
-
-// 낚싯대 가이드
-for (
-    let i = 0;
-    i < 7;
-    i++
-) {{
-
-    const guideGeometry =
-        new THREE.TorusGeometry(
-            0.13 - i * 0.01,
-            0.018,
-            8,
-            16
-        );
-
-
-    const guideMaterial =
-        new THREE.MeshStandardMaterial({{
-            color: 0x222222,
-            metalness: 0.9,
-            roughness: 0.2
-        }});
-
-
-    const guide =
-        new THREE.Mesh(
-            guideGeometry,
-            guideMaterial
-        );
-
-
-    guide.rotation.y =
-        Math.PI / 2;
-
-
-    guide.position.x =
-        0.0 +
-        i * 0.85;
-
-
-    guide.position.y =
-        0.08;
-
-
-    rodGroup.add(guide);
-
-}}
-
-
-// ========================================================
-// 릴
-// ========================================================
-
-const reelGroup =
-    new THREE.Group();
-
-
-reelGroup.position.set(
-    -0.2,
-    0.25,
-    0
-);
-
-
-rodGroup.add(reelGroup);
-
-
-const spoolGeometry =
-    new THREE.CylinderGeometry(
-        0.35,
-        0.35,
-        0.18,
-        24
-    );
-
-
-const spoolMaterial =
-    new THREE.MeshStandardMaterial({{
-        color: 0x20242a,
-        metalness: 0.9,
-        roughness: 0.18
-    }});
-
-
-const spool =
-    new THREE.Mesh(
-        spoolGeometry,
-        spoolMaterial
-    );
-
-
-spool.rotation.z =
-    Math.PI / 2;
-
-
-reelGroup.add(spool);
-
-
-const reelDiskGeometry =
-    new THREE.CylinderGeometry(
-        0.42,
-        0.42,
-        0.06,
-        24
-    );
-
-
-const reelDiskMaterial =
-    new THREE.MeshStandardMaterial({{
-        color: {json.dumps(rod_color)},
-        metalness: 0.8,
-        roughness: 0.2
-    }});
-
-
-const reelDisk =
-    new THREE.Mesh(
-        reelDiskGeometry,
-        reelDiskMaterial
-    );
-
-
-reelDisk.rotation.z =
-    Math.PI / 2;
-
-
-reelGroup.add(
-    reelDisk
-);
-
-
-// ========================================================
-// 찌
-// ========================================================
-
-const bobberGroup =
-    new THREE.Group();
-
-
-bobberGroup.position.set(
-    0,
-    0.5,
-    -5
-);
-
-
-scene.add(
-    bobberGroup
-);
-
-
-const bobberGeometry =
-    new THREE.SphereGeometry(
-        0.18,
-        16,
-        16
-    );
-
-
-const bobberMaterial =
-    new THREE.MeshPhysicalMaterial({{
-        color: 0xff3d3d,
-        roughness: 0.2,
-        clearcoat: 1
-    }});
-
-
-const bobber =
-    new THREE.Mesh(
-        bobberGeometry,
-        bobberMaterial
-    );
-
-
-bobberGroup.add(
-    bobber
-);
-
-
-const tipGeometry =
-    new THREE.CylinderGeometry(
-        0.04,
-        0.04,
-        0.6,
-        10
-    );
-
-
-const tipMaterial =
-    new THREE.MeshStandardMaterial({{
-        color: 0xffffff
-    }});
-
-
-const tip =
-    new THREE.Mesh(
-        tipGeometry,
-        tipMaterial
-    );
-
-
-tip.position.y =
-    0.3;
-
-
-bobberGroup.add(
-    tip
-);
-
-
-// ========================================================
-// 낚싯줄
-// ========================================================
-
-const lineMaterial =
-    new THREE.LineBasicMaterial({{
-        color: 0xe9f7ff,
-        transparent: true,
-        opacity: 0.75
-    }});
-
-
-const lineGeometry =
-    new THREE.BufferGeometry();
-
-
-const line =
-    new THREE.Line(
-        lineGeometry,
-        lineMaterial
-    );
-
-
-scene.add(line);
-
-
-// ========================================================
-// 물고기
-// ========================================================
-
-const fishGroup =
-    new THREE.Group();
-
-
-fishGroup.position.set(
-    0,
-    -1.2,
-    -5
-);
-
-
-scene.add(
-    fishGroup
-);
-
-
-const fishBodyGeometry =
-    new THREE.SphereGeometry(
-        0.45,
-        20,
-        14
-    );
-
-
-const fishBodyMaterial =
-    new THREE.MeshPhysicalMaterial({{
-        color: 0xff8844,
-        metalness: 0.15,
-        roughness: 0.3,
-        clearcoat: 0.8
-    }});
-
-
-const fishBody =
-    new THREE.Mesh(
-        fishBodyGeometry,
-        fishBodyMaterial
-    );
-
-
-fishBody.scale.set(
-    1.7,
-    0.8,
-    0.65
-);
-
-
-fishGroup.add(
-    fishBody
-);
-
-
-// 꼬리
-const tailGeometry =
-    new THREE.ConeGeometry(
-        0.4,
-        0.8,
-        3
-    );
-
-
-const tailMaterial =
-    new THREE.MeshStandardMaterial({{
-        color: 0xff6644
-    }});
-
-
-const tail =
-    new THREE.Mesh(
-        tailGeometry,
-        tailMaterial
-    );
-
-
-tail.rotation.z =
-    Math.PI / 2;
-
-
-tail.position.x =
-    -0.95;
-
-
-fishGroup.add(
-    tail
-);
-
-
-// 지느러미
-const finGeometry =
-    new THREE.ConeGeometry(
-        0.25,
-        0.6,
-        3
-    );
-
-
-const finMaterial =
-    new THREE.MeshStandardMaterial({{
-        color: 0xff7744
-    }});
-
-
-const finTop =
-    new THREE.Mesh(
-        finGeometry,
-        finMaterial
-    );
-
-
-finTop.position.y =
-    0.4;
-
-
-finTop.rotation.z =
-    Math.PI;
-
-
-fishGroup.add(
-    finTop
-);
-
-
-// 눈
-function createEye(
-    x,
-    z
-) {{
-
-    const eyeGeometry =
-        new THREE.SphereGeometry(
-            0.08,
-            12,
-            12
-        );
-
-
-    const eyeMaterial =
-        new THREE.MeshStandardMaterial({{
-            color: 0xffffff
-        }});
-
-
-    const eye =
-        new THREE.Mesh(
-            eyeGeometry,
-            eyeMaterial
-        );
-
-
-    eye.position.set(
-        x,
-        0.2,
-        z
-    );
-
-
-    fishGroup.add(
-        eye
-    );
-
-
-    const pupilGeometry =
-        new THREE.SphereGeometry(
-            0.035,
-            8,
-            8
-        );
-
-
-    const pupilMaterial =
-        new THREE.MeshStandardMaterial({{
-            color: 0x000000
-        }});
-
-
-    const pupil =
-        new THREE.Mesh(
-            pupilGeometry,
-            pupilMaterial
-        );
-
-
-    pupil.position.set(
-        x + 0.06,
-        0.2,
-        z
-    );
-
-
-    fishGroup.add(
-        pupil
-    );
-
-}}
-
-
-createEye(
-    0.55,
-    0.28
-);
-
-
-createEye(
-    0.55,
-    -0.28
-);
-
-
-// ========================================================
-// 파티클
-// ========================================================
-
-const particleCount =
-    500;
-
-
-const particlePositions =
-    new Float32Array(
-        particleCount * 3
-    );
-
-
-for (
-    let i = 0;
-    i < particleCount;
-    i++
-) {{
-
-    particlePositions[
-        i * 3
-    ] =
-        (Math.random() - 0.5) * 40;
-
-
-    particlePositions[
-        i * 3 + 1
-    ] =
-        Math.random() * 8 - 3;
-
-
-    particlePositions[
-        i * 3 + 2
-    ] =
-        (Math.random() - 0.5) * 40;
-
-}}
-
-
-const particleGeometry =
-    new THREE.BufferGeometry();
-
-
-particleGeometry.setAttribute(
-    "position",
-    new THREE.BufferAttribute(
-        particlePositions,
-        3
-    )
-);
-
-
-const particleMaterial =
-    new THREE.PointsMaterial({{
-        color: 0x8eeaff,
-        size: 0.035,
-        transparent: true,
-        opacity: 0.7
-    }});
-
-
-const particles =
-    new THREE.Points(
-        particleGeometry,
-        particleMaterial
-    );
-
-
-scene.add(
-    particles
-);
-
-
-// ========================================================
-// 애니메이션
-// ========================================================
-
-const clock =
-    new THREE.Clock();
-
-
-let elapsed = 0;
-
-
-function animate() {{
-
-    requestAnimationFrame(
-        animate
-    );
-
-
-    const delta =
-        clock.getDelta();
-
-
-    elapsed += delta;
-
-
-    // 물결
-    const positions =
-        waterGeometry.attributes.position;
-
-
-    for (
-        let i = 0;
-        i < positions.count;
-        i++
-    ) {{
-
-        const x =
-            positions.getX(i);
-
-
-        const z =
-            positions.getZ(i);
-
-
-        const y =
-            Math.sin(
-                x * 0.16 +
-                elapsed * 1.5
-            ) * 0.12
-            +
-            Math.cos(
-                z * 0.13 +
-                elapsed * 1.1
-            ) * 0.08;
-
-
-        positions.setY(
-            i,
-            y
-        );
-
-    }}
-
-
-    positions.needsUpdate = true;
-
-
-    // 찌 움직임
-    bobberGroup.position.y =
-        0.5 +
-        Math.sin(
-            elapsed * 2.5
-        ) * 0.08;
-
-
-    // 물고기 움직임
-    fishGroup.position.x =
-        Math.sin(
-            elapsed * 0.6
-        ) * 2.5;
-
-
-    fishGroup.position.y =
-        -1.2 +
-        Math.sin(
-            elapsed * 1.7
-        ) * 0.25;
-
-
-    fishGroup.rotation.y =
-        Math.sin(
-            elapsed * 0.5
-        ) * 0.4;
-
-
-    // 릴 회전
-    spool.rotation.x =
-        elapsed * 3;
-
-
-    // 파티클
-    particles.rotation.y =
-        elapsed * 0.025;
-
-
-    // 낚싯줄
-    const lineStart =
-        new THREE.Vector3(
-            5.9,
-            1.1,
-            3
-        );
-
-
-    const lineEnd =
-        bobberGroup.position.clone();
-
-
-    const mid =
-        new THREE.Vector3(
-            2,
-            0.4,
-            -1
-        );
-
-
-    const curve =
-        new THREE.CatmullRomCurve3([
-            lineStart,
-            mid,
-            lineEnd
-        ]);
-
-
-    line.geometry.dispose();
-
-
-    line.geometry =
-        new THREE.BufferGeometry().setFromPoints(
-            curve.getPoints(30)
-        );
-
-
-    renderer.render(
-        scene,
-        camera
-    );
-
-}}
-
-
-animate();
-
-
-// ========================================================
-// 화면 크기 변경
-// ========================================================
-
-window.addEventListener(
-    "resize",
-    () => {{
-
-        camera.aspect =
-            window.innerWidth /
-            window.innerHeight;
-
-
-        camera.updateProjectionMatrix();
-
-
-        renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
-        );
-
-    }}
-);
-
-</script>
-
-</body>
-
-</html>
-"""
-
-    components.html(
-        html_code,
-        height=620,
-        scrolling=False
-    )
-
-
-# ============================================================
-# 3D 화면 출력
-# ============================================================
-
-render_3d_ocean_view(
-    current_rod["color"],
-    current_rod["shape"],
-    current_rod["power"],
-    st.session_state.last_catch
-)
-
-
-# ============================================================
-# 낚시 버튼
-# ============================================================
-
-st.markdown("## 🎣 낚시")
-
-
-col1, col2, col3 = st.columns(3)
-
-
-with col1:
-
-    if st.button(
-        "🎣 낚싯줄 던지기",
-        use_container_width=True
-    ):
-
-        st.session_state.fishing = True
-
-        st.session_state.message = (
-            "🌊 낚싯줄을 던졌습니다!"
-        )
-
-        st.rerun()
-
-
-with col2:
-
-    if st.button(
-        "🐟 물고기 낚기",
-        use_container_width=True
-    ):
-
-        result = catch_fish()
-
-        st.session_state.fishing = False
-
-        st.rerun()
-
-
-with col3:
-
-    if st.button(
-        "💰 물고기 전부 판매",
-        use_container_width=True
-    ):
-
-        earned = sell_all_fish()
-
-        st.session_state.message = (
-            f"💰 {earned:,} 골드를 획득했습니다!"
-        )
-
-        st.rerun()
-
-
-# ============================================================
-# 메시지
-# ============================================================
-
-if st.session_state.message:
-
-    st.info(
-        st.session_state.message
-    )
-
-
-# ============================================================
-# 최근 낚은 물고기
-# ============================================================
-
-if st.session_state.last_catch:
-
-    fish = st.session_state.last_catch
-
-    rarity_color = RARITY_DATA[
-        fish["rarity"]
-    ]["color"]
-
-    trait_color = TRAIT_DATA[
-        fish["trait"]
-    ]["color"]
-
-    st.markdown(
-        f"""
-        <div class="big-result">
-
-            <div class="big-result-name">
-                🐟 {fish["name"]}
-            </div>
-
-            <div
-                class="rarity"
-                style="color:{rarity_color};"
-            >
-                {fish["rarity"]}
-            </div>
-
-            <div
-                class="rarity"
-                style="color:{trait_color};"
-            >
-                ✨ {fish["trait"]}
-            </div>
-
-            <br>
-
-            ⚖️ 무게:
-            <b>{fish["weight"]:,} kg</b>
-
-            <br><br>
-
-            <div class="big-result-price">
-                💰 {fish["price"]:,} G
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# 메뉴
-# ============================================================
-
-st.markdown("---")
-
-
-menu1, menu2, menu3, menu4 = st.tabs(
+# 메인 탭
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
     [
-        "🎣 낚싯대 상점",
+        "🌊 3D 낚시터",
+        "🎣 낚시대 상점",
+        "🎒 가방 & 판매",
+        "🛒 미끼 상점",
         "📖 물고기 도감",
-        "🐟 잡은 물고기",
-        "💾 저장 / 불러오기"
     ]
 )
 
+# --- TAB 1: 3D 낚시터 ---
+with tab1:
+    st.subheader("🌊 실시간 3D 바다 낚시터")
 
-# ============================================================
-# 낚싯대 상점
-# ============================================================
+    bait_options = [
+        f"{b_name} ({count if count != float('inf') else '무제한'}개)"
+        for b_name, count in st.session_state.baits.items()
+    ]
+    selected_option = st.selectbox("사용할 미끼 선택", bait_options)
+    selected_bait = selected_option.split(" (")[0]
 
-with menu1:
-
-    st.markdown(
-        "## 🎣 낚싯대 상점"
+    # 3D 뷰포트 렌더링
+    render_3d_ocean_view(
+        status=st.session_state.last_catch_status,
+        rod_name=st.session_state.equipped_rod,
+        bait_name=selected_bait,
+        pending_fish=st.session_state.pending_fish,
     )
 
-    for index, rod in enumerate(RODS):
-
-        owned = (
-            index
-            in st.session_state.owned_rods
-        )
-
-        col1, col2 = st.columns(
-            [4, 1]
-        )
-
-        with col1:
-
-            st.markdown(
-                f"""
-                <div class="rod-card">
-
-                    <h3>
-                        🎣 {rod["name"]}
-                    </h3>
-
-                    💰 가격:
-                    <b>{rod["price"]:,} G</b>
-
-                    <br>
-
-                    ⚡ 파워:
-                    <b>{rod["power"]}</b>
-
-                    <br>
-
-                    🍀 행운:
-                    <b>{rod["luck"] * 100:.1f}%</b>
-
-                    <br>
-
-                    ⏱️ 속도:
-                    <b>{rod["speed"]:.2f}x</b>
-
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with col2:
-
-            if owned:
-
-                if (
-                    st.session_state.equipped_rod
-                    == index
-                ):
-
-                    st.success(
-                        "장착 중"
-                    )
-
-                else:
-
-                    if st.button(
-                        "장착",
-                        key=f"equip_{index}",
-                        use_container_width=True
-                    ):
-
-                        st.session_state.equipped_rod = index
-
-                        st.rerun()
-
-            else:
-
-                if st.button(
-                    f"{rod['price']:,} G",
-                    key=f"buy_{index}",
-                    use_container_width=True
-                ):
-
-                    success, message = buy_rod(
-                        index
-                    )
-
-                    if success:
-
-                        st.success(
-                            message
-                        )
-
-                    else:
-
-                        st.error(
-                            message
-                        )
-
-                    st.rerun()
-
-
-# ============================================================
-# 물고기 도감
-# ============================================================
-
-with menu2:
-
-    st.markdown(
-        "## 📖 물고기 도감"
+    equipped_info = FISHING_RODS[st.session_state.equipped_rod]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("낚시 성공률", f"{get_current_success_rate():.1f}%")
+    c2.metric("행운 수치", f"+{equipped_info['rare_bonus']}")
+    c3.metric(
+        "가방 공간",
+        f"{len(st.session_state.inventory)}/{st.session_state.max_inventory}",
     )
+    c4.metric("XP 배수", f"{equipped_info['exp_mult']}x")
 
-    st.write(
-        f"발견한 물고기: "
-        f"{len(st.session_state.codex)} / {len(FISH)}"
-    )
+    st.divider()
 
-    for fish in FISH:
+    # 낚시 진행 컨트롤러 (입질 후 3초 대기 시스템)
+    if st.session_state.fishing_state == "biting":
+        st.warning("⏳ 물고기가 입질 중입니다... 3초 후 건져올립니다!")
+        time.sleep(3)
+        finalize_catch()
+        st.rerun()
 
-        discovered = (
-            fish["name"]
-            in st.session_state.codex
-        )
-
-        if discovered:
-
-            data = st.session_state.codex[
-                fish["name"]
-            ]
-
-            st.markdown(
-                f"""
-                <div class="fish-card">
-
-                    <h3>
-                        🐟 {fish["name"]}
-                    </h3>
-
-                    등급:
-                    <b>
-                        {fish["rarity"]}
-                    </b>
-
-                    <br>
-
-                    잡은 횟수:
-                    <b>
-                        {data["count"]}
-                    </b>
-
-                    <br>
-
-                    최고 무게:
-                    <b>
-                        {data["best_weight"]:,} kg
-                    </b>
-
-                    <br>
-
-                    최고 가격:
-                    <b>
-                        {data["best_price"]:,} G
-                    </b>
-
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            st.markdown(
-                f"""
-                <div class="fish-card">
-
-                    <h3>
-                        ❓ 미발견 물고기
-                    </h3>
-
-                    등급:
-                    {fish["rarity"]}
-
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-# ============================================================
-# 잡은 물고기
-# ============================================================
-
-with menu3:
-
-    st.markdown(
-        "## 🐟 보관 중인 물고기"
-    )
-
-    if not st.session_state.caught_fish:
-
-        st.info(
-            "현재 보관 중인 물고기가 없습니다."
-        )
-
-    else:
-
-        total_value = sum(
-            fish["price"]
-            for fish
-            in st.session_state.caught_fish
-        )
-
-        st.metric(
-            "전체 판매 가격",
-            f"{total_value:,} G"
-        )
-
-        for fish in reversed(
-            st.session_state.caught_fish
-        ):
-
-            st.markdown(
-                f"""
-                <div class="fish-card">
-
-                    🐟
-                    <b>
-                        {fish["name"]}
-                    </b>
-
-                    · {fish["rarity"]}
-
-                    · {fish["trait"]}
-
-                    · {fish["weight"]:,} kg
-
-                    · 💰 {fish["price"]:,} G
-
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-
-# ============================================================
-# 저장 / 불러오기
-# ============================================================
-
-with menu4:
-
-    st.markdown(
-        "## 💾 저장 / 불러오기"
-    )
-
-    save_data = save_game()
-
-    st.download_button(
-        label="💾 게임 저장",
-        data=save_data,
-        file_name="fishing_save.json",
-        mime="application/json",
-        use_container_width=True
-    )
-
-    st.markdown(
-        "### 📂 저장 데이터 불러오기"
-    )
-
-    uploaded = st.file_uploader(
-        "저장 파일 선택",
-        type=["json"]
-    )
-
-    if uploaded:
-
-        text = uploaded.read().decode(
-            "utf-8"
-        )
-
+    col_manual, col_auto = st.columns(2)
+    with col_manual:
         if st.button(
-            "📥 불러오기",
-            use_container_width=True
+            "🎣 낚시 시작 (찌 던지기)",
+            use_container_width=True,
+            disabled=(st.session_state.fishing_state != "idle"),
         ):
-
-            if load_game(text):
-
-                st.success(
-                    "게임을 불러왔습니다!"
-                )
-
+            if prepare_fish(selected_bait):
                 st.rerun()
 
+    with col_auto:
+        if not st.session_state.auto_fishing:
+            if st.button(
+                "▶️ 자동 낚시 시작",
+                use_container_width=True,
+                type="primary",
+            ):
+                st.session_state.auto_fishing = True
+                st.rerun()
+        else:
+            if st.button("⏹️ 자동 낚시 정지", use_container_width=True):
+                st.session_state.auto_fishing = False
+                st.session_state.fishing_state = "idle"
+                st.session_state.last_catch_status = "idle"
+                st.rerun()
+
+    if st.session_state.last_catch_msg:
+        if (
+            "💥" in st.session_state.last_catch_msg
+            or "⚠️" in st.session_state.last_catch_msg
+        ):
+            st.error(st.session_state.last_catch_msg)
+        else:
+            st.success(st.session_state.last_catch_msg)
+
+    # 자동 낚시 주기 처리
+    if st.session_state.auto_fishing and st.session_state.fishing_state == "idle":
+        time.sleep(1.0)
+        if prepare_fish(selected_bait):
+            st.rerun()
+
+# --- TAB 2: 낚시대 상점 ---
+with tab2:
+    st.subheader("🎣 낚시대 상점 & 장비 관리")
+    for r_name, r_data in FISHING_RODS.items():
+        is_owned = r_name in st.session_state.owned_rods
+        is_equipped = st.session_state.equipped_rod == r_name
+
+        ca, cb, cc = st.columns([2.5, 4, 1.5])
+        with ca:
+            st.write(f"### {r_name}")
+            if is_equipped:
+                st.caption("🟢 **장착 중**")
+            elif is_owned:
+                st.caption("🔵 **보유 중**")
             else:
+                st.caption(f"가격: **{r_data['price']:,} G**")
+        with cb:
+            st.write(f"{r_data['desc']}")
+            st.caption(
+                f"성공률: {r_data['catch_rate']}% | 외형: {r_data['shape']} | 이펙트: {r_data['particle']}"
+            )
+        with cc:
+            if is_equipped:
+                st.button("장착됨", key=f"eq_{r_name}", disabled=True)
+            elif is_owned:
+                if st.button("장착하기", key=f"use_{r_name}"):
+                    st.session_state.equipped_rod = r_name
+                    st.success(f"{r_name}(으)로 변경 완료!")
+                    st.rerun()
+            else:
+                if st.button("구매", key=f"buy_rod_{r_name}"):
+                    if st.session_state.gold >= r_data["price"]:
+                        st.session_state.gold -= r_data["price"]
+                        st.session_state.owned_rods.append(r_name)
+                        st.session_state.equipped_rod = r_name
+                        st.success(f"{r_name} 구매 및 장착 완료!")
+                        st.rerun()
+                    else:
+                        st.error("골드가 부족합니다.")
+        st.divider()
 
-                st.error(
-                    "저장 파일을 읽을 수 없습니다."
+# --- TAB 3: 가방 & 판매 ---
+with tab3:
+    col_inv1, col_inv2 = st.columns([3, 1])
+    with col_inv1:
+        st.subheader(
+            f"🎒 가방 ({len(st.session_state.inventory)} / {st.session_state.max_inventory} 칸)"
+        )
+    with col_inv2:
+        if st.button("💰 전체 판매하기", use_container_width=True):
+            sell_all_fish()
+            st.rerun()
+
+    if st.session_state.inventory:
+        for idx, item in enumerate(reversed(st.session_state.inventory)):
+            price = calculate_fish_price(item)
+            st.write(
+                f"**[{item['rarity']}] {item['trait']} {item['name']}** | {item['weight']}kg | 판매가: **{price:,} G**"
+            )
+    else:
+        st.info("가방이 비어있습니다.")
+
+# --- TAB 4: 미끼 상점 ---
+with tab4:
+    st.subheader("🛒 미끼 상점")
+    for name, data in SHOP_BAITS.items():
+        c_b1, c_b2, c_b3 = st.columns([2, 3, 1])
+        with c_b1:
+            st.write(f"**{name}**")
+            st.caption(f"가격: {data['price']:,} G")
+        with c_b2:
+            st.write(f"{data['desc']}")
+        with c_b3:
+            if st.button("구매", key=f"buy_bait_{name}"):
+                if st.session_state.gold >= data["price"]:
+                    st.session_state.gold -= data["price"]
+                    st.session_state.baits[name] += 1
+                    st.success(f"{name} 구매 완료!")
+                    st.rerun()
+                else:
+                    st.error("골드가 부족합니다.")
+
+# --- TAB 5: 물고기 도감 ---
+with tab5:
+    st.subheader("📖 물고기 도감 (총 60종)")
+    cols = st.columns(2)
+    for idx, (name, info) in enumerate(FISH_BOOK_TEMPLATE.items()):
+        caught_count = st.session_state.records.get(name, 0)
+        with cols[idx % 2]:
+            if caught_count > 0:
+                is_boss = "👑 " if info["rarity"] == "Boss" else ""
+                st.write(f"### {is_boss}{name}")
+                st.caption(
+                    f"등급: **{info['rarity']}** | 잡은 횟수: **{caught_count}회** | 기준가: {info['base_p']:,} G"
                 )
-
-
-# ============================================================
-# 하단 정보
-# ============================================================
-
-st.markdown("---")
-
-
-st.caption(
-    "🎣 3D Fishing World · "
-    "20종 낚싯대 · 30종 물고기 · "
-    "희귀도 · 특성 · 무게 · 가격 · "
-    "도감 · 레벨 · 저장 시스템"
-)
+            else:
+                st.write("### ??? (미발견)")
+                st.caption(
+                    f"등급: **{info['rarity']}** | 아직 발견하지 못한 물고기입니다."
+                )
+        st.divider()
