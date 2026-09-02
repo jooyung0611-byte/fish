@@ -642,16 +642,6 @@ def add_xp(amount):
 
 
 def choose_trait(rod_luck=0.0):
-    """
-    기본 확률
-    차원 1%
-    무지개 2%
-    골드 5%
-    실버 10%
-
-    낚싯대 행운 능력치에 따라 희귀 특성 확률 보정
-    """
-
     roll = random.random()
 
     bonus = rod_luck * 0.20
@@ -683,11 +673,10 @@ def choose_trait(rod_luck=0.0):
 
 
 def choose_rarity(rod_power=1):
-    """
-    낚싯대 파워가 높을수록 높은 등급이 조금 더 잘 나오도록 구성
-    """
-
-    power_bonus = min(rod_power / 1000, 0.5)
+    power_bonus = min(
+        rod_power / 1000,
+        0.5
+    )
 
     roll = random.random()
 
@@ -726,7 +715,9 @@ def choose_rarity(rod_power=1):
 
 
 def choose_fish(rod_power=1):
-    rarity = choose_rarity(rod_power)
+    rarity = choose_rarity(
+        rod_power
+    )
 
     possible = [
         fish for fish in FISH
@@ -739,14 +730,16 @@ def choose_fish(rod_power=1):
             if fish["rarity"] == "일반"
         ]
 
-    return random.choice(possible)
+    return random.choice(
+        possible
+    )
 
 
-def calculate_price(fish, weight, trait):
-    """
-    가격 = 기본가격 × 무게 보정 × 특성 배율 × 희귀도 배율
-    """
-
+def calculate_price(
+    fish,
+    weight,
+    trait
+):
     rarity_multiplier = RARITY_DATA[
         fish["rarity"]
     ]["multiplier"]
@@ -771,6 +764,7 @@ def calculate_price(fish, weight, trait):
 
 
 def catch_fish():
+
     rod = RODS[
         st.session_state.equipped_rod
     ]
@@ -803,7 +797,10 @@ def catch_fish():
         "name": fish["name"],
         "rarity": fish["rarity"],
         "trait": trait,
-        "weight": round(weight, 2),
+        "weight": round(
+            weight,
+            2
+        ),
         "price": price,
         "time": time.strftime(
             "%Y-%m-%d %H:%M:%S"
@@ -826,6 +823,7 @@ def catch_fish():
     key = fish["name"]
 
     if key not in st.session_state.codex:
+
         st.session_state.codex[key] = {
             "name": fish["name"],
             "rarity": fish["rarity"],
@@ -836,17 +834,31 @@ def catch_fish():
             ),
             "best_price": price
         }
+
     else:
+
         st.session_state.codex[key]["count"] += 1
 
-        if weight > st.session_state.codex[key]["best_weight"]:
-            st.session_state.codex[key]["best_weight"] = round(
+        if (
+            weight
+            >
+            st.session_state.codex[key]["best_weight"]
+        ):
+            st.session_state.codex[key][
+                "best_weight"
+            ] = round(
                 weight,
                 2
             )
 
-        if price > st.session_state.codex[key]["best_price"]:
-            st.session_state.codex[key]["best_price"] = price
+        if (
+            price
+            >
+            st.session_state.codex[key]["best_price"]
+        ):
+            st.session_state.codex[key][
+                "best_price"
+            ] = price
 
     add_xp(xp)
 
@@ -854,9 +866,11 @@ def catch_fish():
 
 
 def sell_all_fish():
+
     total = sum(
         fish["price"]
-        for fish in st.session_state.caught_fish
+        for fish
+        in st.session_state.caught_fish
     )
 
     st.session_state.money += total
@@ -867,25 +881,45 @@ def sell_all_fish():
 
 
 def buy_rod(index):
+
     rod = RODS[index]
 
     if index in st.session_state.owned_rods:
-        st.session_state.equipped_rod = index
-        return True, f"🎣 {rod['name']} 장착!"
 
-    if st.session_state.money < rod["price"]:
-        return False, "💰 돈이 부족합니다."
+        st.session_state.equipped_rod = index
+
+        return (
+            True,
+            f"🎣 {rod['name']} 장착!"
+        )
+
+    if (
+        st.session_state.money
+        <
+        rod["price"]
+    ):
+
+        return (
+            False,
+            "💰 돈이 부족합니다."
+        )
 
     st.session_state.money -= rod["price"]
 
-    st.session_state.owned_rods.append(index)
+    st.session_state.owned_rods.append(
+        index
+    )
 
     st.session_state.equipped_rod = index
 
-    return True, f"🎣 {rod['name']} 구매 및 장착 완료!"
+    return (
+        True,
+        f"🎣 {rod['name']} 구매 및 장착 완료!"
+    )
 
 
 def save_game():
+
     data = {
         "money": st.session_state.money,
         "level": st.session_state.level,
@@ -906,7 +940,9 @@ def save_game():
 
 
 def load_game(data):
+
     try:
+
         obj = json.loads(data)
 
         st.session_state.money = obj.get(
@@ -957,6 +993,7 @@ def load_game(data):
         return True
 
     except Exception:
+
         return False
 
 
@@ -1114,68 +1151,103 @@ xp_required = get_level_required_xp(
 
 c1, c2, c3, c4, c5 = st.columns(5)
 
+
 with c1:
+
     st.markdown(
         f"""
         <div class="stat-card">
-            <div class="stat-label">💰 보유 골드</div>
+
+            <div class="stat-label">
+                💰 보유 골드
+            </div>
+
             <div class="stat-value">
                 {st.session_state.money:,}
             </div>
+
         </div>
         """,
         unsafe_allow_html=True
     )
 
+
 with c2:
+
     st.markdown(
         f"""
         <div class="stat-card">
-            <div class="stat-label">⭐ 레벨</div>
+
+            <div class="stat-label">
+                ⭐ 레벨
+            </div>
+
             <div class="stat-value">
                 {st.session_state.level}
             </div>
+
         </div>
         """,
         unsafe_allow_html=True
     )
 
+
 with c3:
+
     st.markdown(
         f"""
         <div class="stat-card">
-            <div class="stat-label">✨ 경험치</div>
+
+            <div class="stat-label">
+                ✨ 경험치
+            </div>
+
             <div class="stat-value">
                 {st.session_state.xp:,}
                 /
                 {xp_required:,}
             </div>
+
         </div>
         """,
         unsafe_allow_html=True
     )
 
+
 with c4:
+
     st.markdown(
         f"""
         <div class="stat-card">
-            <div class="stat-label">🐟 낚은 물고기</div>
+
+            <div class="stat-label">
+                🐟 낚은 물고기
+            </div>
+
             <div class="stat-value">
                 {st.session_state.total_catches:,}
             </div>
+
         </div>
         """,
         unsafe_allow_html=True
     )
 
+
 with c5:
+
     st.markdown(
         f"""
         <div class="stat-card">
-            <div class="stat-label">🎣 현재 낚싯대</div>
+
+            <div class="stat-label">
+                🎣 현재 낚싯대
+            </div>
+
             <div class="stat-value">
                 {current_rod["name"]}
             </div>
+
         </div>
         """,
         unsafe_allow_html=True
@@ -1196,11 +1268,14 @@ def render_3d_ocean_view(
     result_name = ""
 
     if last_result:
+
         result_name = last_result["name"]
 
     html_code = f"""
 <!DOCTYPE html>
+
 <html>
+
 <head>
 
 <meta charset="UTF-8">
@@ -1261,11 +1336,17 @@ html, body {{
 <div id="game"></div>
 
 <div id="hud">
+
     <div class="hud-box">
+
         🎣 {rod_shape.upper()} ROD
+
         <br>
+
         POWER {rod_power}
+
     </div>
+
 </div>
 
 <div id="status">
@@ -1279,14 +1360,17 @@ html, body {{
 const container =
     document.getElementById("game");
 
+
 const scene =
     new THREE.Scene();
+
 
 scene.fog =
     new THREE.FogExp2(
         0x061421,
         0.018
     );
+
 
 const camera =
     new THREE.PerspectiveCamera(
@@ -1297,11 +1381,13 @@ const camera =
         500
     );
 
+
 camera.position.set(
     0,
     5.5,
     10
 );
+
 
 camera.lookAt(
     0,
@@ -1309,15 +1395,18 @@ camera.lookAt(
     -4
 );
 
+
 const renderer =
-    new THREE.WebGLRenderer({
+    new THREE.WebGLRenderer({{
         antialias: true
-    });
+    }});
+
 
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
+
 
 renderer.setPixelRatio(
     Math.min(
@@ -1326,19 +1415,25 @@ renderer.setPixelRatio(
     )
 );
 
+
 renderer.shadowMap.enabled = true;
+
 
 renderer.shadowMap.type =
     THREE.PCFSoftShadowMap;
 
+
 renderer.outputEncoding =
     THREE.sRGBEncoding;
+
 
 renderer.toneMapping =
     THREE.ACESFilmicToneMapping;
 
+
 renderer.toneMappingExposure =
     1.15;
+
 
 container.appendChild(
     renderer.domElement
@@ -1356,6 +1451,7 @@ const hemi =
         1.5
     );
 
+
 scene.add(hemi);
 
 
@@ -1365,19 +1461,24 @@ const sun =
         2.5
     );
 
+
 sun.position.set(
     -10,
     20,
     10
 );
 
+
 sun.castShadow = true;
+
 
 sun.shadow.mapSize.width =
     2048;
 
+
 sun.shadow.mapSize.height =
     2048;
+
 
 scene.add(sun);
 
@@ -1389,11 +1490,13 @@ const rodLight =
         15
     );
 
+
 rodLight.position.set(
     0,
     2,
     2
 );
+
 
 scene.add(rodLight);
 
@@ -1409,17 +1512,20 @@ const skyGeometry =
         32
     );
 
+
 const skyMaterial =
-    new THREE.MeshBasicMaterial({
+    new THREE.MeshBasicMaterial({{
         color: 0x061827,
         side: THREE.BackSide
-    });
+    }});
+
 
 const sky =
     new THREE.Mesh(
         skyGeometry,
         skyMaterial
     );
+
 
 scene.add(sky);
 
@@ -1436,12 +1542,14 @@ const waterGeometry =
         100
     );
 
+
 waterGeometry.rotateX(
     -Math.PI / 2
 );
 
+
 const waterMaterial =
-    new THREE.MeshPhysicalMaterial({
+    new THREE.MeshPhysicalMaterial({{
         color: 0x087a9c,
         metalness: 0.05,
         roughness: 0.12,
@@ -1449,7 +1557,8 @@ const waterMaterial =
         opacity: 0.88,
         clearcoat: 1,
         clearcoatRoughness: 0.08
-    });
+    }});
+
 
 const water =
     new THREE.Mesh(
@@ -1457,9 +1566,12 @@ const water =
         waterMaterial
     );
 
+
 water.position.y = 0;
 
+
 water.receiveShadow = true;
+
 
 scene.add(water);
 
@@ -1474,15 +1586,18 @@ const seabedGeometry =
         100
     );
 
+
 seabedGeometry.rotateX(
     -Math.PI / 2
 );
 
+
 const seabedMaterial =
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshStandardMaterial({{
         color: 0x092c3a,
         roughness: 1
-    });
+    }});
+
 
 const seabed =
     new THREE.Mesh(
@@ -1490,7 +1605,9 @@ const seabed =
         seabedMaterial
     );
 
+
 seabed.position.y = -4;
+
 
 scene.add(seabed);
 
@@ -1516,11 +1633,13 @@ function createBox(
             sz
         );
 
+
     const material =
-        new THREE.MeshStandardMaterial({
+        new THREE.MeshStandardMaterial({{
             color: color,
             roughness: 0.55
-        });
+        }});
+
 
     const mesh =
         new THREE.Mesh(
@@ -1528,17 +1647,22 @@ function createBox(
             material
         );
 
+
     mesh.position.set(
         x,
         y,
         z
     );
 
+
     mesh.castShadow = true;
+
 
     mesh.receiveShadow = true;
 
+
     scene.add(mesh);
+
 
     return mesh;
 }}
@@ -1593,6 +1717,7 @@ for (
         0x4c2d1c
     );
 
+
     createBox(
         x,
         1,
@@ -1602,6 +1727,7 @@ for (
         0.15,
         0x4c2d1c
     );
+
 }}
 
 
@@ -1612,14 +1738,17 @@ for (
 const rodGroup =
     new THREE.Group();
 
+
 rodGroup.position.set(
     0,
     1.1,
     3.0
 );
 
+
 rodGroup.rotation.x =
     -0.35;
+
 
 scene.add(rodGroup);
 
@@ -1633,11 +1762,13 @@ const handleGeometry =
         16
     );
 
+
 const handleMaterial =
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshStandardMaterial({{
         color: 0x3a2417,
         roughness: 0.7
-    });
+    }});
+
 
 const handle =
     new THREE.Mesh(
@@ -1645,11 +1776,14 @@ const handle =
         handleMaterial
     );
 
+
 handle.rotation.z =
     Math.PI / 2;
 
+
 handle.position.x =
     -0.7;
+
 
 rodGroup.add(handle);
 
@@ -1669,12 +1803,14 @@ for (
             20
         );
 
+
     const ringMaterial =
-        new THREE.MeshStandardMaterial({
+        new THREE.MeshStandardMaterial({{
             color: 0x222222,
             metalness: 0.8,
             roughness: 0.25
-        });
+        }});
+
 
     const ring =
         new THREE.Mesh(
@@ -1682,14 +1818,18 @@ for (
             ringMaterial
         );
 
+
     ring.rotation.y =
         Math.PI / 2;
+
 
     ring.position.x =
         -1.45 +
         i * 0.25;
 
+
     rodGroup.add(ring);
+
 }}
 
 
@@ -1702,13 +1842,15 @@ const rodGeometry =
         14
     );
 
+
 const rodMaterial =
-    new THREE.MeshPhysicalMaterial({
+    new THREE.MeshPhysicalMaterial({{
         color: {json.dumps(rod_color)},
         metalness: 0.35,
         roughness: 0.22,
         clearcoat: 1
-    });
+    }});
+
 
 const rod =
     new THREE.Mesh(
@@ -1716,13 +1858,17 @@ const rod =
         rodMaterial
     );
 
+
 rod.rotation.z =
     -Math.PI / 2;
+
 
 rod.position.x =
     2.6;
 
+
 rod.castShadow = true;
+
 
 rodGroup.add(rod);
 
@@ -1742,12 +1888,14 @@ for (
             16
         );
 
+
     const guideMaterial =
-        new THREE.MeshStandardMaterial({
+        new THREE.MeshStandardMaterial({{
             color: 0x222222,
             metalness: 0.9,
             roughness: 0.2
-        });
+        }});
+
 
     const guide =
         new THREE.Mesh(
@@ -1755,17 +1903,22 @@ for (
             guideMaterial
         );
 
+
     guide.rotation.y =
         Math.PI / 2;
+
 
     guide.position.x =
         0.0 +
         i * 0.85;
 
+
     guide.position.y =
         0.08;
 
+
     rodGroup.add(guide);
+
 }}
 
 
@@ -1776,11 +1929,13 @@ for (
 const reelGroup =
     new THREE.Group();
 
+
 reelGroup.position.set(
     -0.2,
     0.25,
     0
 );
+
 
 rodGroup.add(reelGroup);
 
@@ -1793,12 +1948,14 @@ const spoolGeometry =
         24
     );
 
+
 const spoolMaterial =
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshStandardMaterial({{
         color: 0x20242a,
         metalness: 0.9,
         roughness: 0.18
-    });
+    }});
+
 
 const spool =
     new THREE.Mesh(
@@ -1806,8 +1963,10 @@ const spool =
         spoolMaterial
     );
 
+
 spool.rotation.z =
     Math.PI / 2;
+
 
 reelGroup.add(spool);
 
@@ -1820,12 +1979,14 @@ const reelDiskGeometry =
         24
     );
 
+
 const reelDiskMaterial =
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshStandardMaterial({{
         color: {json.dumps(rod_color)},
         metalness: 0.8,
         roughness: 0.2
-    });
+    }});
+
 
 const reelDisk =
     new THREE.Mesh(
@@ -1833,8 +1994,10 @@ const reelDisk =
         reelDiskMaterial
     );
 
+
 reelDisk.rotation.z =
     Math.PI / 2;
+
 
 reelGroup.add(
     reelDisk
@@ -1848,11 +2011,13 @@ reelGroup.add(
 const bobberGroup =
     new THREE.Group();
 
+
 bobberGroup.position.set(
     0,
     0.5,
     -5
 );
+
 
 scene.add(
     bobberGroup
@@ -1866,18 +2031,21 @@ const bobberGeometry =
         16
     );
 
+
 const bobberMaterial =
-    new THREE.MeshPhysicalMaterial({
+    new THREE.MeshPhysicalMaterial({{
         color: 0xff3d3d,
         roughness: 0.2,
         clearcoat: 1
-    });
+    }});
+
 
 const bobber =
     new THREE.Mesh(
         bobberGeometry,
         bobberMaterial
     );
+
 
 bobberGroup.add(
     bobber
@@ -1892,10 +2060,12 @@ const tipGeometry =
         10
     );
 
+
 const tipMaterial =
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshStandardMaterial({{
         color: 0xffffff
-    });
+    }});
+
 
 const tip =
     new THREE.Mesh(
@@ -1903,8 +2073,10 @@ const tip =
         tipMaterial
     );
 
+
 tip.position.y =
     0.3;
+
 
 bobberGroup.add(
     tip
@@ -1916,20 +2088,23 @@ bobberGroup.add(
 // ========================================================
 
 const lineMaterial =
-    new THREE.LineBasicMaterial({
+    new THREE.LineBasicMaterial({{
         color: 0xe9f7ff,
         transparent: true,
         opacity: 0.75
-    });
+    }});
+
 
 const lineGeometry =
     new THREE.BufferGeometry();
+
 
 const line =
     new THREE.Line(
         lineGeometry,
         lineMaterial
     );
+
 
 scene.add(line);
 
@@ -1941,11 +2116,13 @@ scene.add(line);
 const fishGroup =
     new THREE.Group();
 
+
 fishGroup.position.set(
     0,
     -1.2,
     -5
 );
+
 
 scene.add(
     fishGroup
@@ -1959,13 +2136,15 @@ const fishBodyGeometry =
         14
     );
 
+
 const fishBodyMaterial =
-    new THREE.MeshPhysicalMaterial({
+    new THREE.MeshPhysicalMaterial({{
         color: 0xff8844,
         metalness: 0.15,
         roughness: 0.3,
         clearcoat: 0.8
-    });
+    }});
+
 
 const fishBody =
     new THREE.Mesh(
@@ -1973,11 +2152,13 @@ const fishBody =
         fishBodyMaterial
     );
 
+
 fishBody.scale.set(
     1.7,
     0.8,
     0.65
 );
+
 
 fishGroup.add(
     fishBody
@@ -1992,10 +2173,12 @@ const tailGeometry =
         3
     );
 
+
 const tailMaterial =
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshStandardMaterial({{
         color: 0xff6644
-    });
+    }});
+
 
 const tail =
     new THREE.Mesh(
@@ -2003,11 +2186,14 @@ const tail =
         tailMaterial
     );
 
+
 tail.rotation.z =
     Math.PI / 2;
 
+
 tail.position.x =
     -0.95;
+
 
 fishGroup.add(
     tail
@@ -2022,10 +2208,12 @@ const finGeometry =
         3
     );
 
+
 const finMaterial =
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshStandardMaterial({{
         color: 0xff7744
-    });
+    }});
+
 
 const finTop =
     new THREE.Mesh(
@@ -2033,11 +2221,14 @@ const finTop =
         finMaterial
     );
 
+
 finTop.position.y =
     0.4;
 
+
 finTop.rotation.z =
     Math.PI;
+
 
 fishGroup.add(
     finTop
@@ -2045,7 +2236,10 @@ fishGroup.add(
 
 
 // 눈
-function createEye(x, z) {{
+function createEye(
+    x,
+    z
+) {{
 
     const eyeGeometry =
         new THREE.SphereGeometry(
@@ -2054,10 +2248,12 @@ function createEye(x, z) {{
             12
         );
 
+
     const eyeMaterial =
-        new THREE.MeshStandardMaterial({
+        new THREE.MeshStandardMaterial({{
             color: 0xffffff
-        });
+        }});
+
 
     const eye =
         new THREE.Mesh(
@@ -2065,13 +2261,17 @@ function createEye(x, z) {{
             eyeMaterial
         );
 
+
     eye.position.set(
         x,
         0.2,
         z
     );
 
-    fishGroup.add(eye);
+
+    fishGroup.add(
+        eye
+    );
 
 
     const pupilGeometry =
@@ -2081,10 +2281,12 @@ function createEye(x, z) {{
             8
         );
 
+
     const pupilMaterial =
-        new THREE.MeshStandardMaterial({
+        new THREE.MeshStandardMaterial({{
             color: 0x000000
-        });
+        }});
+
 
     const pupil =
         new THREE.Mesh(
@@ -2092,21 +2294,26 @@ function createEye(x, z) {{
             pupilMaterial
         );
 
+
     pupil.position.set(
         x + 0.06,
         0.2,
         z
     );
 
+
     fishGroup.add(
         pupil
     );
+
 }}
+
 
 createEye(
     0.55,
     0.28
 );
+
 
 createEye(
     0.55,
@@ -2121,10 +2328,12 @@ createEye(
 const particleCount =
     500;
 
+
 const particlePositions =
     new Float32Array(
         particleCount * 3
     );
+
 
 for (
     let i = 0;
@@ -2137,19 +2346,24 @@ for (
     ] =
         (Math.random() - 0.5) * 40;
 
+
     particlePositions[
         i * 3 + 1
     ] =
         Math.random() * 8 - 3;
 
+
     particlePositions[
         i * 3 + 2
     ] =
         (Math.random() - 0.5) * 40;
+
 }}
+
 
 const particleGeometry =
     new THREE.BufferGeometry();
+
 
 particleGeometry.setAttribute(
     "position",
@@ -2159,19 +2373,22 @@ particleGeometry.setAttribute(
     )
 );
 
+
 const particleMaterial =
-    new THREE.PointsMaterial({
+    new THREE.PointsMaterial({{
         color: 0x8eeaff,
         size: 0.035,
         transparent: true,
         opacity: 0.7
-    });
+    }});
+
 
 const particles =
     new THREE.Points(
         particleGeometry,
         particleMaterial
     );
+
 
 scene.add(
     particles
@@ -2185,7 +2402,9 @@ scene.add(
 const clock =
     new THREE.Clock();
 
+
 let elapsed = 0;
+
 
 function animate() {{
 
@@ -2193,8 +2412,10 @@ function animate() {{
         animate
     );
 
+
     const delta =
         clock.getDelta();
+
 
     elapsed += delta;
 
@@ -2202,6 +2423,7 @@ function animate() {{
     // 물결
     const positions =
         waterGeometry.attributes.position;
+
 
     for (
         let i = 0;
@@ -2212,8 +2434,10 @@ function animate() {{
         const x =
             positions.getX(i);
 
+
         const z =
             positions.getZ(i);
+
 
         const y =
             Math.sin(
@@ -2226,11 +2450,14 @@ function animate() {{
                 elapsed * 1.1
             ) * 0.08;
 
+
         positions.setY(
             i,
             y
         );
+
     }}
+
 
     positions.needsUpdate = true;
 
@@ -2249,11 +2476,13 @@ function animate() {{
             elapsed * 0.6
         ) * 2.5;
 
+
     fishGroup.position.y =
         -1.2 +
         Math.sin(
             elapsed * 1.7
         ) * 0.25;
+
 
     fishGroup.rotation.y =
         Math.sin(
@@ -2279,8 +2508,10 @@ function animate() {{
             3
         );
 
+
     const lineEnd =
         bobberGroup.position.clone();
+
 
     const mid =
         new THREE.Vector3(
@@ -2289,6 +2520,7 @@ function animate() {{
             -1
         );
 
+
     const curve =
         new THREE.CatmullRomCurve3([
             lineStart,
@@ -2296,7 +2528,9 @@ function animate() {{
             lineEnd
         ]);
 
+
     line.geometry.dispose();
+
 
     line.geometry =
         new THREE.BufferGeometry().setFromPoints(
@@ -2308,7 +2542,9 @@ function animate() {{
         scene,
         camera
     );
+
 }}
+
 
 animate();
 
@@ -2325,18 +2561,22 @@ window.addEventListener(
             window.innerWidth /
             window.innerHeight;
 
+
         camera.updateProjectionMatrix();
+
 
         renderer.setSize(
             window.innerWidth,
             window.innerHeight
         );
+
     }}
 );
 
 </script>
 
 </body>
+
 </html>
 """
 
@@ -2365,35 +2605,47 @@ render_3d_ocean_view(
 
 st.markdown("## 🎣 낚시")
 
+
 col1, col2, col3 = st.columns(3)
 
+
 with col1:
+
     if st.button(
         "🎣 낚싯줄 던지기",
         use_container_width=True
     ):
+
         st.session_state.fishing = True
+
         st.session_state.message = (
             "🌊 낚싯줄을 던졌습니다!"
         )
+
         st.rerun()
 
+
 with col2:
+
     if st.button(
         "🐟 물고기 낚기",
         use_container_width=True
     ):
+
         result = catch_fish()
 
         st.session_state.fishing = False
 
         st.rerun()
 
+
 with col3:
+
     if st.button(
         "💰 물고기 전부 판매",
         use_container_width=True
     ):
+
         earned = sell_all_fish()
 
         st.session_state.message = (
@@ -2408,6 +2660,7 @@ with col3:
 # ============================================================
 
 if st.session_state.message:
+
     st.info(
         st.session_state.message
     )
@@ -2473,6 +2726,7 @@ if st.session_state.last_catch:
 # ============================================================
 
 st.markdown("---")
+
 
 menu1, menu2, menu3, menu4 = st.tabs(
     [
@@ -2546,6 +2800,7 @@ with menu1:
                     st.session_state.equipped_rod
                     == index
                 ):
+
                     st.success(
                         "장착 중"
                     )
@@ -2557,7 +2812,9 @@ with menu1:
                         key=f"equip_{index}",
                         use_container_width=True
                     ):
+
                         st.session_state.equipped_rod = index
+
                         st.rerun()
 
             else:
@@ -2573,10 +2830,13 @@ with menu1:
                     )
 
                     if success:
+
                         st.success(
                             message
                         )
+
                     else:
+
                         st.error(
                             message
                         )
@@ -2786,6 +3046,7 @@ with menu4:
 # ============================================================
 
 st.markdown("---")
+
 
 st.caption(
     "🎣 3D Fishing World · "
