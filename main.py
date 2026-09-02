@@ -235,7 +235,7 @@ FISHING_RODS = {
     },
 }
 
-# 60종 물고기 데이터베이스 (보스 물고기 가격 대폭 하향 조정)
+# 60종 물고기 데이터베이스
 FISH_BOOK_TEMPLATE = {
     # Common
     "피라미": {"rarity": "Common", "min_w": 0.1, "max_w": 0.5, "base_p": 1, "xp": 15},
@@ -301,7 +301,7 @@ FISH_BOOK_TEMPLATE = {
     "블랙홀 스쿼드": {"rarity": "Cosmic", "min_w": 1200.0, "max_w": 4000.0, "base_p": 22000, "xp": 220000},
     "초신성 라이어": {"rarity": "Cosmic", "min_w": 2000.0, "max_w": 6000.0, "base_p": 28500, "xp": 300000},
     "차원 파쇄자 다크매터": {"rarity": "Cosmic", "min_w": 3500.0, "max_w": 9999.0, "base_p": 38200, "xp": 400000},
-    # Boss (요청사항: 보스 물고기 가격 대폭 하향 조정)
+    # Boss
     "심해의 크라켄": {"rarity": "Boss", "min_w": 2000.0, "max_w": 6000.0, "base_p": 5450, "xp": 550000},
     "천공의 고래": {"rarity": "Boss", "min_w": 4000.0, "max_w": 12000.0, "base_p": 7600, "xp": 800000},
     "차원의 레비아탄": {"rarity": "Boss", "min_w": 8000.0, "max_w": 25000.0, "base_p": 10800, "xp": 1200000},
@@ -380,7 +380,7 @@ def get_inventory_upgrade_cost():
 
 
 # -----------------------------------------------------------------------------
-# 3. Three.js 3D 실감형 렌더러 (낚싯대 퀄리티 대폭 향상 & 물고기 모션 추가)
+# 3. Three.js 3D 실감형 렌더러 (낚싯대 퀄리티 & 이펙트 업그레이드, 등급별 물고기 3D 모델 및 입질 모션)
 # -----------------------------------------------------------------------------
 def render_3d_ocean_view(
     status="idle",
@@ -390,6 +390,8 @@ def render_3d_ocean_view(
 ):
     rod_data = FISHING_RODS.get(rod_name, FISHING_RODS["대나무 낚시대"])
     rod_color_hex = hex(rod_data["color"])
+    rod_shape = rod_data.get("shape", "simple")
+    rod_particle = rod_data.get("particle", "none")
 
     fish_rarity = pending_fish["rarity"] if pending_fish else "Common"
     fish_weight = pending_fish["weight"] if pending_fish else 1.0
@@ -410,7 +412,7 @@ def render_3d_ocean_view(
     <body>
         <div id="canvas-container">
             <div id="ui-overlay">✨ REAL-TIME 3D OCEAN ENGINE v8.0</div>
-            <div id="status-banner">🚨 입질이 왔습니다! 찌를 흔드는 중... 🚨</div>
+            <div id="status-banner">🚨 입질이 왔습니다! 물고기가 찌로 접근 중... 🚨</div>
             <div id="rod-info">🎣 {rod_name} | 🪱 {bait_name}</div>
         </div>
         <script>
@@ -436,7 +438,7 @@ def render_3d_ocean_view(
             moonLight.position.set(15, 25, -10);
             scene.add(moonLight);
 
-            const rodLight = new THREE.PointLight({rod_color_hex}, 3.0, 15);
+            const rodLight = new THREE.PointLight({rod_color_hex}, 4.0, 18);
             rodLight.position.set(2.2, 2.5, 5.0);
             scene.add(rodLight);
 
@@ -455,25 +457,25 @@ def render_3d_ocean_view(
             scene.add(ocean);
 
             // ==========================================
-            // 🔥 고퀄리티 낚싯대 모델링 (손잡이, 릴, 가이드, 분할 블랭크)
+            // 🔥 고퀄리티 낚싯대 커스텀 모델링 & 모양별 이펙트
             // ==========================================
             const rodGroup = new THREE.Group();
             const rodColor = {rod_color_hex};
+            const rodShape = "{rod_shape}";
 
-            // 1. 손잡이 (그립)
-            const handleGeo = new THREE.CylinderGeometry(0.09, 0.12, 1.8, 16);
-            const handleMat = new THREE.MeshStandardMaterial({{ color: 0x111111, roughness: 0.8 }});
+            // 1. 고급 손잡이 및 릴
+            const handleGeo = new THREE.CylinderGeometry(0.09, 0.13, 1.8, 16);
+            const handleMat = new THREE.MeshStandardMaterial({{ color: 0x111111, roughness: 0.7, metalness: 0.3 }});
             const handleMesh = new THREE.Mesh(handleGeo, handleMat);
             handleMesh.position.set(0, -0.9, 0);
             rodGroup.add(handleMesh);
 
-            // 2. 릴 (Reel)
             const reelGroup = new THREE.Group();
             const reelBodyGeo = new THREE.SphereGeometry(0.18, 16, 16);
-            const reelMat = new THREE.MeshStandardMaterial({{ color: 0xdddddd, metalness: 0.9, roughness: 0.1 }});
+            const reelMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.9, roughness: 0.1, emissive: rodColor, emissiveIntensity: 0.2 }});
             const reelBody = new THREE.Mesh(reelBodyGeo, reelMat);
             reelGroup.add(reelBody);
-            
+
             const handleArmGeo = new THREE.BoxGeometry(0.05, 0.35, 0.05);
             const handleArm = new THREE.Mesh(handleArmGeo, reelMat);
             handleArm.position.set(0.2, 0, 0);
@@ -481,27 +483,77 @@ def render_3d_ocean_view(
             reelGroup.position.set(0, -0.1, -0.15);
             rodGroup.add(reelGroup);
 
-            // 3. 로드 블랭크 (하이엔드 발광 메탈릭 재질)
-            const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.07, 6.5, 16);
+            // 2. shape 기반 낚싯대 블랭크 메쉬 생성
             const mainRodMat = new THREE.MeshStandardMaterial({{ 
                 color: rodColor, 
                 metalness: 0.85, 
                 roughness: 0.15, 
                 emissive: rodColor, 
-                emissiveIntensity: 0.35 
+                emissiveIntensity: 0.5 
             }});
-            const mainRodMesh = new THREE.Mesh(mainRodGeo, mainRodMat);
-            mainRodMesh.position.set(0, 3.25, 0);
-            rodGroup.add(mainRodMesh);
 
-            // 4. 가이드링 (가이드 4개 설치)
-            const guideMat = new THREE.MeshStandardMaterial({{ color: 0xffffff, metalness: 1.0, roughness: 0.0 }});
-            for(let i = 1; i <= 4; i++) {{
+            if (rodShape === "bamboo") {{
+                for(let i=0; i<6; i++) {{
+                    const segGeo = new THREE.CylinderGeometry(0.06 - i*0.008, 0.07 - i*0.008, 1.1, 12);
+                    const seg = new THREE.Mesh(segGeo, mainRodMat);
+                    seg.position.set(0, 0.55 + i * 1.05, 0);
+                    rodGroup.add(seg);
+                    const nodeGeo = new THREE.TorusGeometry(0.075 - i*0.008, 0.02, 8, 16);
+                    const node = new THREE.Mesh(nodeGeo, mainRodMat);
+                    node.position.set(0, i * 1.05, 0);
+                    node.rotation.x = Math.PI / 2;
+                    rodGroup.add(node);
+                }}
+            }} else if (rodShape === "dragon_horns" || rodShape === "trident" || rodShape === "scythe") {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.08, 6.5, 16);
+                const mainRodMesh = new THREE.Mesh(mainRodGeo, mainRodMat);
+                mainRodMesh.position.set(0, 3.25, 0);
+                rodGroup.add(mainRodMesh);
+
+                const headGeo = (rodShape === "trident") ? new THREE.ConeGeometry(0.3, 0.8, 4) : new THREE.TorusGeometry(0.3, 0.05, 8, 16);
+                const headMesh = new THREE.Mesh(headGeo, mainRodMat);
+                headMesh.position.set(0, 6.5, 0);
+                rodGroup.add(headMesh);
+            }} else {{
+                const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.07, 6.5, 16);
+                const mainRodMesh = new THREE.Mesh(mainRodGeo, mainRodMat);
+                mainRodMesh.position.set(0, 3.25, 0);
+                rodGroup.add(mainRodMesh);
+            }}
+
+            // 3. 가이드링
+            const guideMat = new THREE.MeshStandardMaterial({{ color: 0xffffff, metalness: 1.0, roughness: 0.0, emissive: rodColor, emissiveIntensity: 0.8 }});
+            for(let i = 1; i <= 5; i++) {{
                 const ringGeo = new THREE.TorusGeometry(0.08 - i*0.012, 0.01, 8, 16);
                 const ring = new THREE.Mesh(ringGeo, guideMat);
-                ring.position.set(0, i * 1.3, 0.05);
+                ring.position.set(0, i * 1.2, 0.05);
                 ring.rotation.x = Math.PI / 2;
                 rodGroup.add(ring);
+            }}
+
+            // 4. 로드 파티클 이펙트 시스템
+            const particleType = "{rod_particle}";
+            let particleSystem = null;
+
+            if (particleType !== "none") {{
+                const pCount = 80;
+                const pGeo = new THREE.BufferGeometry();
+                const pPos = new Float32Array(pCount * 3);
+                for(let i=0; i<pCount*3; i+=3) {{
+                    pPos[i] = (Math.random() - 0.5) * 0.8;
+                    pPos[i+1] = Math.random() * 6.5;
+                    pPos[i+2] = (Math.random() - 0.5) * 0.8;
+                }}
+                pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+                const pMat = new THREE.PointsMaterial({{
+                    color: rodColor,
+                    size: 0.12,
+                    transparent: true,
+                    opacity: 0.85,
+                    blending: THREE.AdditiveBlending
+                }});
+                particleSystem = new THREE.Points(pGeo, pMat);
+                rodGroup.add(particleSystem);
             }}
 
             rodGroup.position.set(2.4, -0.4, 5.8);
@@ -511,51 +563,69 @@ def render_3d_ocean_view(
 
             // 찌 (Float)
             const floatGroup = new THREE.Group();
-            const floatMesh = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), new THREE.MeshStandardMaterial({{ color: 0xff3300, emissive: 0xff1100, emissiveIntensity: 0.5 }}));
+            const floatMesh = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), new THREE.MeshStandardMaterial({{ color: 0xff3300, emissive: 0xff1100, emissiveIntensity: 0.8 }}));
             floatGroup.add(floatMesh);
             floatGroup.position.set(0, 0.1, 1.5);
             scene.add(floatGroup);
 
             // 낚싯줄 (Line)
-            const lineMat = new THREE.LineBasicMaterial({{ color: 0x00ffff, transparent: true, opacity: 0.8 }});
+            const lineMat = new THREE.LineBasicMaterial({{ color: rodColor, transparent: true, opacity: 0.85 }});
             const lineGeo = new THREE.BufferGeometry();
             lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
             const fishingLine = new THREE.Line(lineGeo, lineMat);
             scene.add(fishingLine);
 
             // ==========================================
-            // 🐟 관절식 3D 물고기 모델링 (몸통 + 꼬리 지느러미 모션)
+            // 🐟 어종 등급(Rarity)별 차별화된 3D 물고기 모델링
             // ==========================================
             const rarity = "{fish_rarity}";
             const weight = {fish_weight};
             let scaleBase = 0.35 + Math.log10(Math.max(1, weight)) * 0.25;
 
             const fishGroup = new THREE.Group();
-            
             let fColor = 0x00f0ff;
-            if (rarity === "Mythic" || rarity === "Ancient") fColor = 0xff0055;
-            else if (rarity === "Boss") fColor = 0xff0000;
+            let emissiveInt = 0.5;
 
-            const fMat = new THREE.MeshStandardMaterial({{ color: fColor, wireframe: true, emissive: fColor, emissiveIntensity: 0.6 }});
+            if (rarity === "Uncommon") fColor = 0x33ff55;
+            else if (rarity === "Rare") fColor = 0x3388ff;
+            else if (rarity === "Epic") fColor = 0xaa33ff;
+            else if (rarity === "Legendary") fColor = 0xffaa00;
+            else if (rarity === "Mythic") fColor = 0xff0055;
+            else if (rarity === "Ancient") fColor = 0x00ffcc;
+            else if (rarity === "Celestial") fColor = 0xffffff;
+            else if (rarity === "Cosmic") fColor = 0x9900ff;
+            else if (rarity === "Boss") {{ fColor = 0xff0000; emissiveInt = 1.0; scaleBase *= 1.5; }}
 
-            // 물고기 몸통
-            const fBodyGeo = new THREE.ConeGeometry(0.35 * scaleBase, 1.2 * scaleBase, 12);
-            fBodyGeo.rotateX(Math.PI / 2);
+            const fMat = new THREE.MeshStandardMaterial({{ color: fColor, wireframe: true, emissive: fColor, emissiveIntensity: emissiveInt }});
+
+            // 등급별 가변 외형 메쉬
+            let fBodyGeo;
+            if (rarity === "Boss") {{
+                fBodyGeo = new THREE.DodecahedronGeometry(0.7 * scaleBase);
+            }} else if (rarity === "Cosmic" || rarity === "Celestial") {{
+                fBodyGeo = new THREE.IcosahedronGeometry(0.5 * scaleBase);
+            }} else if (rarity === "Legendary" || rarity === "Mythic") {{
+                fBodyGeo = new THREE.OctahedronGeometry(0.45 * scaleBase);
+            }} else {{
+                fBodyGeo = new THREE.ConeGeometry(0.35 * scaleBase, 1.2 * scaleBase, 12);
+                fBodyGeo.rotateX(Math.PI / 2);
+            }}
+
             const fBodyMesh = new THREE.Mesh(fBodyGeo, fMat);
             fishGroup.add(fBodyMesh);
 
-            // 물고기 꼬리 지느러미 (애니메이션용 피벗 연결)
             const tailPivot = new THREE.Group();
             tailPivot.position.set(0, 0, 0.6 * scaleBase);
-            
-            const fTailGeo = new THREE.ConeGeometry(0.25 * scaleBase, 0.6 * scaleBase, 3);
+            const fTailGeo = new THREE.ConeGeometry(0.25 * scaleBase, 0.6 * scaleBase, 4);
             fTailGeo.rotateX(-Math.PI / 2);
             const fTailMesh = new THREE.Mesh(fTailGeo, fMat);
             fTailMesh.position.set(0, 0, 0.3 * scaleBase);
             tailPivot.add(fTailMesh);
-            
             fishGroup.add(tailPivot);
-            fishGroup.position.set(2, -0.8, 1.5);
+
+            // 물고기 초기 위치 설정
+            let fishStartPos = new THREE.Vector3(-4.0, -0.6, -2.0);
+            fishGroup.position.copy(fishStartPos);
             scene.add(fishGroup);
 
             let clock = new THREE.Clock();
@@ -574,39 +644,50 @@ def render_3d_ocean_view(
                 }}
                 pos.needsUpdate = true;
 
-                // 2. 물고기 꼬리 저음 모션 (Swim Animation)
-                tailPivot.rotation.y = Math.sin(time * 10) * 0.45;
+                // 2. 낚싯대 파티클 애니메이션
+                if (particleSystem) {{
+                    const pArr = particleSystem.geometry.attributes.position.array;
+                    for(let i=1; i<pArr.length; i+=3) {{
+                        pArr[i] += 0.02;
+                        if(pArr[i] > 6.5) pArr[i] = 0;
+                    }}
+                    particleSystem.geometry.attributes.position.needsUpdate = true;
+                }}
 
-                // 3. 상태별 낚싯대 및 물고기 행동 로직
+                // 3. 물고기 지느러미 유영 모션
+                tailPivot.rotation.y = Math.sin(time * 12) * 0.5;
+
+                // 4. 상태별 낚싯대 및 물고기 이동 행동 로직
                 if (status === "biting") {{
                     document.getElementById("status-banner").style.display = "block";
-                    floatGroup.position.y = Math.sin(time * 14) * 0.2 - 0.1;
+                    floatGroup.position.y = Math.sin(time * 16) * 0.22 - 0.1;
                     
-                    // 낚싯대의 실감나는 휘어짐 모션
-                    rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * 14) * 0.08;
-                    rodGroup.rotation.z = -Math.PI / 7.5 + Math.cos(time * 12) * 0.03;
+                    // 낚싯대 입질 진동
+                    rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * 16) * 0.1;
+                    rodGroup.rotation.z = -Math.PI / 7.5 + Math.cos(time * 14) * 0.04;
                     
-                    fishGroup.position.set(floatGroup.position.x, floatGroup.position.y - 0.3, floatGroup.position.z);
-                    fishGroup.rotation.y = time * 8; // 입질 시 소용돌이
+                    // 🔥 [핵심] 입질 시 화면 외부/바다에서 찌 위치(floatGroup)로 물고기가 직접 헤엄쳐서 찌에 걸림
+                    fishGroup.position.lerp(new THREE.Vector3(floatGroup.position.x, floatGroup.position.y - 0.35, floatGroup.position.z), 0.08);
+                    fishGroup.lookAt(floatGroup.position);
                 }} else if (status === "success") {{
                     document.getElementById("status-banner").style.display = "none";
                     floatGroup.position.y = Math.sin(time * 15) * 0.25;
                     fishGroup.position.set(floatGroup.position.x, floatGroup.position.y - 0.4, floatGroup.position.z);
-                    fishGroup.rotation.y = Math.sin(time * 5) * 0.5;
+                    fishGroup.rotation.y = Math.sin(time * 6) * 0.8;
                 }} else {{
                     document.getElementById("status-banner").style.display = "none";
                     floatGroup.position.y = Math.sin(time * 3) * 0.08 + 0.05;
                     
-                    // 정적 상태: 물고기가 주변을 자유롭게 유영
-                    const fishX = Math.sin(time * 1.5) * 2.8;
-                    const fishZ = Math.cos(time * 1.5) * 2.0 + 1.5;
+                    // 정적 상태: 물고기가 주변에서 자유롭게 원형으로 유영
+                    const fishX = Math.sin(time * 1.5) * 3.2;
+                    const fishZ = Math.cos(time * 1.5) * 2.2 + 1.0;
                     fishGroup.position.set(fishX, -0.6 + Math.sin(time * 2) * 0.1, fishZ);
                     fishGroup.rotation.y = time * 1.5 + Math.PI / 2;
                     
                     rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * 2) * 0.01;
                 }}
 
-                // 4. 낚싯줄 팁 지점 갱신 및 연결
+                // 5. 낚싯줄 팁 연결 좌표 업데이트
                 const rodTipWorldPos = new THREE.Vector3(0, 6.5, 0);
                 rodGroup.localToWorld(rodTipWorldPos);
                 const linePositions = fishingLine.geometry.attributes.position.array;
