@@ -7,7 +7,7 @@ import time
 # -----------------------------------------------------------------------------
 # 1. 앱 설정 및 기본 데이터베이스 정의
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="판타지 3D 낚시 게임 v3.5 (통합판)", page_icon="🎣", layout="wide")
+st.set_page_config(page_title="판타지 3D 낚시 게임 v4.0", page_icon="🎣", layout="wide")
 
 # 20종 낚시대 데이터
 FISHING_RODS = {
@@ -33,9 +33,11 @@ FISHING_RODS = {
     "차원 창조주의 로드": {"price": 16000000, "catch_rate": 99, "rare_bonus": 160, "exp_mult": 6.0, "gold_mult": 12.0, "desc": "모든 바다 생태계를 지배하는 신의 도구."}
 }
 
-# 30종 물고기 데이터
+# -----------------------------------------------------------------------------
+# 60종 확장 물고기 데이터베이스 (총 10개 등급)
+# -----------------------------------------------------------------------------
 FISH_BOOK_TEMPLATE = {
-    # Common (8종)
+    # 1. Common (10종)
     "피라미": {"rarity": "Common", "min_w": 0.1, "max_w": 0.5, "base_p": 10, "xp": 15},
     "붕어": {"rarity": "Common", "min_w": 0.5, "max_w": 2.0, "base_p": 25, "xp": 25},
     "송사리": {"rarity": "Common", "min_w": 0.05, "max_w": 0.3, "base_p": 8, "xp": 10},
@@ -44,8 +46,10 @@ FISH_BOOK_TEMPLATE = {
     "블루길": {"rarity": "Common", "min_w": 0.4, "max_w": 1.5, "base_p": 30, "xp": 30},
     "꺽지": {"rarity": "Common", "min_w": 0.3, "max_w": 1.2, "base_p": 35, "xp": 35},
     "빙어": {"rarity": "Common", "min_w": 0.05, "max_w": 0.2, "base_p": 12, "xp": 12},
+    "피라니아": {"rarity": "Common", "min_w": 0.5, "max_w": 2.5, "base_p": 40, "xp": 40},
+    "정어리": {"rarity": "Common", "min_w": 0.1, "max_w": 0.4, "base_p": 14, "xp": 16},
 
-    # Uncommon (7종)
+    # 2. Uncommon (8종)
     "배스": {"rarity": "Uncommon", "min_w": 1.0, "max_w": 4.0, "base_p": 60, "xp": 50},
     "메기": {"rarity": "Uncommon", "min_w": 2.0, "max_w": 6.0, "base_p": 90, "xp": 75},
     "가물치": {"rarity": "Uncommon", "min_w": 2.5, "max_w": 7.5, "base_p": 120, "xp": 95},
@@ -53,27 +57,65 @@ FISH_BOOK_TEMPLATE = {
     "우럭": {"rarity": "Uncommon", "min_w": 1.2, "max_w": 4.5, "base_p": 85, "xp": 70},
     "연어": {"rarity": "Uncommon", "min_w": 3.0, "max_w": 9.0, "base_p": 140, "xp": 110},
     "방어": {"rarity": "Uncommon", "min_w": 4.0, "max_w": 12.0, "base_p": 180, "xp": 130},
+    "삼치": {"rarity": "Uncommon", "min_w": 2.0, "max_w": 7.0, "base_p": 110, "xp": 90},
 
-    # Rare (6종)
+    # 3. Rare (7종)
     "비단잉어": {"rarity": "Rare", "min_w": 3.0, "max_w": 8.0, "base_p": 250, "xp": 180},
     "참돔": {"rarity": "Rare", "min_w": 3.5, "max_w": 10.0, "base_p": 320, "xp": 220},
     "감성돔": {"rarity": "Rare", "min_w": 2.5, "max_w": 7.0, "base_p": 290, "xp": 200},
     "다금바리": {"rarity": "Rare", "min_w": 5.0, "max_w": 15.0, "base_p": 500, "xp": 350},
     "청새치": {"rarity": "Rare", "min_w": 15.0, "max_w": 45.0, "base_p": 750, "xp": 480},
     "민어": {"rarity": "Rare", "min_w": 4.0, "max_w": 12.0, "base_p": 400, "xp": 280},
+    "황새치": {"rarity": "Rare", "min_w": 20.0, "max_w": 50.0, "base_p": 800, "xp": 500},
 
-    # Epic (6종)
+    # 4. Epic (6종)
     "황금 잉어": {"rarity": "Epic", "min_w": 5.0, "max_w": 12.0, "base_p": 1200, "xp": 700},
-    "심해 앙아구": {"rarity": "Epic", "min_w": 8.0, "max_w": 25.0, "base_p": 1800, "xp": 950},
+    "심해 아귀": {"rarity": "Epic", "min_w": 8.0, "max_w": 25.0, "base_p": 1800, "xp": 950},
     "대왕 샐러맨더": {"rarity": "Epic", "min_w": 10.0, "max_w": 30.0, "base_p": 2300, "xp": 1200},
     "일렉트릭 뱀장어": {"rarity": "Epic", "min_w": 6.0, "max_w": 18.0, "base_p": 1600, "xp": 850},
     "크리스탈 가오리": {"rarity": "Epic", "min_w": 12.0, "max_w": 35.0, "base_p": 2800, "xp": 1400},
-    "고대 씨라캔스": {"rarity": "Epic", "min_w": 20.0, "max_w": 60.0, "base_p": 4000, "xp": 1900},
+    "볼케이노 해마": {"rarity": "Epic", "min_w": 2.0, "max_w": 8.0, "base_p": 3200, "xp": 1600},
 
-    # Boss (3종)
-    "심해의 크라켄": {"rarity": "Boss", "min_w": 500.0, "max_w": 1500.0, "base_p": 15000, "xp": 5000},
-    "천공의 고래": {"rarity": "Boss", "min_w": 1000.0, "max_w": 3000.0, "base_p": 35000, "xp": 11000},
-    "차원의 레비아탄": {"rarity": "Boss", "min_w": 2500.0, "max_w": 8000.0, "base_p": 85000, "xp": 25000}
+    # 5. Legendary (6종)
+    "심해 펠리칸장어": {"rarity": "Legendary", "min_w": 15.0, "max_w": 40.0, "base_p": 5000, "xp": 2500},
+    "아비스 블레이드": {"rarity": "Legendary", "min_w": 25.0, "max_w": 70.0, "base_p": 7500, "xp": 3200},
+    "플라즈마 복어": {"rarity": "Legendary", "min_w": 10.0, "max_w": 30.0, "base_p": 9000, "xp": 3800},
+    "프로스트 샤크": {"rarity": "Legendary", "min_w": 50.0, "max_w": 150.0, "base_p": 12000, "xp": 4500},
+    "루비 메갈로돈": {"rarity": "Legendary", "min_w": 80.0, "max_w": 200.0, "base_p": 16000, "xp": 5500},
+    "에메랄드 청새치": {"rarity": "Legendary", "min_w": 40.0, "max_w": 100.0, "base_p": 14000, "xp": 5000},
+
+    # 6. Mythic (5종)
+    "바다의 환영 발키리": {"rarity": "Mythic", "min_w": 100.0, "max_w": 300.0, "base_p": 25000, "xp": 8000},
+    "신화의 히드라 해뱀": {"rarity": "Mythic", "min_w": 150.0, "max_w": 450.0, "base_p": 35000, "xp": 10000},
+    "포세이돈의 삼지창어": {"rarity": "Mythic", "min_w": 80.0, "max_w": 250.0, "base_p": 45000, "xp": 12500},
+    "성스러운 빛의 해마": {"rarity": "Mythic", "min_w": 30.0, "max_w": 90.0, "base_p": 55000, "xp": 15000},
+    "타이탄 심해 대구": {"rarity": "Mythic", "min_w": 200.0, "max_w": 600.0, "base_p": 68000, "xp": 18000},
+
+    # 7. Ancient (5종)
+    "고대 씨라캔스": {"rarity": "Ancient", "min_w": 100.0, "max_w": 350.0, "base_p": 90000, "xp": 22000},
+    "시공의 암모나이트": {"rarity": "Ancient", "min_w": 80.0, "max_w": 280.0, "base_p": 120000, "xp": 28000},
+    "원시 던클레오스테우스": {"rarity": "Ancient", "min_w": 300.0, "max_w": 900.0, "base_p": 160000, "xp": 35000},
+    "고대 리오플레우로돈": {"rarity": "Ancient", "min_w": 450.0, "max_w": 1200.0, "base_p": 210000, "xp": 42000},
+    "빙하기 아노말로카리스": {"rarity": "Ancient", "min_w": 50.0, "max_w": 200.0, "base_p": 270000, "xp": 50000},
+
+    # 8. Celestial (4종)
+    "천상의 은하 가오리": {"rarity": "Celestial", "min_w": 300.0, "max_w": 800.0, "base_p": 380000, "xp": 65000},
+    "세라핌 피쉬": {"rarity": "Celestial", "min_w": 150.0, "max_w": 500.0, "base_p": 500000, "xp": 80000},
+    "스타더스트 고래": {"rarity": "Celestial", "min_w": 1000.0, "max_w": 3000.0, "base_p": 680000, "xp": 100000},
+    "빛의 주권자 오라클": {"rarity": "Celestial", "min_w": 500.0, "max_w": 1500.0, "base_p": 900000, "xp": 130000},
+
+    # 9. Cosmic (4종)
+    "코스믹 퀘이사 피쉬": {"rarity": "Cosmic", "min_w": 800.0, "max_w": 2500.0, "base_p": 1300000, "xp": 170000},
+    "블랙홀 스쿼드": {"rarity": "Cosmic", "min_w": 1200.0, "max_w": 4000.0, "base_p": 1800000, "xp": 220000},
+    "초신성 라이어": {"rarity": "Cosmic", "min_w": 2000.0, "max_w": 6000.0, "base_p": 2500000, "xp": 300000},
+    "차원 파쇄자 다크매터": {"rarity": "Cosmic", "min_w": 3500.0, "max_w": 9999.0, "base_p": 3500000, "xp": 400000},
+
+    # 10. Boss (5종)
+    "심해의 크라켄": {"rarity": "Boss", "min_w": 2000.0, "max_w": 6000.0, "base_p": 5000000, "xp": 550000},
+    "천공의 고래": {"rarity": "Boss", "min_w": 4000.0, "max_w": 12000.0, "base_p": 8000000, "xp": 800000},
+    "차원의 레비아탄": {"rarity": "Boss", "min_w": 8000.0, "max_w": 25000.0, "base_p": 12000000, "xp": 1200000},
+    "종말의 요르문간드": {"rarity": "Boss", "min_w": 15000.0, "max_w": 45000.0, "base_p": 20000000, "xp": 1800000},
+    "창세의 아우라드래곤": {"rarity": "Boss", "min_w": 30000.0, "max_w": 99999.0, "base_p": 35000000, "xp": 3000000}
 }
 
 TRAITS = [
@@ -85,9 +127,9 @@ TRAITS = [
 
 SHOP_BAITS = {
     "초강력 미끼": {"price": 100, "desc": "Uncommon / Rare 등급 등장 확률 증가"},
-    "행운의 미끼": {"price": 150, "desc": "Epic 등급 등장 확률 대폭 증가"},
+    "행운의 미끼": {"price": 150, "desc": "Epic / Legendary / Mythic 등급 등장 확정"},
     "황금 미끼": {"price": 300, "desc": "전설 특성 고정 및 골드 배수 적용"},
-    "보스 미끼": {"price": 1000, "desc": "보스 물고기 출현 확률 대폭 증가"}
+    "보스 미끼": {"price": 1000, "desc": "보스 물고기 출현 확률 100% 확정"}
 }
 
 # -----------------------------------------------------------------------------
@@ -112,7 +154,7 @@ def init_game():
         st.session_state.records = {name: 0 for name in FISH_BOOK_TEMPLATE.keys()}
         st.session_state.auto_fishing = False
         st.session_state.last_catch_msg = ""
-        st.session_state.last_catch_status = "idle"  # 3D 애니메이션용 상태 ("idle", "success", "fail")
+        st.session_state.last_catch_status = "idle"
 
 init_game()
 
@@ -150,7 +192,6 @@ def render_3d_ocean_view(status="idle"):
             renderer.shadowMap.enabled = true;
             container.appendChild(renderer.domElement);
 
-            // 조명
             const ambientLight = new THREE.AmbientLight(0xdff0ff, 0.7);
             scene.add(ambientLight);
 
@@ -159,7 +200,6 @@ def render_3d_ocean_view(status="idle"):
             dirLight.castShadow = true;
             scene.add(dirLight);
 
-            // 바다 수면 (Plane)
             const oceanGeo = new THREE.PlaneGeometry(40, 40, 40, 40);
             const oceanMat = new THREE.MeshPhongMaterial({{
                 color: 0x006699,
@@ -172,7 +212,6 @@ def render_3d_ocean_view(status="idle"):
             ocean.rotation.x = -Math.PI / 2;
             scene.add(ocean);
 
-            // 찌 (Float)
             const floatGroup = new THREE.Group();
             const floatGeo = new THREE.SphereGeometry(0.35, 16, 16);
             const floatMat = new THREE.MeshStandardMaterial({{ color: 0xff3300, roughness: 0.2 }});
@@ -188,7 +227,6 @@ def render_3d_ocean_view(status="idle"):
             floatGroup.position.set(0, 0.2, 2);
             scene.add(floatGroup);
 
-            // 물고기 실루엣
             const fishGeo = new THREE.ConeGeometry(0.3, 1, 8);
             fishGeo.rotateX(Math.PI / 2);
             const fishMat = new THREE.MeshBasicMaterial({{ color: 0x00f0ff, wireframe: true }});
@@ -203,7 +241,6 @@ def render_3d_ocean_view(status="idle"):
                 requestAnimationFrame(animate);
                 let time = clock.getElapsedTime();
 
-                // 수면 파도 모션
                 const pos = oceanGeo.attributes.position;
                 for (let i = 0; i < pos.count; i++) {{
                     let u = pos.getX(i);
@@ -213,16 +250,14 @@ def render_3d_ocean_view(status="idle"):
                 }}
                 pos.needsUpdate = true;
 
-                // 찌 유동 애니메이션
                 if (status === "success") {{
-                    floatGroup.position.y = Math.sin(time * 15) * 0.4 - 0.2; // 요동
+                    floatGroup.position.y = Math.sin(time * 15) * 0.4 - 0.2;
                 }} else if (status === "fail") {{
-                    floatGroup.position.y = -1.5; // 가라앉음
+                    floatGroup.position.y = -1.5;
                 }} else {{
-                    floatGroup.position.y = Math.sin(time * 3) * 0.15 + 0.1; // 평상시
+                    floatGroup.position.y = Math.sin(time * 3) * 0.15 + 0.1;
                 }}
 
-                // 물고기 주위 유형 애니메이션
                 fishMesh.position.x = Math.sin(time * 1.2) * 3;
                 fishMesh.position.z = Math.cos(time * 1.2) * 2 + 1;
                 fishMesh.rotation.y = time * 1.2 + Math.PI / 2;
@@ -280,21 +315,36 @@ def catch_fish(selected_bait):
         return False
 
     rod_data = FISHING_RODS[st.session_state.equipped_rod]
-    luck_score = (st.session_state.level * 2) + rod_data["rare_bonus"]
-    
-    boss_chance = 15 if selected_bait == "보스 미끼" else 1.5 + (luck_score * 0.05)
-    
-    rand_tier = random.uniform(0, 100) + luck_score
+    luck_score = (st.session_state.level * 1.5) + rod_data["rare_bonus"]
+    rand_tier = random.uniform(0, 100) + (luck_score * 0.1)
 
-    if rand_tier > (130 - boss_chance):
-        candidates = [k for k, v in FISH_BOOK_TEMPLATE.items() if v["rarity"] == "Boss"]
-    elif rand_tier > 90 or selected_bait == "행운의 미끼":
-        candidates = [k for k, v in FISH_BOOK_TEMPLATE.items() if v["rarity"] == "Epic"]
-    elif rand_tier > 60 or selected_bait == "초강력 미끼":
-        candidates = [k for k, v in FISH_BOOK_TEMPLATE.items() if v["rarity"] == "Rare"]
-    elif rand_tier > 30:
-        candidates = [k for k, v in FISH_BOOK_TEMPLATE.items() if v["rarity"] == "Uncommon"]
+    if selected_bait == "보스 미끼":
+        target_rarity = "Boss"
+    elif selected_bait == "행운의 미끼":
+        target_rarity = random.choice(["Epic", "Legendary", "Mythic"])
+    elif rand_tier >= 99.9:
+        target_rarity = "Boss"
+    elif rand_tier >= 99.5:
+        target_rarity = "Cosmic"
+    elif rand_tier >= 98.6:
+        target_rarity = "Celestial"
+    elif rand_tier >= 96.6:
+        target_rarity = "Ancient"
+    elif rand_tier >= 93.1:
+        target_rarity = "Mythic"
+    elif rand_tier >= 87.1:
+        target_rarity = "Legendary"
+    elif rand_tier >= 75.1:
+        target_rarity = "Epic"
+    elif rand_tier >= 55.1:
+        target_rarity = "Rare"
+    elif rand_tier >= 30.1:
+        target_rarity = "Uncommon"
     else:
+        target_rarity = "Common"
+
+    candidates = [k for k, v in FISH_BOOK_TEMPLATE.items() if v["rarity"] == target_rarity]
+    if not candidates:
         candidates = [k for k, v in FISH_BOOK_TEMPLATE.items() if v["rarity"] == "Common"]
 
     fish_name = random.choice(candidates)
@@ -320,7 +370,7 @@ def catch_fish(selected_bait):
     st.session_state.records[fish_name] += 1
     add_xp(info["xp"])
     
-    st.session_state.last_catch_msg = f"🎣 [{trait['name']} {fish_name}] (을)를 잡았습니다! ({weight}kg)"
+    st.session_state.last_catch_msg = f"🎣 [{info['rarity']}] {trait['name']} {fish_name} (을)를 잡았습니다! ({weight}kg)"
     st.session_state.last_catch_status = "success"
     return True
 
@@ -350,7 +400,7 @@ def auto_fishing_loop(selected_bait):
 # -----------------------------------------------------------------------------
 # 6. UI 화면 구성
 # -----------------------------------------------------------------------------
-st.title("🎣 판타지 낚시 게임 v3.5 (3D Engine Integrated)")
+st.title("🎣 판타지 낚시 게임 v4.0 (3D Engine Integrated)")
 
 # 사이드바: 프로필 및 저장/불러오기
 with st.sidebar:
@@ -400,10 +450,8 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(["🌊 3D 낚시터 (수동/자동)", "�
 with tab1:
     st.subheader("🌊 실시간 3D 바다 낚시터")
     
-    # 3D 뷰포트 출력
     render_3d_ocean_view(status=st.session_state.last_catch_status)
 
-    # 낚시대 장비 스탯 요약
     equipped_info = FISHING_RODS[st.session_state.equipped_rod]
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("낚시 성공률", f"{get_current_success_rate():.1f}%")
@@ -413,7 +461,6 @@ with tab1:
 
     st.divider()
 
-    # 미끼 선택
     bait_options = []
     for b_name, count in st.session_state.baits.items():
         if count == float('inf'):
@@ -442,14 +489,12 @@ with tab1:
                 st.session_state.last_catch_status = "idle"
                 st.rerun()
 
-    # 결과 메시지 출력
     if st.session_state.last_catch_msg:
         if "💥" in st.session_state.last_catch_msg or "⚠️" in st.session_state.last_catch_msg:
             st.error(st.session_state.last_catch_msg)
         else:
             st.success(st.session_state.last_catch_msg)
 
-    # 자동 낚시 동작 프래그먼트 호출
     if st.session_state.auto_fishing:
         st.info("🔄 자동 낚시 작동 중... (2.5초 간격)")
         auto_fishing_loop(selected_bait)
@@ -532,16 +577,16 @@ with tab4:
 
 # --- TAB 5: 물고기 도감 ---
 with tab5:
-    st.subheader("📖 물고기 도감 (총 30종)")
+    st.subheader("📖 물고기 도감 (총 60종)")
     cols = st.columns(2)
     for idx, (name, info) in enumerate(FISH_BOOK_TEMPLATE.items()):
-        caught_count = st.session_state.records[name]
+        caught_count = st.session_state.records.get(name, 0)
         with cols[idx % 2]:
             if caught_count > 0:
                 is_boss = "👑 " if info["rarity"] == "Boss" else ""
                 st.write(f"### {is_boss}{name}")
-                st.caption(f"등급: **{info['rarity']}** | 잡은 횟수: **{caught_count}회** | 기준가: {info['base_p']} G")
+                st.caption(f"등급: **{info['rarity']}** | 잡은 횟수: **{caught_count}회** | 기준가: {info['base_p']:,} G")
             else:
                 st.write("### ??? (미발견)")
-                st.caption("아직 발견하지 못한 물고기입니다.")
+                st.caption(f"등급: **{info['rarity']}** | 아직 발견하지 못한 물고기입니다.")
         st.divider()
