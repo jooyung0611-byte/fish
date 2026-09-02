@@ -11,7 +11,7 @@ st.set_page_config(
     page_title="판타지 3D 낚시 게임 v7.0", page_icon="🎣", layout="wide"
 )
 
-# 20종 낚시대 데이터 (외형, 파티클, 퀄리티 업그레이드 스펙 적용)
+# 20종 낚시대 데이터
 FISHING_RODS = {
     "대나무 낚시대": {
         "price": 0,
@@ -238,438 +238,77 @@ FISHING_RODS = {
 # 60종 물고기 데이터베이스
 FISH_BOOK_TEMPLATE = {
     # Common
-    "피라미": {
-        "rarity": "Common",
-        "min_w": 0.1,
-        "max_w": 0.5,
-        "base_p": 1,
-        "xp": 15,
-    },
-    "붕어": {
-        "rarity": "Common",
-        "min_w": 0.5,
-        "max_w": 2.0,
-        "base_p": 2,
-        "xp": 25,
-    },
-    "송사리": {
-        "rarity": "Common",
-        "min_w": 0.05,
-        "max_w": 0.3,
-        "base_p": 1,
-        "xp": 10,
-    },
-    "망둥어": {
-        "rarity": "Common",
-        "min_w": 0.2,
-        "max_w": 0.8,
-        "base_p": 2,
-        "xp": 20,
-    },
-    "미꾸라지": {
-        "rarity": "Common",
-        "min_w": 0.1,
-        "max_w": 0.6,
-        "base_p": 1,
-        "xp": 18,
-    },
-    "블루길": {
-        "rarity": "Common",
-        "min_w": 0.4,
-        "max_w": 1.5,
-        "base_p": 3,
-        "xp": 30,
-    },
-    "꺽지": {
-        "rarity": "Common",
-        "min_w": 0.3,
-        "max_w": 1.2,
-        "base_p": 3,
-        "xp": 35,
-    },
-    "빙어": {
-        "rarity": "Common",
-        "min_w": 0.05,
-        "max_w": 0.2,
-        "base_p": 1,
-        "xp": 12,
-    },
-    "피라니아": {
-        "rarity": "Common",
-        "min_w": 0.5,
-        "max_w": 2.5,
-        "base_p": 4,
-        "xp": 40,
-    },
-    "정어리": {
-        "rarity": "Common",
-        "min_w": 0.1,
-        "max_w": 0.4,
-        "base_p": 1,
-        "xp": 16,
-    },
+    "피라미": {"rarity": "Common", "min_w": 0.1, "max_w": 0.5, "base_p": 1, "xp": 15},
+    "붕어": {"rarity": "Common", "min_w": 0.5, "max_w": 2.0, "base_p": 2, "xp": 25},
+    "송사리": {"rarity": "Common", "min_w": 0.05, "max_w": 0.3, "base_p": 1, "xp": 10},
+    "망둥어": {"rarity": "Common", "min_w": 0.2, "max_w": 0.8, "base_p": 2, "xp": 20},
+    "미꾸라지": {"rarity": "Common", "min_w": 0.1, "max_w": 0.6, "base_p": 1, "xp": 18},
+    "블루길": {"rarity": "Common", "min_w": 0.4, "max_w": 1.5, "base_p": 3, "xp": 30},
+    "꺽지": {"rarity": "Common", "min_w": 0.3, "max_w": 1.2, "base_p": 3, "xp": 35},
+    "빙어": {"rarity": "Common", "min_w": 0.05, "max_w": 0.2, "base_p": 1, "xp": 12},
+    "피라니아": {"rarity": "Common", "min_w": 0.5, "max_w": 2.5, "base_p": 4, "xp": 40},
+    "정어리": {"rarity": "Common", "min_w": 0.1, "max_w": 0.4, "base_p": 1, "xp": 16},
     # Uncommon
-    "배스": {
-        "rarity": "Uncommon",
-        "min_w": 1.0,
-        "max_w": 4.0,
-        "base_p": 5,
-        "xp": 50,
-    },
-    "메기": {
-        "rarity": "Uncommon",
-        "min_w": 2.0,
-        "max_w": 6.0,
-        "base_p": 8,
-        "xp": 75,
-    },
-    "가물치": {
-        "rarity": "Uncommon",
-        "min_w": 2.5,
-        "max_w": 7.5,
-        "base_p": 10,
-        "xp": 95,
-    },
-    "광어": {
-        "rarity": "Uncommon",
-        "min_w": 1.5,
-        "max_w": 5.0,
-        "base_p": 9,
-        "xp": 80,
-    },
-    "우럭": {
-        "rarity": "Uncommon",
-        "min_w": 1.2,
-        "max_w": 4.5,
-        "base_p": 7,
-        "xp": 70,
-    },
-    "연어": {
-        "rarity": "Uncommon",
-        "min_w": 3.0,
-        "max_w": 9.0,
-        "base_p": 12,
-        "xp": 110,
-    },
-    "방어": {
-        "rarity": "Uncommon",
-        "min_w": 4.0,
-        "max_w": 12.0,
-        "base_p": 15,
-        "xp": 130,
-    },
-    "삼치": {
-        "rarity": "Uncommon",
-        "min_w": 2.0,
-        "max_w": 7.0,
-        "base_p": 10,
-        "xp": 90,
-    },
+    "배스": {"rarity": "Uncommon", "min_w": 1.0, "max_w": 4.0, "base_p": 5, "xp": 50},
+    "메기": {"rarity": "Uncommon", "min_w": 2.0, "max_w": 6.0, "base_p": 8, "xp": 75},
+    "가물치": {"rarity": "Uncommon", "min_w": 2.5, "max_w": 7.5, "base_p": 10, "xp": 95},
+    "광어": {"rarity": "Uncommon", "min_w": 1.5, "max_w": 5.0, "base_p": 9, "xp": 80},
+    "우럭": {"rarity": "Uncommon", "min_w": 1.2, "max_w": 4.5, "base_p": 7, "xp": 70},
+    "연어": {"rarity": "Uncommon", "min_w": 3.0, "max_w": 9.0, "base_p": 12, "xp": 110},
+    "방어": {"rarity": "Uncommon", "min_w": 4.0, "max_w": 12.0, "base_p": 15, "xp": 130},
+    "삼치": {"rarity": "Uncommon", "min_w": 2.0, "max_w": 7.0, "base_p": 10, "xp": 90},
     # Rare
-    "비단잉어": {
-        "rarity": "Rare",
-        "min_w": 3.0,
-        "max_w": 8.0,
-        "base_p": 20,
-        "xp": 180,
-    },
-    "참돔": {
-        "rarity": "Rare",
-        "min_w": 3.5,
-        "max_w": 10.0,
-        "base_p": 25,
-        "xp": 220,
-    },
-    "감성돔": {
-        "rarity": "Rare",
-        "min_w": 2.5,
-        "max_w": 7.0,
-        "base_p": 22,
-        "xp": 200,
-    },
-    "다금바리": {
-        "rarity": "Rare",
-        "min_w": 5.0,
-        "max_w": 15.0,
-        "base_p": 35,
-        "xp": 350,
-    },
-    "청새치": {
-        "rarity": "Rare",
-        "min_w": 15.0,
-        "max_w": 45.0,
-        "base_p": 50,
-        "xp": 480,
-    },
-    "민어": {
-        "rarity": "Rare",
-        "min_w": 4.0,
-        "max_w": 12.0,
-        "base_p": 30,
-        "xp": 280,
-    },
-    "황새치": {
-        "rarity": "Rare",
-        "min_w": 20.0,
-        "max_w": 50.0,
-        "base_p": 60,
-        "xp": 500,
-    },
+    "비단잉어": {"rarity": "Rare", "min_w": 3.0, "max_w": 8.0, "base_p": 20, "xp": 180},
+    "참돔": {"rarity": "Rare", "min_w": 3.5, "max_w": 10.0, "base_p": 25, "xp": 220},
+    "감성돔": {"rarity": "Rare", "min_w": 2.5, "max_w": 7.0, "base_p": 22, "xp": 200},
+    "다금바리": {"rarity": "Rare", "min_w": 5.0, "max_w": 15.0, "base_p": 35, "xp": 350},
+    "청새치": {"rarity": "Rare", "min_w": 15.0, "max_w": 45.0, "base_p": 50, "xp": 480},
+    "민어": {"rarity": "Rare", "min_w": 4.0, "max_w": 12.0, "base_p": 30, "xp": 280},
+    "황새치": {"rarity": "Rare", "min_w": 20.0, "max_w": 50.0, "base_p": 60, "xp": 500},
     # Epic
-    "황금 잉어": {
-        "rarity": "Epic",
-        "min_w": 5.0,
-        "max_w": 12.0,
-        "base_p": 80,
-        "xp": 700,
-    },
-    "심해 아귀": {
-        "rarity": "Epic",
-        "min_w": 8.0,
-        "max_w": 25.0,
-        "base_p": 120,
-        "xp": 950,
-    },
-    "대왕 샐러맨더": {
-        "rarity": "Epic",
-        "min_w": 10.0,
-        "max_w": 30.0,
-        "base_p": 150,
-        "xp": 1200,
-    },
-    "일렉트릭 뱀장어": {
-        "rarity": "Epic",
-        "min_w": 6.0,
-        "max_w": 18.0,
-        "base_p": 110,
-        "xp": 850,
-    },
-    "크리스탈 가오리": {
-        "rarity": "Epic",
-        "min_w": 12.0,
-        "max_w": 35.0,
-        "base_p": 180,
-        "xp": 1400,
-    },
-    "볼케이노 해마": {
-        "rarity": "Epic",
-        "min_w": 2.0,
-        "max_w": 8.0,
-        "base_p": 200,
-        "xp": 1600,
-    },
+    "황금 잉어": {"rarity": "Epic", "min_w": 5.0, "max_w": 12.0, "base_p": 80, "xp": 700},
+    "심해 아귀": {"rarity": "Epic", "min_w": 8.0, "max_w": 25.0, "base_p": 120, "xp": 950},
+    "대왕 샐러맨더": {"rarity": "Epic", "min_w": 10.0, "max_w": 30.0, "base_p": 150, "xp": 1200},
+    "일렉트릭 뱀장어": {"rarity": "Epic", "min_w": 6.0, "max_w": 18.0, "base_p": 110, "xp": 850},
+    "크리스탈 가오리": {"rarity": "Epic", "min_w": 12.0, "max_w": 35.0, "base_p": 180, "xp": 1400},
+    "볼케이노 해마": {"rarity": "Epic", "min_w": 2.0, "max_w": 8.0, "base_p": 200, "xp": 1600},
     # Legendary
-    "심해 펠리칸장어": {
-        "rarity": "Legendary",
-        "min_w": 15.0,
-        "max_w": 40.0,
-        "base_p": 45,
-        "xp": 2500,
-    },
-    "아비스 블레이드": {
-        "rarity": "Legendary",
-        "min_w": 25.0,
-        "max_w": 70.0,
-        "base_p": 55,
-        "xp": 3200,
-    },
-    "플라즈마 복어": {
-        "rarity": "Legendary",
-        "min_w": 10.0,
-        "max_w": 30.0,
-        "base_p": 60,
-        "xp": 3800,
-    },
-    "프로스트 샤크": {
-        "rarity": "Legendary",
-        "min_w": 50.0,
-        "max_w": 150.0,
-        "base_p": 75,
-        "xp": 4500,
-    },
-    "루비 메갈로돈": {
-        "rarity": "Legendary",
-        "min_w": 80.0,
-        "max_w": 200.0,
-        "base_p": 90,
-        "xp": 5500,
-    },
-    "에메랄드 청새치": {
-        "rarity": "Legendary",
-        "min_w": 40.0,
-        "max_w": 100.0,
-        "base_p": 80,
-        "xp": 5000,
-    },
+    "심해 펠리칸장어": {"rarity": "Legendary", "min_w": 15.0, "max_w": 40.0, "base_p": 245, "xp": 2500},
+    "아비스 블레이드": {"rarity": "Legendary", "min_w": 25.0, "max_w": 70.0, "base_p": 355, "xp": 3200},
+    "플라즈마 복어": {"rarity": "Legendary", "min_w": 10.0, "max_w": 30.0, "base_p": 260, "xp": 3800},
+    "프로스트 샤크": {"rarity": "Legendary", "min_w": 50.0, "max_w": 150.0, "base_p": 475, "xp": 4500},
+    "루비 메갈로돈": {"rarity": "Legendary", "min_w": 80.0, "max_w": 200.0, "base_p": 590, "xp": 5500},
+    "에메랄드 청새치": {"rarity": "Legendary", "min_w": 40.0, "max_w": 100.0, "base_p": 480, "xp": 5000},
     # Mythic
-    "바다의 환영 발키리": {
-        "rarity": "Mythic",
-        "min_w": 100.0,
-        "max_w": 300.0,
-        "base_p": 120,
-        "xp": 8000,
-    },
-    "신화의 히드라 해뱀": {
-        "rarity": "Mythic",
-        "min_w": 150.0,
-        "max_w": 450.0,
-        "base_p": 150,
-        "xp": 10000,
-    },
-    "포세이돈의 삼지창어": {
-        "rarity": "Mythic",
-        "min_w": 80.0,
-        "max_w": 250.0,
-        "base_p": 180,
-        "xp": 12500,
-    },
-    "성스러운 빛의 해마": {
-        "rarity": "Mythic",
-        "min_w": 30.0,
-        "max_w": 90.0,
-        "base_p": 210,
-        "xp": 15000,
-    },
-    "타이탄 심해 대구": {
-        "rarity": "Mythic",
-        "min_w": 200.0,
-        "max_w": 600.0,
-        "base_p": 250,
-        "xp": 18000,
-    },
+    "바다의 환영 발키리": {"rarity": "Mythic", "min_w": 100.0, "max_w": 300.0, "base_p": 820, "xp": 8000},
+    "신화의 히드라 해뱀": {"rarity": "Mythic", "min_w": 150.0, "max_w": 450.0, "base_p": 1150, "xp": 10000},
+    "포세이돈의 삼지창어": {"rarity": "Mythic", "min_w": 80.0, "max_w": 250.0, "base_p": 1280, "xp": 12500},
+    "성스러운 빛의 해마": {"rarity": "Mythic", "min_w": 30.0, "max_w": 90.0, "base_p": 1410, "xp": 15000},
+    "타이탄 심해 대구": {"rarity": "Mythic", "min_w": 200.0, "max_w": 600.0, "base_p": 1850, "xp": 18000},
     # Ancient
-    "고대 씨라캔스": {
-        "rarity": "Ancient",
-        "min_w": 100.0,
-        "max_w": 350.0,
-        "base_p": 320,
-        "xp": 22000,
-    },
-    "시공의 암모나이트": {
-        "rarity": "Ancient",
-        "min_w": 80.0,
-        "max_w": 280.0,
-        "base_p": 380,
-        "xp": 28000,
-    },
-    "원시 던클레오스테우스": {
-        "rarity": "Ancient",
-        "min_w": 300.0,
-        "max_w": 900.0,
-        "base_p": 450,
-        "xp": 35000,
-    },
-    "고대 리오플레우로돈": {
-        "rarity": "Ancient",
-        "min_w": 450.0,
-        "max_w": 1200.0,
-        "base_p": 520,
-        "xp": 42000,
-    },
-    "빙하기 아노말로카리스": {
-        "rarity": "Ancient",
-        "min_w": 50.0,
-        "max_w": 200.0,
-        "base_p": 600,
-        "xp": 50000,
-    },
+    "고대 씨라캔스": {"rarity": "Ancient", "min_w": 100.0, "max_w": 350.0, "base_p": 2320, "xp": 22000},
+    "시공의 암모나이트": {"rarity": "Ancient", "min_w": 80.0, "max_w": 280.0, "base_p": 2800, "xp": 28000},
+    "원시 던클레오스테우스": {"rarity": "Ancient", "min_w": 300.0, "max_w": 900.0, "base_p": 3450, "xp": 35000},
+    "고대 리오플레우로돈": {"rarity": "Ancient", "min_w": 450.0, "max_w": 1200.0, "base_p": 4120, "xp": 42000},
+    "빙하기 아노말로카리스": {"rarity": "Ancient", "min_w": 50.0, "max_w": 200.0, "base_p": 4900, "xp": 50000},
     # Celestial
-    "천상의 은하 가오리": {
-        "rarity": "Celestial",
-        "min_w": 300.0,
-        "max_w": 800.0,
-        "base_p": 750,
-        "xp": 65000,
-    },
-    "세라핌 피쉬": {
-        "rarity": "Celestial",
-        "min_w": 150.0,
-        "max_w": 500.0,
-        "base_p": 900,
-        "xp": 80000,
-    },
-    "스타더스트 고래": {
-        "rarity": "Celestial",
-        "min_w": 1000.0,
-        "max_w": 3000.0,
-        "base_p": 1100,
-        "xp": 100000,
-    },
-    "빛의 주권자 오라클": {
-        "rarity": "Celestial",
-        "min_w": 500.0,
-        "max_w": 1500.0,
-        "base_p": 1350,
-        "xp": 130000,
-    },
+    "천상의 은하 가오리": {"rarity": "Celestial", "min_w": 300.0, "max_w": 800.0, "base_p": 6750, "xp": 65000},
+    "세라핌 피쉬": {"rarity": "Celestial", "min_w": 150.0, "max_w": 500.0, "base_p": 8900, "xp": 80000},
+    "스타더스트 고래": {"rarity": "Celestial", "min_w": 1000.0, "max_w": 3000.0, "base_p": 11100, "xp": 100000},
+    "빛의 주권자 오라클": {"rarity": "Celestial", "min_w": 500.0, "max_w": 1500.0, "base_p": 13350, "xp": 130000},
     # Cosmic
-    "코스믹 퀘이사 피쉬": {
-        "rarity": "Cosmic",
-        "min_w": 800.0,
-        "max_w": 2500.0,
-        "base_p": 1600,
-        "xp": 170000,
-    },
-    "블랙홀 스쿼드": {
-        "rarity": "Cosmic",
-        "min_w": 1200.0,
-        "max_w": 4000.0,
-        "base_p": 2000,
-        "xp": 220000,
-    },
-    "초신성 라이어": {
-        "rarity": "Cosmic",
-        "min_w": 2000.0,
-        "max_w": 6000.0,
-        "base_p": 2500,
-        "xp": 300000,
-    },
-    "차원 파쇄자 다크매터": {
-        "rarity": "Cosmic",
-        "min_w": 3500.0,
-        "max_w": 9999.0,
-        "base_p": 3200,
-        "xp": 400000,
-    },
+    "코스믹 퀘이사 피쉬": {"rarity": "Cosmic", "min_w": 800.0, "max_w": 2500.0, "base_p": 17600, "xp": 170000},
+    "블랙홀 스쿼드": {"rarity": "Cosmic", "min_w": 1200.0, "max_w": 4000.0, "base_p": 22000, "xp": 220000},
+    "초신성 라이어": {"rarity": "Cosmic", "min_w": 2000.0, "max_w": 6000.0, "base_p": 28500, "xp": 300000},
+    "차원 파쇄자 다크매터": {"rarity": "Cosmic", "min_w": 3500.0, "max_w": 9999.0, "base_p": 38200, "xp": 400000},
     # Boss
-    "심해의 크라켄": {
-        "rarity": "Boss",
-        "min_w": 2000.0,
-        "max_w": 6000.0,
-        "base_p": 4500,
-        "xp": 550000,
-    },
-    "천공의 고래": {
-        "rarity": "Boss",
-        "min_w": 4000.0,
-        "max_w": 12000.0,
-        "base_p": 6000,
-        "xp": 800000,
-    },
-    "차원의 레비아탄": {
-        "rarity": "Boss",
-        "min_w": 8000.0,
-        "max_w": 25000.0,
-        "base_p": 8000,
-        "xp": 1200000,
-    },
-    "종말의 요르문간드": {
-        "rarity": "Boss",
-        "min_w": 15000.0,
-        "max_w": 45000.0,
-        "base_p": 10000,
-        "xp": 1800000,
-    },
-    "창세의 아우라드래곤": {
-        "rarity": "Boss",
-        "min_w": 30000.0,
-        "max_w": 99999.0,
-        "base_p": 15000,
-        "xp": 3000000,
-    },
+    "심해의 크라켄": {"rarity": "Boss", "min_w": 2000.0, "max_w": 6000.0, "base_p": 54500, "xp": 550000},
+    "천공의 고래": {"rarity": "Boss", "min_w": 4000.0, "max_w": 12000.0, "base_p": 76000, "xp": 800000},
+    "차원의 레비아탄": {"rarity": "Boss", "min_w": 8000.0, "max_w": 25000.0, "base_p": 108000, "xp": 1200000},
+    "종말의 요르문간드": {"rarity": "Boss", "min_w": 15000.0, "max_w": 45000.0, "base_p": 150000, "xp": 1800000},
+    "창세의 아우라드래곤": {"rarity": "Boss", "min_w": 30000.0, "max_w": 99999.0, "base_p": 250000, "xp": 3000000},
 }
 
-# 기본 특성 리스트 및 신규 특성 정의
 BASE_TRAITS = [
     {"name": "일반", "mult": 1.0, "is_pow": False},
     {"name": "반짝이는", "mult": 1.2, "is_pow": False},
@@ -677,7 +316,6 @@ BASE_TRAITS = [
     {"name": "전설의", "mult": 1.5, "is_pow": False},
 ]
 
-# 신규 특성 정의 (확률 및 제곱 배수 연산)
 SPECIAL_TRAITS = [
     {"name": "차원", "prob": 0.03, "val": 20.0, "is_pow": True},
     {"name": "무지개", "prob": 0.07, "val": 10.0, "is_pow": True},
@@ -686,27 +324,15 @@ SPECIAL_TRAITS = [
 ]
 
 SHOP_BAITS = {
-    "초강력 미끼": {
-        "price": 2500,
-        "desc": "Uncommon / Rare 등급 등장 확률 증가",
-    },
-    "행운의 미끼": {
-        "price": 12000,
-        "desc": "Epic / Legendary / Mythic 등급 등장 확정",
-    },
-    "황금 미끼": {
-        "price": 55000,
-        "desc": "전설 특성 고정 및 골드 배수 적용",
-    },
-    "보스 미끼": {
-        "price": 200000,
-        "desc": "보스 물고기 출현 확률 100% 확정",
-    },
+    "초강력 미끼": {"price": 2500, "desc": "Uncommon / Rare 등급 등장 확률 증가"},
+    "행운의 미끼": {"price": 12000, "desc": "Epic / Legendary / Mythic 등급 등장 확정"},
+    "황금 미끼": {"price": 55000, "desc": "전설 특성 고정 및 골드 배수 적용"},
+    "보스 미끼": {"price": 200000, "desc": "보스 물고기 출현 확률 100% 확정"},
 }
 
 
 # -----------------------------------------------------------------------------
-# 2. 게임 세션 초기화 및 이벤트 타이머 체크
+# 2. 게임 세션 초기화 및 이벤트 타이머
 # -----------------------------------------------------------------------------
 def init_game():
     if "level" not in st.session_state:
@@ -735,7 +361,6 @@ def init_game():
         st.session_state.fishing_state = "idle"
         st.session_state.pending_fish = None
 
-        # 이벤트 상태 초기화 (3분 = 180초)
         st.session_state.spawn_event_end = 0
         st.session_state.trait_event_end = 0
 
@@ -743,7 +368,6 @@ def init_game():
 init_game()
 
 
-# 이벤트 유효 기간 체크
 def check_event_status():
     now = time.time()
     spawn_active = now < st.session_state.spawn_event_end
@@ -756,7 +380,7 @@ def get_inventory_upgrade_cost():
 
 
 # -----------------------------------------------------------------------------
-# 3. Three.js 3D 실감형 시뮬레이터 렌더러 (고퀄리티 그래픽 & 낚시대 3D 개선)
+# 3. Three.js 3D 실감형 렌더러 (구문 에러 수정 완료)
 # -----------------------------------------------------------------------------
 def render_3d_ocean_view(
     status="idle",
@@ -767,7 +391,6 @@ def render_3d_ocean_view(
     rod_data = FISHING_RODS.get(rod_name, FISHING_RODS["대나무 낚시대"])
     rod_color_hex = hex(rod_data["color"])
     rod_shape = rod_data["shape"]
-    rod_particle = rod_data["particle"]
 
     fish_rarity = pending_fish["rarity"] if pending_fish else "Common"
     fish_weight = pending_fish["weight"] if pending_fish else 1.0
@@ -777,234 +400,109 @@ def render_3d_ocean_view(
     <html>
     <head>
         <style>
-            body {{ margin: 0; overflow: hidden; background: #030712; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }}
-            #canvas-container {{ width: 100%; height: 480px; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 12px 40px rgba(0,0,0,0.9); border: 1px solid rgba(0, 240, 255, 0.2); }}
-            #ui-overlay {{ position: absolute; top: 14px; left: 14px; color: #00F0FF; font-size: 13px; font-weight: 700; background: rgba(5, 11, 20, 0.85); backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(0,240,255,0.4); text-shadow: 0 0 8px rgba(0,240,255,0.6); letter-spacing: 0.5px; }}
-            #rod-info {{ position: absolute; bottom: 14px; right: 14px; color: #FFFFFF; font-size: 13px; font-weight: 600; background: rgba(5, 11, 20, 0.85); backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); text-shadow: 0 0 5px rgba(255,255,255,0.3); }}
-            #status-banner {{ position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); color: #FFD700; font-size: 22px; font-weight: 800; text-shadow: 0 0 15px #FF8C00, 0 0 5px #000; display: none; pointer-events: none; text-align: center; width: 85%; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); padding: 12px 0; border-radius: 30px; border: 1px solid rgba(255, 215, 0, 0.5); }}
+            body {{ margin: 0; overflow: hidden; background: #030712; font-family: sans-serif; }}
+            #canvas-container {{ width: 100%; height: 480px; border-radius: 16px; position: relative; border: 1px solid rgba(0, 240, 255, 0.3); }}
+            #ui-overlay {{ position: absolute; top: 14px; left: 14px; color: #00F0FF; font-size: 13px; font-weight: bold; background: rgba(5, 11, 20, 0.85); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(0,240,255,0.4); }}
+            #rod-info {{ position: absolute; bottom: 14px; right: 14px; color: #FFFFFF; font-size: 13px; font-weight: bold; background: rgba(5, 11, 20, 0.85); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); }}
+            #status-banner {{ position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); color: #FFD700; font-size: 20px; font-weight: bold; text-align: center; width: 80%; background: rgba(0,0,0,0.75); padding: 12px; border-radius: 20px; border: 1px solid #FFD700; display: none; }}
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     </head>
     <body>
         <div id="canvas-container">
-            <div id="ui-overlay">✨ ULTRA HIGH-QUALITY 3D REAL-TIME OCEAN ENGINE</div>
-            <div id="status-banner" id="banner">🚨 입질이 왔습니다! 찌를 세게 흔드는 중... 🚨</div>
+            <div id="ui-overlay">✨ REAL-TIME 3D OCEAN ENGINE</div>
+            <div id="status-banner" id="banner">🚨 입질이 왔습니다! 찌를 흔드는 중... 🚨</div>
             <div id="rod-info">🎣 {rod_name} | 🪱 {bait_name}</div>
         </div>
         <script>
             const container = document.getElementById('canvas-container');
             const scene = new THREE.Scene();
             scene.background = new THREE.Color(0x02050e);
-            scene.fog = new THREE.FogExp2(0x02050e, 0.018);
+            scene.fog = new THREE.FogExp2(0x02050e, 0.02);
 
             const camera = new THREE.PerspectiveCamera(50, container.clientWidth / 480, 0.1, 1000);
             camera.position.set(0, 4.8, 9.2);
             camera.lookAt(0, 1.2, 0);
 
-            const renderer = new THREE.WebGLRenderer({{ antialias: true, powerPreference: "high-performance" }});
+            const renderer = new THREE.WebGLRenderer({{ antialias: true }});
             renderer.setSize(container.clientWidth, 480);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.25;
             container.appendChild(renderer.domElement);
 
-            // 광원 환경 대폭 개선
             const ambientLight = new THREE.AmbientLight(0x385070, 1.5);
             scene.add(ambientLight);
 
-            const moonLight = new THREE.DirectionalLight(0x88ccff, 3.0);
+            const moonLight = new THREE.DirectionalLight(0x88ccff, 2.5);
             moonLight.position.set(15, 25, -10);
-            moonLight.castShadow = true;
-            moonLight.shadow.mapSize.width = 2048;
-            moonLight.shadow.mapSize.height = 2048;
             scene.add(moonLight);
 
-            const rodLight = new THREE.PointLight({rod_color_hex}, 2.8, 12);
+            const rodLight = new THREE.PointLight({rod_color_hex}, 2.5, 12);
             rodLight.position.set(2.2, 2.5, 5.0);
             scene.add(rodLight);
 
-            // 바다 수면 개선 (하이엔드 시뮬레이션 메쉬)
-            const oceanGeo = new THREE.PlaneGeometry(100, 100, 100, 100);
+            const oceanGeo = new THREE.PlaneGeometry(100, 100, 80, 80);
             const oceanMat = new THREE.MeshStandardMaterial({{
                 color: 0x001d3d,
-                roughness: 0.08,
-                metalness: 0.85,
+                roughness: 0.1,
+                metalness: 0.8,
                 wireframe: true,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.75
             }});
             const ocean = new THREE.Mesh(oceanGeo, oceanMat);
             ocean.rotation.x = -Math.PI / 2;
-            ocean.receiveShadow = true;
             scene.add(ocean);
 
-            // --- 고퀄리티 3D 낚시대 렌더링 시스템 ---
             const rodGroup = new THREE.Group();
             const rodColor = {rod_color_hex};
             const shapeType = "{rod_shape}";
 
-            // 1. 하단 고급 EVA/코르크 손잡이
-            const handleGeo = new THREE.CylinderGeometry(0.08, 0.11, 1.6, 32);
-            const handleMat = new THREE.MeshStandardMaterial({{ color: 0x1a1a1a, roughness: 0.5, metalness: 0.2 }});
+            const handleGeo = new THREE.CylinderGeometry(0.08, 0.11, 1.6, 16);
+            const handleMat = new THREE.MeshStandardMaterial({{ color: 0x1a1a1a, roughness: 0.5 }});
             const handleMesh = new THREE.Mesh(handleGeo, handleMat);
             handleMesh.position.set(0, -0.8, 0);
             rodGroup.add(handleMesh);
 
-            // 2. 금속 릴 시트 & 릴 메쉬 구현
-            const reelSeatGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.4, 32);
-            const metallicMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.95, roughness: 0.1 }});
+            const reelSeatGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.4, 16);
+            const metallicMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.9, roughness: 0.1 }});
             const reelSeat = new THREE.Mesh(reelSeatGeo, metallicMat);
             reelSeat.position.set(0, -0.1, 0);
             rodGroup.add(reelSeat);
 
-            const reelSpoolGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.25, 24);
-            const reelSpool = new THREE.Mesh(reelSpoolGeo, metallicMat);
-            reelSpool.rotation.z = Math.PI / 2;
-            reelSpool.position.set(0, -0.1, -0.18);
-            rodGroup.add(reelSpool);
-
-            const handleArmGeo = new THREE.BoxGeometry(0.04, 0.35, 0.04);
-            const handleArm = new THREE.Mesh(handleArmGeo, metallicMat);
-            handleArm.position.set(0.22, -0.1, -0.18);
-            rodGroup.add(handleArm);
-
-            // 3. 테이퍼드 멀티 세그먼트 메인 낚시대
-            const mainRodGeo = new THREE.CylinderGeometry(0.015, 0.075, 6.2, 32);
-            const mainRodMat = new THREE.MeshStandardMaterial({{
-                color: rodColor,
-                metalness: 0.9,
-                roughness: 0.1,
-                emissive: rodColor,
-                emissiveIntensity: 0.3
-            }});
+            const mainRodGeo = new THREE.CylinderGeometry(0.02, 0.07, 6.2, 16);
+            const mainRodMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.8, roughness: 0.2, emissive: rodColor, emissiveIntensity: 0.2 }});
             const mainRodMesh = new THREE.Mesh(mainRodGeo, mainRodMat);
             mainRodMesh.position.set(0, 3.1, 0);
             rodGroup.add(mainRodMesh);
-
-            // 4. 스틸 가이드 링 (6개 정밀 배치)
-            for(let g = 1; g <= 6; g++) {{
-                const ringSize = 0.08 - g * 0.01;
-                const guideGroup = new THREE.Group();
-                const ringGeo = new THREE.TorusGeometry(ringSize, 0.01, 16, 32);
-                const ringMat = new THREE.MeshStandardMaterial({{ color: 0xdddddd, metalness: 0.95, roughness: 0.05 }});
-                const ring = new THREE.Mesh(ringGeo, ringMat);
-                ring.position.set(0, 0, ringSize);
-                guideGroup.add(ring);
-
-                const legGeo = new THREE.CylinderGeometry(0.005, 0.005, ringSize * 1.8);
-                const leg1 = new THREE.Mesh(legGeo, ringMat);
-                leg1.position.set(-ringSize*0.5, -ringSize*0.5, ringSize*0.5);
-                leg1.rotation.z = -0.4;
-                guideGroup.add(leg1);
-
-                guideGroup.position.set(0, g * 0.92, 0);
-                rodGroup.add(guideGroup);
-            }}
-
-            // 5. 형상별 고퀄리티 독자 메쉬 강화
-            if (shapeType === "bamboo") {{
-                for(let b = 0; b < 7; b++) {{
-                    const nodeGeo = new THREE.TorusGeometry(0.075 - b * 0.008, 0.022, 16, 32);
-                    const nodeMat = new THREE.MeshStandardMaterial({{ color: 0x4a2e18, roughness: 0.7 }});
-                    const node = new THREE.Mesh(nodeGeo, nodeMat);
-                    node.position.set(0, b * 0.85 + 0.2, 0);
-                    node.rotation.x = Math.PI / 2;
-                    rodGroup.add(node);
-                }}
-            }} else if (shapeType === "dragon_horns" || shapeType === "trident" || shapeType === "scythe") {{
-                const hornGeo = new THREE.ConeGeometry(0.12, 1.4, 32);
-                const hornMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.95, roughness: 0.05, emissive: rodColor, emissiveIntensity: 0.4 }});
-                const h1 = new THREE.Mesh(hornGeo, hornMat); h1.position.set(-0.25, 5.8, 0); h1.rotation.z = -0.4;
-                const h2 = new THREE.Mesh(hornGeo, hornMat); h2.position.set(0.25, 5.8, 0); h2.rotation.z = 0.4;
-                rodGroup.add(h1); rodGroup.add(h2);
-            }} else if (shapeType === "wings" || shapeType === "feather" || shapeType === "guardian") {{
-                const wingGeo = new THREE.BoxGeometry(0.03, 1.8, 0.6);
-                const wingMat = new THREE.MeshStandardMaterial({{ color: 0xffffff, transparent: true, opacity: 0.85, emissive: rodColor, emissiveIntensity: 0.5 }});
-                const w1 = new THREE.Mesh(wingGeo, wingMat); w1.position.set(-0.35, 3.5, 0); w1.rotation.z = 0.5;
-                const w2 = new THREE.Mesh(wingGeo, wingMat); w2.position.set(0.35, 3.5, 0); w2.rotation.z = -0.5;
-                rodGroup.add(w1); rodGroup.add(w2);
-            }} else if (shapeType === "neon_rings" || shapeType === "portal_orb" || shapeType === "star_staff" || shapeType === "creator_crown") {{
-                const ringGeo = new THREE.TorusGeometry(0.42, 0.04, 16, 32);
-                const ringMat = new THREE.MeshStandardMaterial({{ color: rodColor, emissive: rodColor, emissiveIntensity: 0.9, metalness: 0.8 }});
-                const ring = new THREE.Mesh(ringGeo, ringMat);
-                ring.position.set(0, 5.0, 0);
-                rodGroup.add(ring);
-            }} else if (shapeType === "crystal" || shapeType === "ice_spikes") {{
-                const crysGeo = new THREE.OctahedronGeometry(0.35, 0);
-                const crysMat = new THREE.MeshStandardMaterial({{ color: rodColor, metalness: 0.1, roughness: 0.0, transparent: true, opacity: 0.85, emissive: rodColor, emissiveIntensity: 0.6 }});
-                const crys = new THREE.Mesh(crysGeo, crysMat);
-                crys.position.set(0, 5.2, 0);
-                rodGroup.add(crys);
-            }} else if (shapeType === "lightning" || shapeType === "sun_disc") {{
-                const discGeo = new THREE.TorusGeometry(0.5, 0.05, 16, 32);
-                const discMat = new THREE.MeshStandardMaterial({{ color: rodColor, emissive: rodColor, emissiveIntensity: 1.0 }});
-                const disc = new THREE.Mesh(discGeo, discMat);
-                disc.position.set(0, 5.5, 0);
-                disc.rotation.x = Math.PI / 2;
-                rodGroup.add(disc);
-            }}
 
             rodGroup.position.set(2.4, -0.4, 5.8);
             rodGroup.rotation.x = -Math.PI / 5.5;
             rodGroup.rotation.z = -Math.PI / 7.5;
             scene.add(rodGroup);
 
-            # 고화질 입체 오라 파티클
-            const pCount = 140;
-            const pGeo = new THREE.BufferGeometry();
-            const pPos = new Float32Array(pCount * 3);
-            for(let i=0; i<pCount*3; i++) {{ pPos[i] = (Math.random() - 0.5) * 2.8; }}
-            pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-            const pMat = new THREE.PointsMaterial({{ size: 0.08, color: rodColor, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending }});
-            const particles = new THREE.Points(pGeo, pMat);
-            particles.position.set(2.4, 2.8, 5.8);
-            scene.add(particles);
-
-            // --- 찌 렌더링 ---
-            const baitType = "{bait_name}";
             const floatGroup = new THREE.Group();
-            let floatMesh;
-
-            if (baitType === "초강력 미끼") {{
-                floatMesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.28), new THREE.MeshStandardMaterial({{ color: 0x00ff66, metalness: 0.7, roughness: 0.2 }}));
-            }} else if (baitType === "행운의 미끼") {{
-                floatMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(0.28), new THREE.MeshStandardMaterial({{ color: 0xff00ff, metalness: 0.5, roughness: 0.1, emissive: 0xaa00aa, emissiveIntensity: 0.4 }}));
-            }} else if (baitType === "황금 미끼") {{
-                floatMesh = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.32, 0.32), new THREE.MeshStandardMaterial({{ color: 0xffd700, metalness: 0.95, roughness: 0.05 }}));
-            }} else if (baitType === "보스 미끼") {{
-                floatMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(0.38), new THREE.MeshStandardMaterial({{ color: 0xff1100, emissive: 0xff0000, emissiveIntensity: 0.6 }}));
-            }} else {{
-                floatMesh = new THREE.Mesh(new THREE.SphereGeometry(0.24, 32, 32), new THREE.MeshStandardMaterial({{ color: 0xff3300, roughness: 0.3 }}));
-            }}
+            const floatMesh = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), new THREE.MeshStandardMaterial({{ color: 0xff3300 }}));
             floatGroup.add(floatMesh);
             floatGroup.position.set(0, 0.1, 1.5);
             scene.add(floatGroup);
 
-            // 낚싯줄
-            const lineMat = new THREE.LineBasicMaterial({{ color: 0xffffff, transparent: true, opacity: 0.8 }});
+            const lineMat = new THREE.LineBasicMaterial({{ color: 0xffffff, transparent: true, opacity: 0.7 }});
             const lineGeo = new THREE.BufferGeometry();
             lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
             const fishingLine = new THREE.Line(lineGeo, lineMat);
             scene.add(fishingLine);
 
-            // --- 3D 물고기 모델 ---
             const rarity = "{fish_rarity}";
             const weight = {fish_weight};
-            
-            let scaleBase = 0.35 + Math.log10(Math.max(1, weight)) * 0.28;
-            if (rarity === "Boss") scaleBase *= 2.0;
-            else if (rarity === "Cosmic" || rarity === "Celestial") scaleBase *= 1.5;
+            let scaleBase = 0.35 + Math.log10(Math.max(1, weight)) * 0.25;
 
             const fishGroup = new THREE.Group();
-            const fBodyGeo = new THREE.ConeGeometry(0.35 * scaleBase, 1.4 * scaleBase, 16);
+            const fBodyGeo = new THREE.ConeGeometry(0.35 * scaleBase, 1.4 * scaleBase, 12);
             fBodyGeo.rotateX(Math.PI / 2);
             
             let fColor = 0x00f0ff;
-            if (rarity === "Epic") fColor = 0xa020f0;
-            else if (rarity === "Legendary") fColor = 0xffa500;
-            else if (rarity === "Mythic" || rarity === "Ancient") fColor = 0xff0055;
+            if (rarity === "Mythic" || rarity === "Ancient") fColor = 0xff0055;
             else if (rarity === "Boss") fColor = 0xff0000;
 
             const fMat = new THREE.MeshStandardMaterial({{ color: fColor, wireframe: true, emissive: fColor, emissiveIntensity: 0.5 }});
@@ -1020,44 +518,26 @@ def render_3d_ocean_view(
                 requestAnimationFrame(animate);
                 let time = clock.getElapsedTime();
 
-                // 수면 이중 프레스넬 파동 애니메이션
                 const pos = oceanGeo.attributes.position;
                 for (let i = 0; i < pos.count; i++) {{
                     let u = pos.getX(i);
                     let v = pos.getY(i);
-                    pos.setZ(i, Math.sin(u * 0.4 + time * 2.2) * 0.22 + Math.cos(v * 0.4 + time * 1.8) * 0.22);
+                    pos.setZ(i, Math.sin(u * 0.4 + time * 2) * 0.2 + Math.cos(v * 0.4 + time * 1.5) * 0.2);
                 }}
                 pos.needsUpdate = true;
 
-                particles.rotation.y = time * 0.5;
-
                 if (status === "biting") {{
                     document.getElementById("status-banner").style.display = "block";
-                    let touchFreq = (rarity === "Boss" || rarity === "Cosmic") ? 14 : 8;
-                    let approachDist = Math.sin(time * touchFreq) * (0.45 * scaleBase);
-                    
-                    fishGroup.position.x = floatGroup.position.x + Math.cos(time * 6) * (0.6 + approachDist);
-                    fishGroup.position.z = floatGroup.position.z + Math.sin(time * 6) * (0.6 + approachDist);
-                    fishGroup.position.y = -0.3 + Math.sin(time * touchFreq) * 0.25;
-
-                    floatGroup.position.y = Math.sin(time * touchFreq) * (0.18 * scaleBase) - 0.12;
-                    rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * touchFreq) * 0.04;
-
+                    floatGroup.position.y = Math.sin(time * 12) * 0.2 - 0.1;
+                    rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * 12) * 0.04;
+                    fishGroup.position.set(floatGroup.position.x, floatGroup.position.y - 0.3, floatGroup.position.z);
                 }} else if (status === "success") {{
                     document.getElementById("status-banner").style.display = "none";
-                    floatGroup.position.y = Math.sin(time * 18) * 0.3 - 0.2;
-                    rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * 15) * 0.06;
-                    fishGroup.position.set(floatGroup.position.x, floatGroup.position.y - 0.5, floatGroup.position.z);
-                }} else if (status === "fail") {{
-                    document.getElementById("status-banner").style.display = "none";
-                    floatGroup.position.y = -1.5;
-                    rodGroup.rotation.x = -Math.PI / 4;
-                    fishGroup.position.y = -3.0;
+                    floatGroup.position.y = Math.sin(time * 15) * 0.25;
+                    fishGroup.position.set(floatGroup.position.x, floatGroup.position.y - 0.4, floatGroup.position.z);
                 }} else {{
                     document.getElementById("status-banner").style.display = "none";
                     floatGroup.position.y = Math.sin(time * 3) * 0.08 + 0.05;
-                    rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * 1.5) * 0.02;
-                    
                     fishGroup.position.x = Math.sin(time * 1.2) * 3;
                     fishGroup.position.z = Math.cos(time * 1.2) * 2 + 1;
                 }}
@@ -1086,7 +566,7 @@ def render_3d_ocean_view(
 
 
 # -----------------------------------------------------------------------------
-# 4. 낚시 핵심 로직 및 신규 특성/이벤트 수식 적용
+# 4. 낚시 핵심 로직 및 '신화~보스 확률 3배' 적용
 # -----------------------------------------------------------------------------
 def get_current_success_rate():
     rod_rate = FISHING_RODS[st.session_state.equipped_rod]["catch_rate"]
@@ -1109,7 +589,7 @@ def add_xp(amount):
 def prepare_fish(selected_bait):
     if len(st.session_state.inventory) >= st.session_state.max_inventory:
         st.session_state.last_catch_msg = (
-            "⚠️ 가방이 가득 찼습니다! 물고기를 판매하거나 인벤토리를 업그레이드하세요."
+            "⚠️ 가방이 가득 찼습니다! 물고기를 판매하거나 인벤토리를 확장하세요."
         )
         st.session_state.auto_fishing = False
         st.session_state.last_catch_status = "idle"
@@ -1117,9 +597,7 @@ def prepare_fish(selected_bait):
         return False
 
     if st.session_state.baits[selected_bait] <= 0:
-        st.session_state.last_catch_msg = (
-            "⚠️ 선택한 미끼가 부족하여 낚시를 진행할 수 없습니다."
-        )
+        st.session_state.last_catch_msg = "⚠️ 선택한 미끼가 부족합니다."
         st.session_state.auto_fishing = False
         st.session_state.last_catch_status = "idle"
         st.session_state.fishing_state = "idle"
@@ -1132,13 +610,14 @@ def prepare_fish(selected_bait):
     rod_data = FISHING_RODS[st.session_state.equipped_rod]
     luck_score = (st.session_state.level * 1.5) + rod_data["rare_bonus"]
 
-    # 출현 확률 정의 (이벤트 시 3배)
-    spawn_mult = 3.0 if spawn_active else 1.0
-    p_boss = 0.1 * spawn_mult
-    p_cosmic = 0.4 * spawn_mult
-    p_celestial = 0.9 * spawn_mult
-    p_ancient = 2.0 * spawn_mult
-    p_mythic = 3.5 * spawn_mult
+    # ⭐ 요구사항 반영: 이벤트가 활성화되면 신화~보스 등급 확률 3배 증가
+    high_tier_mult = 3.0 if spawn_active else 1.0
+
+    p_boss = 0.1 * high_tier_mult
+    p_cosmic = 0.4 * high_tier_mult
+    p_celestial = 0.9 * high_tier_mult
+    p_ancient = 2.0 * high_tier_mult
+    p_mythic = 3.5 * high_tier_mult
 
     rand_tier = random.uniform(0, 100) + (luck_score * 0.1)
 
@@ -1183,14 +662,12 @@ def prepare_fish(selected_bait):
     info = FISH_BOOK_TEMPLATE[fish_name]
     weight = round(random.uniform(info["min_w"], info["max_w"]), 2)
 
-    # 특성 결정 로직 (특성 확률 이벤트 시 2배)
     trait_mult_factor = 2.0 if trait_active else 1.0
     selected_trait = None
 
     if selected_bait == "황금 미끼":
         selected_trait = {"name": "전설의", "val": 1.5, "is_pow": False}
     else:
-        # 신규 특성 4종 판정
         for st_item in SPECIAL_TRAITS:
             prob = min(1.0, st_item["prob"] * trait_mult_factor)
             if random.random() < prob:
@@ -1201,7 +678,6 @@ def prepare_fish(selected_bait):
                 }
                 break
 
-        # 신규 특성이 붙지 않았을 경우 기본 특성 선택
         if not selected_trait:
             bt = random.choice(BASE_TRAITS)
             selected_trait = {
@@ -1251,7 +727,6 @@ def finalize_catch():
 
 def calculate_fish_price(fish):
     weight_factor = fish["weight"] ** 0.5
-    # 특성 배수 계산: 제곱 연산형인 경우 (값^2), 일반 연산형인 경우 (값)
     if fish.get("is_pow", False):
         trait_factor = fish["trait_val"] ** 2
     else:
@@ -1280,11 +755,10 @@ def sell_all_fish():
 
 
 # -----------------------------------------------------------------------------
-# 5. UI 화면 구성 및 입질 3초 타이머 처리
+# 5. UI 화면 구성
 # -----------------------------------------------------------------------------
 st.title("🎣 판타지 3D 낚시 게임 v7.0")
 
-# 사이드바
 with st.sidebar:
     st.header("👤 플레이어 정보")
     st.write(f"**레벨:** Lv.{st.session_state.level}")
@@ -1296,22 +770,21 @@ with st.sidebar:
     )
 
     st.divider()
-    st.subheader("🎉 대형 이벤트 컨트롤러")
+    st.subheader("🎉 이벤트 컨트롤러")
     spawn_active, trait_active = check_event_status()
     now = time.time()
 
-    # 이벤트 1 버튼: 신화~보스 등급 확률 3배 (3분)
+    # 신화 ~ 보스 3배 이벤트 버튼
     if not spawn_active:
-        if st.button("🔥 희귀 등급 3배 이벤트 (3분)", use_container_width=True):
+        if st.button("🔥 신화~보스 3배 이벤트 (3분)", use_container_width=True):
             st.session_state.spawn_event_end = time.time() + 180
             st.rerun()
     else:
         rem_spawn = int(st.session_state.spawn_event_end - now)
         st.info(
-            f"🔥 **희귀 등급 3배 이벤트 진행 중!**\n남은 시간: {rem_spawn}초"
+            f"🔥 **신화~보스 확률 3배 진행 중!**\n남은 시간: {rem_spawn}초"
         )
 
-    # 이벤트 2 버튼: 물고기 특성 붙을 확률 2배 (3분)
     if not trait_active:
         if st.button(
             "🌟 특성 확률 2배 이벤트 (3분)", use_container_width=True
@@ -1321,7 +794,7 @@ with st.sidebar:
     else:
         rem_trait = int(st.session_state.trait_event_end - now)
         st.info(
-            f"🌟 **특성 확률 2배 이벤트 진행 중!**\n남은 시간: {rem_trait}초"
+            f"🌟 **특성 확률 2배 진행 중!**\n남은 시간: {rem_trait}초"
         )
 
     st.divider()
@@ -1336,13 +809,12 @@ with st.sidebar:
             st.session_state.gold -= cost
             st.session_state.max_inventory += 5
             st.session_state.inventory_upgrades += 1
-            st.success("인벤토리 용량이 +5칸 확장되었습니다!")
+            st.success("인벤토리가 확장되었습니다!")
             st.rerun()
         else:
             st.error("골드가 부족합니다.")
 
     st.divider()
-    st.subheader("💾 게임 저장 / 불러오기")
     save_data = {
         "level": st.session_state.level,
         "xp": st.session_state.xp,
@@ -1360,11 +832,10 @@ with st.sidebar:
     st.download_button(
         "💾 데이터 다운로드",
         data=json_str,
-        file_name="fishing_save_v7.json",
+        file_name="fishing_save.json",
         mime="application/json",
     )
 
-# 메인 탭
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
     [
         "🌊 3D 낚시터",
@@ -1375,7 +846,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ]
 )
 
-# --- TAB 1: 3D 낚시터 ---
+# TAB 1: 3D 낚시터
 with tab1:
     st.subheader("🌊 실시간 3D 바다 낚시터")
 
@@ -1386,7 +857,6 @@ with tab1:
     selected_option = st.selectbox("사용할 미끼 선택", bait_options)
     selected_bait = selected_option.split(" (")[0]
 
-    # 3D 뷰포트 렌더링
     render_3d_ocean_view(
         status=st.session_state.last_catch_status,
         rod_name=st.session_state.equipped_rod,
@@ -1406,7 +876,6 @@ with tab1:
 
     st.divider()
 
-    # 낚시 진행 컨트롤러 (입질 후 3초 대기 시스템)
     if st.session_state.fishing_state == "biting":
         st.warning("⏳ 물고기가 입질 중입니다... 3초 후 건져올립니다!")
         time.sleep(3)
@@ -1448,13 +917,12 @@ with tab1:
         else:
             st.success(st.session_state.last_catch_msg)
 
-    # 자동 낚시 주기 처리
     if st.session_state.auto_fishing and st.session_state.fishing_state == "idle":
         time.sleep(1.0)
         if prepare_fish(selected_bait):
             st.rerun()
 
-# --- TAB 2: 낚시대 상점 ---
+# TAB 2: 낚시대 상점
 with tab2:
     st.subheader("🎣 낚시대 상점 & 장비 관리")
     for r_name, r_data in FISHING_RODS.items():
@@ -1473,7 +941,7 @@ with tab2:
         with cb:
             st.write(f"{r_data['desc']}")
             st.caption(
-                f"성공률: {r_data['catch_rate']}% | 외형: {r_data['shape']} | 이펙트: {r_data['particle']}"
+                f"성공률: {r_data['catch_rate']}% | 이펙트: {r_data['particle']}"
             )
         with cc:
             if is_equipped:
@@ -1495,7 +963,7 @@ with tab2:
                         st.error("골드가 부족합니다.")
         st.divider()
 
-# --- TAB 3: 가방 & 판매 ---
+# TAB 3: 가방 & 판매
 with tab3:
     col_inv1, col_inv2 = st.columns([3, 1])
     with col_inv1:
@@ -1516,7 +984,7 @@ with tab3:
     else:
         st.info("가방이 비어있습니다.")
 
-# --- TAB 4: 미끼 상점 ---
+# TAB 4: 미끼 상점
 with tab4:
     st.subheader("🛒 미끼 상점")
     for name, data in SHOP_BAITS.items():
@@ -1536,7 +1004,7 @@ with tab4:
                 else:
                     st.error("골드가 부족합니다.")
 
-# --- TAB 5: 물고기 도감 ---
+# TAB 5: 물고기 도감
 with tab5:
     st.subheader("📖 물고기 도감 (총 60종)")
     cols = st.columns(2)
