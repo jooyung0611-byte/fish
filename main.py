@@ -1,119 +1,119 @@
-import streamlit as st
+\import streamlit as st
 import streamlit.components.v1 as components
 import random
 import json
 import time
 
 # -----------------------------------------------------------------------------
-# 1. 앱 설정 및 조정된 데이터베이스 정의 (밸런스 개편 적용)
+# 1. 앱 설정 및 기본 데이터베이스 정의 (밸런스 및 가격 조정 적용)
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="리얼 3D 낚시 게임 v5.0", page_icon="🎣", layout="wide")
+st.set_page_config(page_title="판타지 3D 낚시 게임 v6.0", page_icon="🎣", layout="wide")
 
-# 낚시대 가격 대폭 인상
+# 낚시대 데이터 (가격 상승 및 Visual 색상/재질 데이터 추가)
 FISHING_RODS = {
-    "대나무 낚시대": {"price": 0, "catch_rate": 60, "rare_bonus": 0, "exp_mult": 1.0, "gold_mult": 1.0, "desc": "기본적인 입문용 대나무 로드."},
-    "나무 낚시대": {"price": 1000, "catch_rate": 63, "rare_bonus": 2, "exp_mult": 1.05, "gold_mult": 1.05, "desc": "조금 더 튼튼한 목재 낚시대."},
-    "강화 글래스파이버": {"price": 3500, "catch_rate": 66, "rare_bonus": 4, "exp_mult": 1.1, "gold_mult": 1.1, "desc": "유리섬유 재질의 고탄성 낚시대."},
-    "카본 흑연 로드": {"price": 8500, "catch_rate": 70, "rare_bonus": 7, "exp_mult": 1.15, "gold_mult": 1.2, "desc": "입질 감지가 뛰어난 카본 로드."},
-    "티타늄 스틸 로드": {"price": 20000, "catch_rate": 73, "rare_bonus": 10, "exp_mult": 1.2, "gold_mult": 1.3, "desc": "고강도 티타늄 제질의 로드."},
-    "네온 펄스 로드": {"price": 50000, "catch_rate": 76, "rare_bonus": 14, "exp_mult": 1.3, "gold_mult": 1.4, "desc": "야간 채집에 특화된 네온 로드."},
-    "플래티넘 가디언": {"price": 120000, "catch_rate": 79, "rare_bonus": 18, "exp_mult": 1.4, "gold_mult": 1.5, "desc": "백금 장식의 고급 낚시대."},
-    "다이아몬드 캐스터": {"price": 250000, "catch_rate": 82, "rare_bonus": 23, "exp_mult": 1.5, "gold_mult": 1.7, "desc": "다이아몬드 코팅으로 극대화된 강도."},
-    "화염 드래곤 로드": {"price": 550000, "catch_rate": 85, "rare_bonus": 28, "exp_mult": 1.6, "gold_mult": 1.9, "desc": "드래곤의 숨결이 스며든 로드."},
-    "빙결의 심해 로드": {"price": 1000000, "catch_rate": 87, "rare_bonus": 34, "exp_mult": 1.7, "gold_mult": 2.1, "desc": "차가운 기운으로 물고기를 방심시킵니다."},
-    "뇌전의 수호자": {"price": 2000000, "catch_rate": 89, "rare_bonus": 40, "exp_mult": 1.8, "gold_mult": 2.4, "desc": "전기 파동으로 빠르게 채어 올립니다."},
-    "바람의 서곡": {"price": 4000000, "catch_rate": 91, "rare_bonus": 47, "exp_mult": 2.0, "gold_mult": 2.7, "desc": "바람처럼 가벼운 최고급 로드."},
-    "그림자 포획자": {"price": 7500000, "catch_rate": 92, "rare_bonus": 55, "exp_mult": 2.2, "gold_mult": 3.1, "desc": "은밀하게 어종을 채어 올립니다."},
-    "천사의 은총": {"price": 12000000, "catch_rate": 93, "rare_bonus": 64, "exp_mult": 2.5, "gold_mult": 3.6, "desc": "천상의 빛으로 물고기를 홀립니다."},
-    "악마의 삼지창": {"price": 20000000, "catch_rate": 94, "rare_bonus": 74, "exp_mult": 2.8, "gold_mult": 4.2, "desc": "압도적인 파괴력의 스페셜 로드."},
-    "시공간 균열 로드": {"price": 35000000, "catch_rate": 95, "rare_bonus": 85, "exp_mult": 3.2, "gold_mult": 5.0, "desc": "시공간을 뒤틀어 희귀종을 낚아챕니다."},
-    "은하수 캐스케이드": {"price": 60000000, "catch_rate": 96, "rare_bonus": 98, "exp_mult": 3.7, "gold_mult": 6.0, "desc": "별빛의 기운이 서려 있는 낚시대."},
-    "코스믹 스타로드": {"price": 100000000, "catch_rate": 97, "rare_bonus": 115, "exp_mult": 4.3, "gold_mult": 7.5, "desc": "우주적 인력으로 물고기를 유인합니다."},
-    "태양신 라의 분노": {"price": 200000000, "catch_rate": 98, "rare_bonus": 135, "exp_mult": 5.0, "gold_mult": 9.5, "desc": "태양의 축복을 받은 신화 로드."},
-    "차원 창조주의 로드": {"price": 500000000, "catch_rate": 99, "rare_bonus": 160, "exp_mult": 6.0, "gold_mult": 12.0, "desc": "바다 생태계를 지배하는 신의 도구."}
+    "대나무 낚시대": {"price": 0, "catch_rate": 60, "rare_bonus": 0, "exp_mult": 1.0, "gold_mult": 1.0, "color": "#8B5A2B", "metal": 0.1, "glow": False, "desc": "가장 기본적이고 가벼운 대나무 낚시대."},
+    "나무 낚시대": {"price": 500, "catch_rate": 63, "rare_bonus": 2, "exp_mult": 1.05, "gold_mult": 1.05, "color": "#A0522D", "metal": 0.2, "glow": False, "desc": "조금 더 튼튼하게 깎아 만든 목재 낚시대."},
+    "강화 글래스파이버": {"price": 1800, "catch_rate": 66, "rare_bonus": 4, "exp_mult": 1.1, "gold_mult": 1.1, "color": "#4682B4", "metal": 0.5, "glow": False, "desc": "탄력성 높은 유리섬유 재질의 낚시대."},
+    "카본 흑연 로드": {"price": 4500, "catch_rate": 70, "rare_bonus": 7, "exp_mult": 1.15, "gold_mult": 1.2, "color": "#2F4F4F", "metal": 0.8, "glow": False, "desc": "가볍고 단단하여 입질 감지가 뛰어납니다."},
+    "티타늄 스틸 로드": {"price": 10000, "catch_rate": 73, "rare_bonus": 10, "exp_mult": 1.2, "gold_mult": 1.3, "color": "#C0C0C0", "metal": 0.9, "glow": False, "desc": "어떤 중량급 물고기도 버티는 고강도 낚시대."},
+    "네온 펄스 로드": {"price": 25000, "catch_rate": 76, "rare_bonus": 14, "exp_mult": 1.3, "gold_mult": 1.4, "color": "#00FFCC", "metal": 0.6, "glow": True, "desc": "야간 미끼 시야 확보에 특화된 네온 빛 로드."},
+    "플래티넘 가디언": {"price": 60000, "catch_rate": 79, "rare_bonus": 18, "exp_mult": 1.4, "gold_mult": 1.5, "color": "#E5E4E2", "metal": 1.0, "glow": False, "desc": "백금 장식으로 기품이 느껴지는 고급 로드."},
+    "다이아몬드 캐스터": {"price": 120000, "catch_rate": 82, "rare_bonus": 23, "exp_mult": 1.5, "gold_mult": 1.7, "color": "#B9F2FF", "metal": 0.9, "glow": True, "desc": "다이아몬드로 코팅되어 강도가 극대화된 로드."},
+    "화염 드래곤 로드": {"price": 250000, "catch_rate": 85, "rare_bonus": 28, "exp_mult": 1.6, "gold_mult": 1.9, "color": "#FF4500", "metal": 0.7, "glow": True, "desc": "드래곤의 숨결이 스며든 뜨거운 붉은 낚시대."},
+    "빙결의 심해 로드": {"price": 500000, "catch_rate": 87, "rare_bonus": 34, "exp_mult": 1.7, "gold_mult": 2.1, "color": "#00BFFF", "metal": 0.8, "glow": True, "desc": "차가운 기운으로 물고기의 방심을 유도합니다."},
+    "뇌전의 수호자": {"price": 1000000, "catch_rate": 89, "rare_bonus": 40, "exp_mult": 1.8, "gold_mult": 2.4, "color": "#FFFF00", "metal": 0.9, "glow": True, "desc": "전기 파동으로 물고기를 빠르게 채어 올립니다."},
+    "바람의 서곡": {"price": 2000000, "catch_rate": 91, "rare_bonus": 47, "exp_mult": 2.0, "gold_mult": 2.7, "color": "#98FB98", "metal": 0.4, "glow": True, "desc": "바람처럼 가벼워 입질 손실을 최소화합니다."},
+    "그림자 포획자": {"price": 3800000, "catch_rate": 92, "rare_bonus": 55, "exp_mult": 2.2, "gold_mult": 3.1, "color": "#4B0082", "metal": 0.7, "glow": True, "desc": "물고기에게 모습을 숨기는 은밀한 그림자 로드."},
+    "천사의 은총": {"price": 6500000, "catch_rate": 93, "rare_bonus": 64, "exp_mult": 2.5, "gold_mult": 3.6, "color": "#FFF8DC", "metal": 0.9, "glow": True, "desc": "천상의 빛으로 희귀 등급 물고기를 홀립니다."},
+    "악마의 삼지창": {"price": 11000000, "catch_rate": 94, "rare_bonus": 74, "exp_mult": 2.8, "gold_mult": 4.2, "color": "#8B0000", "metal": 0.8, "glow": True, "desc": "압도적인 파괴력으로 거대 몬스터를 제압합니다."},
+    "시공간 균열 로드": {"price": 18000000, "catch_rate": 95, "rare_bonus": 85, "exp_mult": 3.2, "gold_mult": 5.0, "color": "#FF00FF", "metal": 0.9, "glow": True, "desc": "시공간을 뒤틀어 신비한 고대종을 끌어당깁니다."},
+    "은하수 캐스케이드": {"price": 30000000, "catch_rate": 96, "rare_bonus": 98, "exp_mult": 3.7, "gold_mult": 6.0, "color": "#4169E1", "metal": 1.0, "glow": True, "desc": "별빛의 기운이 서려 있는 매혹적인 낚시대."},
+    "코스믹 스타로드": {"price": 50000000, "catch_rate": 97, "rare_bonus": 115, "exp_mult": 4.3, "gold_mult": 7.5, "color": "#8A2BE2", "metal": 1.0, "glow": True, "desc": "우주의 인력으로 물고기가 스스로 끌려옵니다."},
+    "태양신 라의 분노": {"price": 85000000, "catch_rate": 98, "rare_bonus": 135, "exp_mult": 5.0, "gold_mult": 9.5, "color": "#FFD700", "metal": 1.0, "glow": True, "desc": "태양의 축복을 받은 최고 등급 신화 낚시대."},
+    "차원 창조주의 로드": {"price": 150000000, "catch_rate": 99, "rare_bonus": 160, "exp_mult": 6.0, "gold_mult": 12.0, "color": "#00FFFF", "metal": 1.0, "glow": True, "desc": "모든 바다 생태계를 지배하는 신의 도구."}
 }
 
-# 물고기 기본 가격 하향 조정 (base_p 인하)
+# 60종 확장 물고기 데이터베이스 (신화 이상 등급 물고기 가격 대폭 하향 조정)
 FISH_BOOK_TEMPLATE = {
-    # Common
-    "피라미": {"rarity": "Common", "min_w": 0.1, "max_w": 0.5, "base_p": 2, "xp": 15},
-    "붕어": {"rarity": "Common", "min_w": 0.5, "max_w": 2.0, "base_p": 5, "xp": 25},
-    "송사리": {"rarity": "Common", "min_w": 0.05, "max_w": 0.3, "base_p": 1, "xp": 10},
-    "망둥어": {"rarity": "Common", "min_w": 0.2, "max_w": 0.8, "base_p": 3, "xp": 20},
-    "미꾸라지": {"rarity": "Common", "min_w": 0.1, "max_w": 0.6, "base_p": 3, "xp": 18},
-    "블루길": {"rarity": "Common", "min_w": 0.4, "max_w": 1.5, "base_p": 6, "xp": 30},
-    "꺽지": {"rarity": "Common", "min_w": 0.3, "max_w": 1.2, "base_p": 7, "xp": 35},
-    "빙어": {"rarity": "Common", "min_w": 0.05, "max_w": 0.2, "base_p": 2, "xp": 12},
-    "피라니아": {"rarity": "Common", "min_w": 0.5, "max_w": 2.5, "base_p": 8, "xp": 40},
-    "정어리": {"rarity": "Common", "min_w": 0.1, "max_w": 0.4, "base_p": 3, "xp": 16},
+    # 1. Common (10종)
+    "피라미": {"rarity": "Common", "min_w": 0.1, "max_w": 0.5, "base_p": 10, "xp": 15},
+    "붕어": {"rarity": "Common", "min_w": 0.5, "max_w": 2.0, "base_p": 25, "xp": 25},
+    "송사리": {"rarity": "Common", "min_w": 0.05, "max_w": 0.3, "base_p": 8, "xp": 10},
+    "망둥어": {"rarity": "Common", "min_w": 0.2, "max_w": 0.8, "base_p": 18, "xp": 20},
+    "미꾸라지": {"rarity": "Common", "min_w": 0.1, "max_w": 0.6, "base_p": 15, "xp": 18},
+    "블루길": {"rarity": "Common", "min_w": 0.4, "max_w": 1.5, "base_p": 30, "xp": 30},
+    "꺽지": {"rarity": "Common", "min_w": 0.3, "max_w": 1.2, "base_p": 35, "xp": 35},
+    "빙어": {"rarity": "Common", "min_w": 0.05, "max_w": 0.2, "base_p": 12, "xp": 12},
+    "피라니아": {"rarity": "Common", "min_w": 0.5, "max_w": 2.5, "base_p": 40, "xp": 40},
+    "정어리": {"rarity": "Common", "min_w": 0.1, "max_w": 0.4, "base_p": 14, "xp": 16},
 
-    # Uncommon
-    "배스": {"rarity": "Uncommon", "min_w": 1.0, "max_w": 4.0, "base_p": 12, "xp": 50},
-    "메기": {"rarity": "Uncommon", "min_w": 2.0, "max_w": 6.0, "base_p": 18, "xp": 75},
-    "가물치": {"rarity": "Uncommon", "min_w": 2.5, "max_w": 7.5, "base_p": 24, "xp": 95},
-    "광어": {"rarity": "Uncommon", "min_w": 1.5, "max_w": 5.0, "base_p": 20, "xp": 80},
-    "우럭": {"rarity": "Uncommon", "min_w": 1.2, "max_w": 4.5, "base_p": 16, "xp": 70},
-    "연어": {"rarity": "Uncommon", "min_w": 3.0, "max_w": 9.0, "base_p": 28, "xp": 110},
-    "방어": {"rarity": "Uncommon", "min_w": 4.0, "max_w": 12.0, "base_p": 35, "xp": 130},
-    "삼치": {"rarity": "Uncommon", "min_w": 2.0, "max_w": 7.0, "base_p": 22, "xp": 90},
+    # 2. Uncommon (8종)
+    "배스": {"rarity": "Uncommon", "min_w": 1.0, "max_w": 4.0, "base_p": 60, "xp": 50},
+    "메기": {"rarity": "Uncommon", "min_w": 2.0, "max_w": 6.0, "base_p": 90, "xp": 75},
+    "가물치": {"rarity": "Uncommon", "min_w": 2.5, "max_w": 7.5, "base_p": 120, "xp": 95},
+    "광어": {"rarity": "Uncommon", "min_w": 1.5, "max_w": 5.0, "base_p": 100, "xp": 80},
+    "우럭": {"rarity": "Uncommon", "min_w": 1.2, "max_w": 4.5, "base_p": 85, "xp": 70},
+    "연어": {"rarity": "Uncommon", "min_w": 3.0, "max_w": 9.0, "base_p": 140, "xp": 110},
+    "방어": {"rarity": "Uncommon", "min_w": 4.0, "max_w": 12.0, "base_p": 180, "xp": 130},
+    "삼치": {"rarity": "Uncommon", "min_w": 2.0, "max_w": 7.0, "base_p": 110, "xp": 90},
 
-    # Rare
-    "비단잉어": {"rarity": "Rare", "min_w": 3.0, "max_w": 8.0, "base_p": 50, "xp": 180},
-    "참돔": {"rarity": "Rare", "min_w": 3.5, "max_w": 10.0, "base_p": 65, "xp": 220},
-    "감성돔": {"rarity": "Rare", "min_w": 2.5, "max_w": 7.0, "base_p": 60, "xp": 200},
-    "다금바리": {"rarity": "Rare", "min_w": 5.0, "max_w": 15.0, "base_p": 100, "xp": 350},
-    "청새치": {"rarity": "Rare", "min_w": 15.0, "max_w": 45.0, "base_p": 150, "xp": 480},
-    "민어": {"rarity": "Rare", "min_w": 4.0, "max_w": 12.0, "base_p": 80, "xp": 280},
-    "황새치": {"rarity": "Rare", "min_w": 20.0, "max_w": 50.0, "base_p": 160, "xp": 500},
+    # 3. Rare (7종)
+    "비단잉어": {"rarity": "Rare", "min_w": 3.0, "max_w": 8.0, "base_p": 250, "xp": 180},
+    "참돔": {"rarity": "Rare", "min_w": 3.5, "max_w": 10.0, "base_p": 320, "xp": 220},
+    "감성돔": {"rarity": "Rare", "min_w": 2.5, "max_w": 7.0, "base_p": 290, "xp": 200},
+    "다금바리": {"rarity": "Rare", "min_w": 5.0, "max_w": 15.0, "base_p": 500, "xp": 350},
+    "청새치": {"rarity": "Rare", "min_w": 15.0, "max_w": 45.0, "base_p": 750, "xp": 480},
+    "민어": {"rarity": "Rare", "min_w": 4.0, "max_w": 12.0, "base_p": 400, "xp": 280},
+    "황새치": {"rarity": "Rare", "min_w": 20.0, "max_w": 50.0, "base_p": 800, "xp": 500},
 
-    # Epic
-    "황금 잉어": {"rarity": "Epic", "min_w": 5.0, "max_w": 12.0, "base_p": 250, "xp": 700},
-    "심해 아귀": {"rarity": "Epic", "min_w": 8.0, "max_w": 25.0, "base_p": 360, "xp": 950},
-    "대왕 샐러맨더": {"rarity": "Epic", "min_w": 10.0, "max_w": 30.0, "base_p": 450, "xp": 1200},
-    "일렉트릭 뱀장어": {"rarity": "Epic", "min_w": 6.0, "max_w": 18.0, "base_p": 320, "xp": 850},
-    "크리스탈 가오리": {"rarity": "Epic", "min_w": 12.0, "max_w": 35.0, "base_p": 550, "xp": 1400},
-    "볼케이노 해마": {"rarity": "Epic", "min_w": 2.0, "max_w": 8.0, "base_p": 600, "xp": 1600},
+    # 4. Epic (6종)
+    "황금 잉어": {"rarity": "Epic", "min_w": 5.0, "max_w": 12.0, "base_p": 1200, "xp": 700},
+    "심해 아귀": {"rarity": "Epic", "min_w": 8.0, "max_w": 25.0, "base_p": 1800, "xp": 950},
+    "대왕 샐러맨더": {"rarity": "Epic", "min_w": 10.0, "max_w": 30.0, "base_p": 2300, "xp": 1200},
+    "일렉트릭 뱀장어": {"rarity": "Epic", "min_w": 6.0, "max_w": 18.0, "base_p": 1600, "xp": 850},
+    "크리스탈 가오리": {"rarity": "Epic", "min_w": 12.0, "max_w": 35.0, "base_p": 2800, "xp": 1400},
+    "볼케이노 해마": {"rarity": "Epic", "min_w": 2.0, "max_w": 8.0, "base_p": 3200, "xp": 1600},
 
-    # Legendary
-    "심해 펠리칸장어": {"rarity": "Legendary", "min_w": 15.0, "max_w": 40.0, "base_p": 1000, "xp": 2500},
-    "아비스 블레이드": {"rarity": "Legendary", "min_w": 25.0, "max_w": 70.0, "base_p": 1500, "xp": 3200},
-    "플라즈마 복어": {"rarity": "Legendary", "min_w": 10.0, "max_w": 30.0, "base_p": 1800, "xp": 3800},
-    "프로스트 샤크": {"rarity": "Legendary", "min_w": 50.0, "max_w": 150.0, "base_p": 2400, "xp": 4500},
-    "루비 메갈로돈": {"rarity": "Legendary", "min_w": 80.0, "max_w": 200.0, "base_p": 3200, "xp": 5500},
-    "에메랄드 청새치": {"rarity": "Legendary", "min_w": 40.0, "max_w": 100.0, "base_p": 2800, "xp": 5000},
+    # 5. Legendary (6종)
+    "심해 펠리칸장어": {"rarity": "Legendary", "min_w": 15.0, "max_w": 40.0, "base_p": 5000, "xp": 2500},
+    "아비스 블레이드": {"rarity": "Legendary", "min_w": 25.0, "max_w": 70.0, "base_p": 7500, "xp": 3200},
+    "플라즈마 복어": {"rarity": "Legendary", "min_w": 10.0, "max_w": 30.0, "base_p": 9000, "xp": 3800},
+    "프로스트 샤크": {"rarity": "Legendary", "min_w": 50.0, "max_w": 150.0, "base_p": 12000, "xp": 4500},
+    "루비 메갈로돈": {"rarity": "Legendary", "min_w": 80.0, "max_w": 200.0, "base_p": 16000, "xp": 5500},
+    "에메랄드 청새치": {"rarity": "Legendary", "min_w": 40.0, "max_w": 100.0, "base_p": 14000, "xp": 5000},
 
-    # Mythic
-    "바다의 환영 발키리": {"rarity": "Mythic", "min_w": 100.0, "max_w": 300.0, "base_p": 5000, "xp": 8000},
-    "신화의 히드라 해뱀": {"rarity": "Mythic", "min_w": 150.0, "max_w": 450.0, "base_p": 7000, "xp": 10000},
-    "포세이돈의 삼지창어": {"rarity": "Mythic", "min_w": 80.0, "max_w": 250.0, "base_p": 9000, "xp": 12500},
-    "성스러운 빛의 해마": {"rarity": "Mythic", "min_w": 30.0, "max_w": 90.0, "base_p": 11000, "xp": 15000},
-    "타이탄 심해 대구": {"rarity": "Mythic", "min_w": 200.0, "max_w": 600.0, "base_p": 13500, "xp": 18000},
+    # 6. Mythic (5종) - 기존 대비 기본 가격 감축
+    "바다의 환영 발키리": {"rarity": "Mythic", "min_w": 100.0, "max_w": 300.0, "base_p": 8000, "xp": 8000},
+    "신화의 히드라 해뱀": {"rarity": "Mythic", "min_w": 150.0, "max_w": 450.0, "base_p": 11000, "xp": 10000},
+    "포세이돈의 삼지창어": {"rarity": "Mythic", "min_w": 80.0, "max_w": 250.0, "base_p": 14000, "xp": 12500},
+    "성스러운 빛의 해마": {"rarity": "Mythic", "min_w": 30.0, "max_w": 90.0, "base_p": 17000, "xp": 15000},
+    "타이탄 심해 대구": {"rarity": "Mythic", "min_w": 200.0, "max_w": 600.0, "base_p": 20000, "xp": 18000},
 
-    # Ancient
-    "고대 씨라캔스": {"rarity": "Ancient", "min_w": 100.0, "max_w": 350.0, "base_p": 18000, "xp": 22000},
-    "시공의 암모나이트": {"rarity": "Ancient", "min_w": 80.0, "max_w": 280.0, "base_p": 24000, "xp": 28000},
-    "원시 던클레오스테우스": {"rarity": "Ancient", "min_w": 300.0, "max_w": 900.0, "base_p": 32000, "xp": 35000},
-    "고대 리오플레우로돈": {"rarity": "Ancient", "min_w": 450.0, "max_w": 1200.0, "base_p": 42000, "xp": 42000},
-    "빙하기 아노말로카리스": {"rarity": "Ancient", "min_w": 50.0, "max_w": 200.0, "base_p": 54000, "xp": 50000},
+    # 7. Ancient (5종) - 가격 대폭 하향
+    "고대 씨라캔스": {"rarity": "Ancient", "min_w": 100.0, "max_w": 350.0, "base_p": 25000, "xp": 22000},
+    "시공의 암모나이트": {"rarity": "Ancient", "min_w": 80.0, "max_w": 280.0, "base_p": 32000, "xp": 28000},
+    "원시 던클레오스테우스": {"rarity": "Ancient", "min_w": 300.0, "max_w": 900.0, "base_p": 40000, "xp": 35000},
+    "고대 리오플레우로돈": {"rarity": "Ancient", "min_w": 450.0, "max_w": 1200.0, "base_p": 50000, "xp": 42000},
+    "빙하기 아노말로카리스": {"rarity": "Ancient", "min_w": 50.0, "max_w": 200.0, "base_p": 65000, "xp": 50000},
 
-    # Celestial
-    "천상의 은하 가오리": {"rarity": "Celestial", "min_w": 300.0, "max_w": 800.0, "base_p": 75000, "xp": 65000},
-    "세라핌 피쉬": {"rarity": "Celestial", "min_w": 150.0, "max_w": 500.0, "base_p": 100000, "xp": 80000},
-    "스타더스트 고래": {"rarity": "Celestial", "min_w": 1000.0, "max_w": 3000.0, "base_p": 135000, "xp": 100000},
+    # 8. Celestial (4종) - 가격 대폭 하향
+    "천상의 은하 가오리": {"rarity": "Celestial", "min_w": 300.0, "max_w": 800.0, "base_p": 85000, "xp": 65000},
+    "세라핌 피쉬": {"rarity": "Celestial", "min_w": 150.0, "max_w": 500.0, "base_p": 110000, "xp": 80000},
+    "스타더스트 고래": {"rarity": "Celestial", "min_w": 1000.0, "max_w": 3000.0, "base_p": 140000, "xp": 100000},
     "빛의 주권자 오라클": {"rarity": "Celestial", "min_w": 500.0, "max_w": 1500.0, "base_p": 180000, "xp": 130000},
 
-    # Cosmic
-    "코스믹 퀘이사 피쉬": {"rarity": "Cosmic", "min_w": 800.0, "max_w": 2500.0, "base_p": 260000, "xp": 170000},
-    "블랙홀 스쿼드": {"rarity": "Cosmic", "min_w": 1200.0, "max_w": 4000.0, "base_p": 360000, "xp": 220000},
-    "초신성 라이어": {"rarity": "Cosmic", "min_w": 2000.0, "max_w": 6000.0, "base_p": 500000, "xp": 300000},
-    "차원 파쇄자 다크매터": {"rarity": "Cosmic", "min_w": 3500.0, "max_w": 9999.0, "base_p": 700000, "xp": 400000},
+    # 9. Cosmic (4종) - 가격 대폭 하향
+    "코스믹 퀘이사 피쉬": {"rarity": "Cosmic", "min_w": 800.0, "max_w": 2500.0, "base_p": 250000, "xp": 170000},
+    "블랙홀 스쿼드": {"rarity": "Cosmic", "min_w": 1200.0, "max_w": 4000.0, "base_p": 320000, "xp": 220000},
+    "초신성 라이어": {"rarity": "Cosmic", "min_w": 2000.0, "max_w": 6000.0, "base_p": 450000, "xp": 300000},
+    "차원 파쇄자 다크매터": {"rarity": "Cosmic", "min_w": 3500.0, "max_w": 9999.0, "base_p": 600000, "xp": 400000},
 
-    # Boss
-    "심해의 크라켄": {"rarity": "Boss", "min_w": 2000.0, "max_w": 6000.0, "base_p": 1000000, "xp": 550000},
-    "천공의 고래": {"rarity": "Boss", "min_w": 4000.0, "max_w": 12000.0, "base_p": 1600000, "xp": 800000},
-    "차원의 레비아탄": {"rarity": "Boss", "min_w": 8000.0, "max_w": 25000.0, "base_p": 2400000, "xp": 1200000},
-    "종말의 요르문간드": {"rarity": "Boss", "min_w": 15000.0, "max_w": 45000.0, "base_p": 4000000, "xp": 1800000},
-    "창세의 아우라드래곤": {"rarity": "Boss", "min_w": 30000.0, "max_w": 99999.0, "base_p": 7000000, "xp": 3000000}
+    # 10. Boss (5종) - 가격 대폭 하향
+    "심해의 크라켄": {"rarity": "Boss", "min_w": 2000.0, "max_w": 6000.0, "base_p": 800000, "xp": 550000},
+    "천공의 고래": {"rarity": "Boss", "min_w": 4000.0, "max_w": 12000.0, "base_p": 1200000, "xp": 800000},
+    "차원의 레비아탄": {"rarity": "Boss", "min_w": 8000.0, "max_w": 25000.0, "base_p": 1800000, "xp": 1200000},
+    "종말의 요르문간드": {"rarity": "Boss", "min_w": 15000.0, "max_w": 45000.0, "base_p": 2500000, "xp": 1800000},
+    "창세의 아우라드래곤": {"rarity": "Boss", "min_w": 30000.0, "max_w": 99999.0, "base_p": 4000000, "xp": 3000000}
 }
 
 TRAITS = [
@@ -123,12 +123,11 @@ TRAITS = [
     {"name": "전설의", "mult": 3.0}
 ]
 
-# 미끼 가격 대폭 인상
 SHOP_BAITS = {
-    "초강력 미끼": {"price": 1200, "desc": "Uncommon / Rare 등급 등장 확률 증가"},
-    "행운의 미끼": {"price": 5000, "desc": "Epic / Legendary / Mythic 등급 등장 확정"},
-    "황금 미끼": {"price": 15000, "desc": "전설 특성 고정 및 골드 배수 적용"},
-    "보스 미끼": {"price": 50000, "desc": "보스 물고기 출현 확률 100% 확정"}
+    "초강력 미끼": {"price": 200, "desc": "Uncommon / Rare 등급 등장 확률 증가"},
+    "행운의 미끼": {"price": 1000, "desc": "Epic / Legendary / Mythic 등급 등장 확정"},
+    "황금 미끼": {"price": 3000, "desc": "전설 특성 고정 및 골드 배수 적용"},
+    "보스 미끼": {"price": 10000, "desc": "보스 물고기 출현 확률 100% 확정"}
 }
 
 # -----------------------------------------------------------------------------
@@ -139,7 +138,7 @@ def init_game():
         st.session_state.level = 1
         st.session_state.xp = 0
         st.session_state.max_xp = 100
-        st.session_state.gold = 300
+        st.session_state.gold = 500
         st.session_state.inventory = []
         st.session_state.baits = {
             "일반 미끼": float('inf'),
@@ -158,9 +157,14 @@ def init_game():
 init_game()
 
 # -----------------------------------------------------------------------------
-# 3. 개선된 Three.js 3D 실시간 바다 & 낚시대/물고기 렌더러
+# 3. Dynamic 3D 실시간 바다 & 낚시대 입체 모션 렌더러
 # -----------------------------------------------------------------------------
-def render_3d_ocean_view(status="idle"):
+def render_3d_ocean_view(status="idle", rod_name="대나무 낚시대"):
+    rod_info = FISHING_RODS.get(rod_name, FISHING_RODS["대나무 낚시대"])
+    rod_color = rod_info.get("color", "#8B5A2B")
+    rod_metal = rod_info.get("metal", 0.1)
+    rod_glow = "true" if rod_info.get("glow", False) else "false"
+
     html_code = f"""
     <!DOCTYPE html>
     <html>
@@ -174,13 +178,13 @@ def render_3d_ocean_view(status="idle"):
     </head>
     <body>
         <div id="canvas-container">
-            <div id="ui-overlay">⚡ REAL 3D ENGINE & DYNAMIC CAMERA</div>
+            <div id="ui-overlay">🎣 REAL-TIME ROD & CATCH ANIMATION</div>
         </div>
         <script>
             const container = document.getElementById('canvas-container');
             const scene = new THREE.Scene();
             scene.background = new THREE.Color(0x060b19);
-            scene.fog = new THREE.FogExp2(0x060b19, 0.025);
+            scene.fog = new THREE.FogExp2(0x060b19, 0.02);
 
             const camera = new THREE.PerspectiveCamera(55, container.clientWidth / 380, 0.1, 1000);
             camera.position.set(0, 5, 11);
@@ -188,23 +192,21 @@ def render_3d_ocean_view(status="idle"):
             const renderer = new THREE.WebGLRenderer({{ antialias: true }});
             renderer.setSize(container.clientWidth, 380);
             renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
 
-            // 조명 설정
+            // Light Config
             const ambientLight = new THREE.AmbientLight(0x89cff0, 0.8);
             scene.add(ambientLight);
 
             const sunLight = new THREE.DirectionalLight(0xffaa44, 1.5);
             sunLight.position.set(12, 25, 10);
-            sunLight.castShadow = true;
             scene.add(sunLight);
 
-            const pointLight = new THREE.PointLight(0x00f0ff, 2, 15);
-            pointLight.position.set(0, 2, 2);
-            scene.add(pointLight);
+            const rodLight = new THREE.PointLight(0x00f0ff, { "2.5" if rod_glow == "true" else "0.5" }, 15);
+            rodLight.position.set(2, 2, 5);
+            scene.add(rodLight);
 
-            // 바다 수면
+            // Ocean Plane
             const oceanGeo = new THREE.PlaneGeometry(50, 50, 45, 45);
             const oceanMat = new THREE.MeshPhongMaterial({{
                 color: 0x003366,
@@ -217,27 +219,33 @@ def render_3d_ocean_view(status="idle"):
             ocean.rotation.x = -Math.PI / 2;
             scene.add(ocean);
 
-            // 3D 낚시대 (Rod) 그룹 제작
+            // Dynamic 3D Rod Construction
             const rodGroup = new THREE.Group();
             
-            const rodHandleGeo = new THREE.CylinderGeometry(0.08, 0.1, 1.5, 12);
-            const rodHandleMat = new THREE.MeshStandardMaterial({{ color: 0x3e2723, roughness: 0.6 }});
-            const rodHandle = new THREE.Mesh(rodHandleGeo, rodHandleMat);
-            rodHandle.position.y = -0.75;
-            rodGroup.add(rodHandle);
+            const handleGeo = new THREE.CylinderGeometry(0.08, 0.1, 1.5, 12);
+            const handleMat = new THREE.MeshStandardMaterial({{ color: 0x222222, roughness: 0.8 }});
+            const handleMesh = new THREE.Mesh(handleGeo, handleMat);
+            handleMesh.position.y = -0.75;
+            rodGroup.add(handleMesh);
 
-            const rodBodyGeo = new THREE.CylinderGeometry(0.02, 0.07, 4.5, 12);
-            const rodBodyMat = new THREE.MeshStandardMaterial({{ color: 0x00d2ff, metalness: 0.8, roughness: 0.2 }});
-            const rodBody = new THREE.Mesh(rodBodyGeo, rodBodyMat);
-            rodBody.position.y = 2.25;
-            rodGroup.add(rodBody);
+            const bodyGeo = new THREE.CylinderGeometry(0.02, 0.07, 5.0, 12);
+            const bodyMat = new THREE.MeshStandardMaterial({{ 
+                color: "{rod_color}", 
+                metalness: {rod_metal}, 
+                roughness: 0.2,
+                emissive: "{rod_color if rod_glow == 'true' else '#000000'}",
+                emissiveIntensity: 0.3
+            }});
+            const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+            bodyMesh.position.y = 2.5;
+            rodGroup.add(bodyMesh);
 
             rodGroup.position.set(2, 1, 6);
             rodGroup.rotation.z = -Math.PI / 6;
             rodGroup.rotation.x = Math.PI / 12;
             scene.add(rodGroup);
 
-            // 찌 (Float)
+            // Float Group
             const floatGroup = new THREE.Group();
             const floatBodyGeo = new THREE.SphereGeometry(0.25, 16, 16);
             const floatBodyMat = new THREE.MeshStandardMaterial({{ color: 0xff1744, roughness: 0.3 }});
@@ -253,36 +261,22 @@ def render_3d_ocean_view(status="idle"):
             floatGroup.position.set(0, 0.2, 1);
             scene.add(floatGroup);
 
-            // 3D 입체 물고기 (Fish)
+            // 3D Fish
             const fishGroup = new THREE.Group();
-            
-            const fishBodyGeo = new THREE.ConeGeometry(0.35, 1.2, 12);
+            const fishBodyGeo = new THREE.ConeGeometry(0.35, 1.3, 12);
             fishBodyGeo.rotateX(Math.PI / 2);
-            const fishMat = new THREE.MeshStandardMaterial({{ color: 0x00f0ff, metalness: 0.5, roughness: 0.3 }});
+            const fishMat = new THREE.MeshStandardMaterial({{ color: 0x00f0ff, metalness: 0.6, roughness: 0.2 }});
             const fishBody = new THREE.Mesh(fishBodyGeo, fishMat);
             fishGroup.add(fishBody);
 
-            const tailGeo = new THREE.ConeGeometry(0.2, 0.5, 3);
+            const tailGeo = new THREE.ConeGeometry(0.22, 0.5, 3);
             tailGeo.rotateX(-Math.PI / 2);
             const tailMesh = new THREE.Mesh(tailGeo, fishMat);
-            tailMesh.position.z = 0.7;
+            tailMesh.position.z = 0.75;
             fishGroup.add(tailMesh);
 
-            fishGroup.position.set(-1.5, -0.6, 1);
+            fishGroup.position.set(0, -0.6, 1);
             scene.add(fishGroup);
-
-            // 성공 이펙트용 파티클 시스템
-            const particleCount = 60;
-            const particleGeo = new THREE.BufferGeometry();
-            const particlePos = new Float32Array(particleCount * 3);
-            for(let i=0; i<particleCount*3; i++) {{
-                particlePos[i] = (Math.random() - 0.5) * 5;
-            }}
-            particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
-            const particleMat = new THREE.PointsMaterial({{ color: 0xffd700, size: 0.15, transparent: true, opacity: 0.9 }});
-            const particles = new THREE.Points(particleGeo, particleMat);
-            particles.visible = false;
-            scene.add(particles);
 
             let clock = new THREE.Clock();
             let status = "{status}";
@@ -291,7 +285,7 @@ def render_3d_ocean_view(status="idle"):
                 requestAnimationFrame(animate);
                 let time = clock.getElapsedTime();
 
-                // 파도 애니메이션
+                // Ocean Waves
                 const pos = oceanGeo.attributes.position;
                 for (let i = 0; i < pos.count; i++) {{
                     let u = pos.getX(i);
@@ -301,39 +295,33 @@ def render_3d_ocean_view(status="idle"):
                 }}
                 pos.needsUpdate = true;
 
-                // 상태별 연출 및 카메라 동작
-                if (status === "success") {{
-                    floatGroup.position.y = Math.sin(time * 20) * 0.3 + 0.5;
-                    rodGroup.rotation.z = -Math.PI / 4 + Math.sin(time * 15) * 0.1;
-                    
-                    // 성공 파티클 폭발 효과
-                    particles.visible = true;
-                    particles.rotation.y = time * 2;
-                    
-                    // 카메라 다이내믹 포커싱
-                    camera.position.x = Math.sin(time * 0.5) * 1.5;
-                    camera.position.y = 4.5;
-                    camera.lookAt(0, 0, 1);
-
-                    fishGroup.position.y = Math.sin(time * 5) * 0.3 + 0.2;
+                // State-Based Animations (Catching/Hooking Actions)
+                if (status === "hooking") {{
+                    // Catch Action Attempt
+                    rodGroup.rotation.z = -Math.PI / 3 + Math.sin(time * 30) * 0.15;
+                    rodGroup.rotation.x = Math.PI / 6 + Math.cos(time * 30) * 0.1;
+                    floatGroup.position.y = -0.5 + Math.sin(time * 40) * 0.3;
+                    fishGroup.position.set(0, -0.2, 1);
+                    fishGroup.rotation.z = Math.sin(time * 20) * 0.5;
+                }} else if (status === "success") {{
+                    // Reel Up Action Success
+                    rodGroup.rotation.z = -Math.PI / 4 + Math.sin(time * 8) * 0.08;
+                    floatGroup.position.y = Math.sin(time * 15) * 0.3 + 0.6;
+                    fishGroup.position.set(Math.sin(time * 4) * 0.5, 1.2 + Math.sin(time * 10) * 0.3, 2);
+                    fishGroup.rotation.y = time * 8;
                 }} else if (status === "fail") {{
-                    floatGroup.position.y = -1.2;
-                    rodGroup.rotation.z = -Math.PI / 10;
-                    particles.visible = false;
-                    
-                    camera.position.set(0, 6, 12);
-                    camera.lookAt(0, 0, 0);
+                    // Line Break Action
+                    floatGroup.position.y = -1.5;
+                    rodGroup.rotation.z = -Math.PI / 12;
+                    fishGroup.position.set(3, -2, 1);
                 }} else {{
+                    // Idle Status
                     floatGroup.position.y = Math.sin(time * 3) * 0.12 + 0.1;
                     rodGroup.rotation.z = -Math.PI / 6 + Math.sin(time * 1.5) * 0.03;
-                    particles.visible = false;
-
                     fishGroup.position.x = Math.sin(time * 1.2) * 3;
                     fishGroup.position.z = Math.cos(time * 1.2) * 2 + 1;
+                    fishGroup.position.y = -0.6;
                     fishGroup.rotation.y = time * 1.2 + Math.PI / 2;
-
-                    camera.position.set(0, 5, 11);
-                    camera.lookAt(0, 0, 0);
                 }}
 
                 renderer.render(scene, camera);
@@ -370,9 +358,9 @@ def add_xp(amount):
         st.session_state.max_xp = int(st.session_state.max_xp * 1.5)
         st.toast(f"🎉 레벨업! 현재 레벨: Lv.{st.session_state.level}", icon="⭐")
 
-def catch_fish(selected_bait):
+def execute_fishing_process(selected_bait):
     if st.session_state.baits[selected_bait] <= 0:
-        st.session_state.last_catch_msg = "⚠️ 선택한 미끼가 부족하여 낚시를 중단합니다."
+        st.session_state.last_catch_msg = "⚠️ 선택한 미끼가 부족합니다."
         st.session_state.auto_fishing = False
         st.session_state.last_catch_status = "idle"
         return False
@@ -384,7 +372,7 @@ def catch_fish(selected_bait):
     roll = random.uniform(0, 100)
 
     if roll > success_rate:
-        st.session_state.last_catch_msg = f"💥 낚싯줄이 터졌거나 물고기가 도망쳤습니다! (성공률: {success_rate:.1f}%)"
+        st.session_state.last_catch_msg = f"💥 낚싯줄이 터져 물고기를 놓쳤습니다! (성공률: {success_rate:.1f}%)"
         st.session_state.last_catch_status = "fail"
         return False
 
@@ -468,13 +456,13 @@ def sell_all_fish():
 @st.fragment(run_every=2.5)
 def auto_fishing_loop(selected_bait):
     if st.session_state.auto_fishing:
-        catch_fish(selected_bait)
+        execute_fishing_process(selected_bait)
         st.rerun()
 
 # -----------------------------------------------------------------------------
 # 6. UI 화면 구성
 # -----------------------------------------------------------------------------
-st.title("🎣 리얼 3D 낚시 게임 v5.0")
+st.title("🎣 판타지 3D 낚시 게임 v6.0")
 
 # 사이드바
 with st.sidebar:
@@ -518,13 +506,14 @@ with st.sidebar:
             st.rerun()
 
 # 메인 탭
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["🌊 3D 낚시터", "🎣 낚시대 상점", "🎒 가방 & 판매", "🛒 미끼 상점", "📖 물고기 도감"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["🌊 3D 낚시터 (수동/자동)", "🎣 낚시대 상점", "🎒 가방 & 판매", "🛒 미끼 상점", "📖 물고기 도감"])
 
 # --- TAB 1: 3D 낚시터 ---
 with tab1:
-    st.subheader("🌊 실시간 리얼 3D 바다 낚시터")
+    st.subheader("🌊 실시간 3D 바다 낚시터")
     
-    render_3d_ocean_view(status=st.session_state.last_catch_status)
+    # 렌더링 시 현재 장착된 낚시대 및 상태 전송
+    render_3d_ocean_view(status=st.session_state.last_catch_status, rod_name=st.session_state.equipped_rod)
 
     equipped_info = FISHING_RODS[st.session_state.equipped_rod]
     c1, c2, c3, c4 = st.columns(4)
@@ -548,8 +537,10 @@ with tab1:
     col_manual, col_auto = st.columns(2)
     
     with col_manual:
-        if st.button("🎣 수동 찌 던지기", use_container_width=True):
-            catch_fish(selected_bait)
+        if st.button("🎣 낚시대 던지기 & 낚기", use_container_width=True):
+            # 낚시 릴링 액션 연출을 위한 시뮬레이션 상태 변경
+            st.session_state.last_catch_status = "hooking"
+            execute_fishing_process(selected_bait)
             st.rerun()
 
     with col_auto:
@@ -598,6 +589,7 @@ with tab2:
             elif is_owned:
                 if st.button("장착하기", key=f"use_{r_name}"):
                     st.session_state.equipped_rod = r_name
+                    st.session_state.last_catch_status = "idle"
                     st.success(f"{r_name}(으)로 변경 완료!")
                     st.rerun()
             else:
@@ -606,6 +598,7 @@ with tab2:
                         st.session_state.gold -= r_data['price']
                         st.session_state.owned_rods.append(r_name)
                         st.session_state.equipped_rod = r_name
+                        st.session_state.last_catch_status = "idle"
                         st.success(f"{r_name} 구매 및 장착 완료!")
                         st.rerun()
                     else:
@@ -631,7 +624,7 @@ with tab3:
 
 # --- TAB 4: 미끼 상점 ---
 with tab4:
-    st.subheader("🛒 미끼 상점 (가격 대폭 인상 적용)")
+    st.subheader("🛒 미끼 상점")
     for name, data in SHOP_BAITS.items():
         c_b1, c_b2, c_b3 = st.columns([2, 3, 1])
         with c_b1:
