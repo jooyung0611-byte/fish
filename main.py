@@ -353,6 +353,232 @@ SHOP_BAITS = {
     "보스 미끼": {"price": 200000, "desc": "보스 물고기 출현 확률 100% 확정 (해금: 코스믹 이상 포획)", "req_rarity": ["Cosmic", "Boss"]},
 }
 
+# -----------------------------------------------------------------------------
+# 🔥 추가 시스템: 20종 타이틀 데이터베이스 (쉬움 -> 어려움)
+# -----------------------------------------------------------------------------
+TITLES = {
+    "초보 낚시꾼": {
+        "tier": "C",
+        "desc": "첫 걸음을 뗀 낚시꾼",
+        "condition_desc": "물고기 1마리 이상 포획",
+        "catch_rate_bonus": 1.0,
+        "rare_bonus": 2,
+        "gold_mult": 1.02,
+        "exp_mult": 1.02,
+        "color": 0xaaaaaa,
+        "aura": "none"
+    },
+    "강가의 인내자": {
+        "tier": "C",
+        "desc": "기다림의 미학을 아는 자",
+        "condition_desc": "물고기 10마리 이상 포획",
+        "catch_rate_bonus": 1.5,
+        "rare_bonus": 3,
+        "gold_mult": 1.05,
+        "exp_mult": 1.05,
+        "color": 0x8b5a2b,
+        "aura": "none"
+    },
+    "베테랑 강태공": {
+        "tier": "C",
+        "desc": "물질에 도통한 베테랑",
+        "condition_desc": "레벨 5 달성",
+        "catch_rate_bonus": 2.0,
+        "rare_bonus": 5,
+        "gold_mult": 1.08,
+        "exp_mult": 1.08,
+        "color": 0x4682b4,
+        "aura": "soft_blue"
+    },
+    "풍족한 자산가": {
+        "tier": "B",
+        "desc": "물고기를 팔아 부를 쌓은 자",
+        "condition_desc": "소지금 50,000 Gold 달성",
+        "catch_rate_bonus": 2.0,
+        "rare_bonus": 8,
+        "gold_mult": 1.15,
+        "exp_mult": 1.10,
+        "color": 0xffd700,
+        "aura": "gold_spark"
+    },
+    "장비 수집가": {
+        "tier": "B",
+        "desc": "낚시대 수집에 열을 올리는 자",
+        "condition_desc": "낚시대 3개 이상 보유",
+        "catch_rate_bonus": 2.5,
+        "rare_bonus": 10,
+        "gold_mult": 1.12,
+        "exp_mult": 1.12,
+        "color": 0x00ffcc,
+        "aura": "soft_blue"
+    },
+    "희귀 어종 포획자": {
+        "tier": "B",
+        "desc": "Rare 등급 이상을 낚아채는 실력자",
+        "condition_desc": "Rare 이상 어종 1마리 이상 포획",
+        "catch_rate_bonus": 3.0,
+        "rare_bonus": 15,
+        "gold_mult": 1.15,
+        "exp_mult": 1.15,
+        "color": 0x3388ff,
+        "aura": "blue_swirl"
+    },
+    "만선의 기쁨": {
+        "tier": "B",
+        "desc": "가방을 가득 채우는 습관",
+        "condition_desc": "가방 확장 3회 이상 완료",
+        "catch_rate_bonus": 3.0,
+        "rare_bonus": 12,
+        "gold_mult": 1.20,
+        "exp_mult": 1.15,
+        "color": 0x33ff55,
+        "aura": "green_spark"
+    },
+    "심해의 탐험가": {
+        "tier": "A",
+        "desc": "어두운 바닷속 보물을 찾는 자",
+        "condition_desc": "Epic 이상 어종 포획",
+        "catch_rate_bonus": 3.5,
+        "rare_bonus": 20,
+        "gold_mult": 1.25,
+        "exp_mult": 1.20,
+        "color": 0xaa33ff,
+        "aura": "purple_orb"
+    },
+    "전설의 낚시왕": {
+        "tier": "A",
+        "desc": "전설을 현실로 만드는 대가",
+        "condition_desc": "Legendary 이상 어종 포획",
+        "catch_rate_bonus": 4.0,
+        "rare_bonus": 30,
+        "gold_mult": 1.35,
+        "exp_mult": 1.30,
+        "color": 0xffaa00,
+        "aura": "orange_flame"
+    },
+    "백만장자": {
+        "tier": "A",
+        "desc": "낚시만으로 거부가 된 거물",
+        "condition_desc": "소지금 1,000,000 Gold 달성",
+        "catch_rate_bonus": 4.0,
+        "rare_bonus": 35,
+        "gold_mult": 1.50,
+        "exp_mult": 1.30,
+        "color": 0xffd700,
+        "aura": "gold_spark"
+    },
+    "신화의 인도자": {
+        "tier": "S",
+        "desc": "신화 속 생명체를 부르는 자",
+        "condition_desc": "Mythic 이상 어종 포획",
+        "catch_rate_bonus": 5.0,
+        "rare_bonus": 50,
+        "gold_mult": 1.60,
+        "exp_mult": 1.50,
+        "color": 0xff0055,
+        "aura": "crimson_pulse"
+    },
+    "고대의 수호자": {
+        "tier": "S",
+        "desc": "시간을 거슬러 고대 어종을 낚다",
+        "condition_desc": "Ancient 이상 어종 포획",
+        "catch_rate_bonus": 6.0,
+        "rare_bonus": 70,
+        "gold_mult": 1.80,
+        "exp_mult": 1.70,
+        "color": 0x00ffcc,
+        "aura": "cyan_vortex"
+    },
+    "명장 장비 마스터": {
+        "tier": "S",
+        "desc": "명품 낚시대 컬렉터",
+        "condition_desc": "낚시대 10개 이상 보유",
+        "catch_rate_bonus": 5.5,
+        "rare_bonus": 60,
+        "gold_mult": 1.75,
+        "exp_mult": 1.60,
+        "color": 0x9932cc,
+        "aura": "purple_orb"
+    },
+    "천상의 지배자": {
+        "tier": "SS",
+        "desc": "하늘과 바다의 경계를 허문 자",
+        "condition_desc": "Celestial 이상 어종 포획",
+        "catch_rate_bonus": 7.0,
+        "rare_bonus": 90,
+        "gold_mult": 2.10,
+        "exp_mult": 2.00,
+        "color": 0xffffff,
+        "aura": "holy_halo"
+    },
+    "우주의 여행자": {
+        "tier": "SS",
+        "desc": "시공간 넘어 우주 어종을 포획",
+        "condition_desc": "Cosmic 이상 어종 포획",
+        "catch_rate_bonus": 8.0,
+        "rare_bonus": 120,
+        "gold_mult": 2.50,
+        "exp_mult": 2.40,
+        "color": 0x9900ff,
+        "aura": "cosmic_nebula"
+    },
+    "보스 슬레이어": {
+        "tier": "SS",
+        "desc": "바다의 거대 보스들을 제압한 자",
+        "condition_desc": "Boss 등급 어종 1마리 이상 포획",
+        "catch_rate_bonus": 9.0,
+        "rare_bonus": 150,
+        "gold_mult": 3.00,
+        "exp_mult": 2.80,
+        "color": 0xff0000,
+        "aura": "red_fire_aura"
+    },
+    "도감 박사": {
+        "tier": "SS",
+        "desc": "바다 생물 종의 반 이상을 파악한 자",
+        "condition_desc": "도감 30종 이상 발견",
+        "catch_rate_bonus": 8.5,
+        "rare_bonus": 130,
+        "gold_mult": 2.80,
+        "exp_mult": 2.60,
+        "color": 0x00f0ff,
+        "aura": "cyan_vortex"
+    },
+    "해양의 신": {
+        "tier": "SSS",
+        "desc": "모든 바다 생태계가 굴복하는 존재",
+        "condition_desc": "레벨 30 달성",
+        "catch_rate_bonus": 10.0,
+        "rare_bonus": 200,
+        "gold_mult": 4.00,
+        "exp_mult": 3.50,
+        "color": 0xffd700,
+        "aura": "golden_god_aura"
+    },
+    "차원 창조주": {
+        "tier": "SSS",
+        "desc": "차원의 정점에 도달한 신화적 존재",
+        "condition_desc": "‘차원 창조주의 로드’ 보유",
+        "catch_rate_bonus": 12.0,
+        "rare_bonus": 250,
+        "gold_mult": 5.00,
+        "exp_mult": 4.50,
+        "color": 0x00ffff,
+        "aura": "rainbow_god_aura"
+    },
+    "완벽한 태평양": {
+        "tier": "SSS",
+        "desc": "모든 물고기 도감을 마스터한 자",
+        "condition_desc": "60종 어종 완전 수집",
+        "catch_rate_bonus": 15.0,
+        "rare_bonus": 300,
+        "gold_mult": 6.00,
+        "exp_mult": 5.00,
+        "color": 0xff00ff,
+        "aura": "rainbow_god_aura"
+    }
+}
+
 
 # -----------------------------------------------------------------------------
 # 2. 게임 세션 초기화 및 이벤트 타이머
@@ -387,6 +613,12 @@ def init_game():
         st.session_state.spawn_event_end = 0
         st.session_state.trait_event_end = 0
 
+    # 🔥 추가: 타이틀 관련 세션 상태 초기화
+    if "unlocked_titles" not in st.session_state:
+        st.session_state.unlocked_titles = ["초보 낚시꾼"]
+    if "equipped_title" not in st.session_state:
+        st.session_state.equipped_title = None
+
 
 init_game()
 
@@ -413,8 +645,64 @@ def get_inventory_upgrade_cost():
     return int(10000 * (1.5**st.session_state.inventory_upgrades))
 
 
+# 🔥 추가: 타이틀 해금 조건 실시간 검사 함수
+def check_title_unlocks():
+    total_caught = sum(st.session_state.records.values())
+    caught_species = sum(1 for count in st.session_state.records.values() if count > 0)
+
+    for title_name, t_info in TITLES.items():
+        if title_name in st.session_state.unlocked_titles:
+            continue
+
+        unlocked = False
+        if title_name == "초보 낚시꾼" and total_caught >= 1:
+            unlocked = True
+        elif title_name == "강가의 인내자" and total_caught >= 10:
+            unlocked = True
+        elif title_name == "베테랑 강태공" and st.session_state.level >= 5:
+            unlocked = True
+        elif title_name == "풍족한 자산가" and st.session_state.gold >= 50000:
+            unlocked = True
+        elif title_name == "장비 수집가" and len(st.session_state.owned_rods) >= 3:
+            unlocked = True
+        elif title_name == "희귀 어종 포획자" and has_caught_rarity(["Rare", "Epic", "Legendary", "Mythic", "Ancient", "Celestial", "Cosmic", "Boss"]):
+            unlocked = True
+        elif title_name == "만선의 기쁨" and st.session_state.inventory_upgrades >= 3:
+            unlocked = True
+        elif title_name == "심해의 탐험가" and has_caught_rarity(["Epic", "Legendary", "Mythic", "Ancient", "Celestial", "Cosmic", "Boss"]):
+            unlocked = True
+        elif title_name == "전설의 낚시왕" and has_caught_rarity(["Legendary", "Mythic", "Ancient", "Celestial", "Cosmic", "Boss"]):
+            unlocked = True
+        elif title_name == "백만장자" and st.session_state.gold >= 1000000:
+            unlocked = True
+        elif title_name == "신화의 인도자" and has_caught_rarity(["Mythic", "Ancient", "Celestial", "Cosmic", "Boss"]):
+            unlocked = True
+        elif title_name == "고대의 수호자" and has_caught_rarity(["Ancient", "Celestial", "Cosmic", "Boss"]):
+            unlocked = True
+        elif title_name == "명장 장비 마스터" and len(st.session_state.owned_rods) >= 10:
+            unlocked = True
+        elif title_name == "천상의 지배자" and has_caught_rarity(["Celestial", "Cosmic", "Boss"]):
+            unlocked = True
+        elif title_name == "우주의 여행자" and has_caught_rarity(["Cosmic", "Boss"]):
+            unlocked = True
+        elif title_name == "보스 슬레이어" and has_caught_rarity(["Boss"]):
+            unlocked = True
+        elif title_name == "도감 박사" and caught_species >= 30:
+            unlocked = True
+        elif title_name == "해양의 신" and st.session_state.level >= 30:
+            unlocked = True
+        elif title_name == "차원 창조주" and "차원 창조주의 로드" in st.session_state.owned_rods:
+            unlocked = True
+        elif title_name == "완벽한 태평양" and caught_species >= 60:
+            unlocked = True
+
+        if unlocked:
+            st.session_state.unlocked_titles.append(title_name)
+            st.toast(f"🏆 새로운 타이틀 해금! [{title_name}]", icon="🎖️")
+
+
 # -----------------------------------------------------------------------------
-# 3. Three.js 3D 실감형 렌더러 (낚싯대 퀄리티 & 이펙트 업그레이드, 등급별 물고기 3D 모델 및 입질 모션)
+# 3. Three.js 3D 실감형 렌더러 (낚싯대 퀄리티 & 이펙트 업그레이드 + 타이틀 파티클/오라 추가)
 # -----------------------------------------------------------------------------
 def render_3d_ocean_view(
     status="idle",
@@ -422,10 +710,18 @@ def render_3d_ocean_view(
     bait_name="일반 미끼",
     pending_fish=None,
 ):
+    check_title_unlocks()
     rod_data = FISHING_RODS.get(rod_name, FISHING_RODS["대나무 낚시대"])
     rod_color_hex = hex(rod_data["color"])
     rod_shape = rod_data.get("shape", "simple")
     rod_particle = rod_data.get("particle", "none")
+
+    # 🔥 추가: 현재 장착한 타이틀의 3D 오라 및 색상 정보 전달
+    eq_title = st.session_state.equipped_title
+    title_info = TITLES.get(eq_title) if eq_title else None
+    aura_type = title_info["aura"] if title_info else "none"
+    title_color_hex = hex(title_info["color"]) if title_info else "0xffffff"
+    title_display_name = f"🏆 [{eq_title}]" if eq_title else "칭호 없음"
 
     fish_rarity = pending_fish["rarity"] if pending_fish else "Common"
     fish_weight = pending_fish["weight"] if pending_fish else 1.0
@@ -439,6 +735,7 @@ def render_3d_ocean_view(
             #canvas-container {{ width: 100%; height: 480px; border-radius: 16px; position: relative; border: 1px solid rgba(0, 240, 255, 0.3); }}
             #ui-overlay {{ position: absolute; top: 14px; left: 14px; color: #00F0FF; font-size: 13px; font-weight: bold; background: rgba(5, 11, 20, 0.85); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(0,240,255,0.4); }}
             #rod-info {{ position: absolute; bottom: 14px; right: 14px; color: #FFFFFF; font-size: 13px; font-weight: bold; background: rgba(5, 11, 20, 0.85); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); }}
+            #title-info {{ position: absolute; top: 14px; right: 14px; color: #FFD700; font-size: 13px; font-weight: bold; background: rgba(15, 10, 30, 0.85); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255, 215, 0, 0.5); }}
             #status-banner {{ position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); color: #FFD700; font-size: 20px; font-weight: bold; text-align: center; width: 80%; background: rgba(0,0,0,0.75); padding: 12px; border-radius: 20px; border: 1px solid #FFD700; display: none; }}
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -446,6 +743,7 @@ def render_3d_ocean_view(
     <body>
         <div id="canvas-container">
             <div id="ui-overlay">✨ REAL-TIME 3D OCEAN ENGINE v8.0</div>
+            <div id="title-info">{title_display_name}</div>
             <div id="status-banner">🚨 입질이 왔습니다! 물고기가 찌로 접근 중... 🚨</div>
             <div id="rod-info">🎣 {rod_name} | 🪱 {bait_name}</div>
         </div>
@@ -711,6 +1009,66 @@ def render_3d_ocean_view(
             rodGroup.rotation.z = -Math.PI / 7.5;
             scene.add(rodGroup);
 
+            // ==========================================
+            // 🔥 추가: 플레이어(캐릭터) 바닥 주변 3D 타이틀 오라 & 파티클 시스템
+            // ==========================================
+            const playerAuraGroup = new THREE.Group();
+            playerAuraGroup.position.set(2.0, 0.0, 5.5); // 플레이어 낚시 위치 바닥
+
+            const titleAuraType = "{aura_type}";
+            const titleColor = {title_color_hex};
+
+            let titleParticleSys = null;
+            let auraMesh = null;
+
+            if (titleAuraType !== "none") {{
+                // 1. 바닥 발판 오라 링
+                const auraRingGeo = new THREE.RingGeometry(0.8, 1.8, 32);
+                const auraRingMat = new THREE.MeshBasicMaterial({{
+                    color: titleColor,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.6,
+                    wireframe: true
+                }});
+                auraMesh = new THREE.Mesh(auraRingGeo, auraRingMat);
+                auraMesh.rotation.x = Math.PI / 2;
+                playerAuraGroup.add(auraMesh);
+
+                // 2. 주변 소용돌이 파티클
+                const tPCount = 200;
+                const tPGeo = new THREE.BufferGeometry();
+                const tPPos = new Float32Array(tPCount * 3);
+                for(let i = 0; i < tPCount * 3; i += 3) {{
+                    let r = 0.8 + Math.random() * 1.2;
+                    let theta = Math.random() * Math.PI * 2;
+                    tPPos[i] = r * Math.cos(theta);
+                    tPPos[i+1] = Math.random() * 2.5;
+                    tPPos[i+2] = r * Math.sin(theta);
+                }}
+                tPGeo.setAttribute('position', new THREE.BufferAttribute(tPPos, 3));
+                const tPMat = new THREE.PointsMaterial({{
+                    color: titleColor,
+                    size: 0.14,
+                    transparent: true,
+                    opacity: 0.85,
+                    blending: THREE.AdditiveBlending
+                }});
+                titleParticleSys = new THREE.Points(tPGeo, tPMat);
+                playerAuraGroup.add(titleParticleSys);
+
+                // 3. 타이틀 등급별 전용 상위 이펙트 추가
+                if (titleAuraType === "holy_halo" || titleAuraType === "golden_god_aura" || titleAuraType === "rainbow_god_aura") {{
+                    const haloGeo = new THREE.TorusGeometry(1.2, 0.05, 16, 32);
+                    const haloMat = new THREE.MeshBasicMaterial({{ color: titleColor, wireframe: true }});
+                    const haloMesh = new THREE.Mesh(haloGeo, haloMat);
+                    haloMesh.position.y = 2.8;
+                    haloMesh.rotation.x = Math.PI / 2;
+                    playerAuraGroup.add(haloMesh);
+                }}
+            }}
+            scene.add(playerAuraGroup);
+
             // 찌 (Float)
             const floatGroup = new THREE.Group();
             const floatMesh = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), new THREE.MeshStandardMaterial({{ color: 0xff3300, emissive: 0xff1100, emissiveIntensity: 0.8 }}));
@@ -802,10 +1160,23 @@ def render_3d_ocean_view(
                     particleSystem.geometry.attributes.position.needsUpdate = true;
                 }}
 
-                // 3. 물고기 지느러미 유영 모션
+                // 🔥 3. 플레이어 타이틀 오라 회전 및 파티클 상승 애니메이션
+                if (auraMesh) {{
+                    auraMesh.rotation.z = time * 0.8;
+                }}
+                if (titleParticleSys) {{
+                    const tPArr = titleParticleSys.geometry.attributes.position.array;
+                    for(let i = 1; i < tPArr.length; i += 3) {{
+                        tPArr[i] += 0.02;
+                        if(tPArr[i] > 2.8) tPArr[i] = 0;
+                    }}
+                    titleParticleSys.geometry.attributes.position.needsUpdate = true;
+                }}
+
+                // 4. 물고기 지느러미 유영 모션
                 tailPivot.rotation.y = Math.sin(time * 12) * 0.5;
 
-                // 4. 상태별 낚싯대 및 물고기 이동 행동 로직
+                // 5. 상태별 낚싯대 및 물고기 이동 행동 로직
                 if (status === "biting") {{
                     document.getElementById("status-banner").style.display = "block";
                     floatGroup.position.y = Math.sin(time * 16) * 0.22 - 0.1;
@@ -832,7 +1203,7 @@ def render_3d_ocean_view(
                     rodGroup.rotation.x = -Math.PI / 5.5 + Math.sin(time * 2) * 0.01;
                 }}
 
-                // 5. 낚싯줄 팁 연결 좌표 업데이트
+                // 6. 낚싯줄 팁 연결 좌표 업데이트
                 const rodTipWorldPos = new THREE.Vector3(0, 6.5, 0);
                 rodGroup.localToWorld(rodTipWorldPos);
                 const linePositions = fishingLine.geometry.attributes.position.array;
@@ -857,17 +1228,29 @@ def render_3d_ocean_view(
 
 
 # -----------------------------------------------------------------------------
-# 4. 낚시 핵심 로직 및 이벤트 처리
+# 4. 낚시 핵심 로직 및 이벤트 처리 (타이틀 능력치 버프 적용)
 # -----------------------------------------------------------------------------
 def get_current_success_rate():
     rod_rate = FISHING_RODS[st.session_state.equipped_rod]["catch_rate"]
     lvl_bonus = (st.session_state.level - 1) * 0.5
-    return min(99.0, rod_rate + lvl_bonus)
+
+    # 🔥 추가: 장착 타이틀 성공률 버프 적용
+    title_bonus = 0
+    if st.session_state.equipped_title and st.session_state.equipped_title in TITLES:
+        title_bonus = TITLES[st.session_state.equipped_title]["catch_rate_bonus"]
+
+    return min(99.0, rod_rate + lvl_bonus + title_bonus)
 
 
 def add_xp(amount):
     rod_xp_mult = FISHING_RODS[st.session_state.equipped_rod]["exp_mult"]
-    actual_xp = int(amount * rod_xp_mult)
+
+    # 🔥 추가: 장착 타이틀 경험치 배수 버프 적용
+    title_xp_mult = 1.0
+    if st.session_state.equipped_title and st.session_state.equipped_title in TITLES:
+        title_xp_mult = TITLES[st.session_state.equipped_title]["exp_mult"]
+
+    actual_xp = int(amount * rod_xp_mult * title_xp_mult)
     st.session_state.xp += actual_xp
 
     while st.session_state.xp >= st.session_state.max_xp:
@@ -899,7 +1282,13 @@ def prepare_fish(selected_bait):
 
     spawn_active, trait_active = check_event_status()
     rod_data = FISHING_RODS[st.session_state.equipped_rod]
-    luck_score = (st.session_state.level * 1.5) + rod_data["rare_bonus"]
+
+    # 🔥 추가: 장착 타이틀 행운 보너스 적용
+    title_rare_bonus = 0
+    if st.session_state.equipped_title and st.session_state.equipped_title in TITLES:
+        title_rare_bonus = TITLES[st.session_state.equipped_title]["rare_bonus"]
+
+    luck_score = (st.session_state.level * 1.5) + rod_data["rare_bonus"] + title_rare_bonus
 
     high_tier_mult = 3.0 if spawn_active else 1.0
 
@@ -1022,11 +1411,17 @@ def calculate_fish_price(fish):
     else:
         trait_factor = fish.get("trait_val", 1.0)
 
+    # 🔥 추가: 장착 타이틀 골드 배수 적용
+    title_gold_mult = 1.0
+    if st.session_state.equipped_title and st.session_state.equipped_title in TITLES:
+        title_gold_mult = TITLES[st.session_state.equipped_title]["gold_mult"]
+
     price = int(
         fish["base_price"]
         * weight_factor
         * trait_factor
         * fish.get("rod_gold_mult", 1.0)
+        * title_gold_mult
     )
     return max(1, price)
 
@@ -1058,6 +1453,11 @@ with st.sidebar:
     st.write(
         f"**장착 중인 낚시대:** `{st.session_state.equipped_rod}`"
     )
+
+    # 🔥 추가: 사이드바 장착 타이틀 정보
+    eq_t = st.session_state.equipped_title
+    t_str = f"🏆 `{eq_t}`" if eq_t else "`없음`"
+    st.write(f"**장착 중인 타이틀:** {t_str}")
 
     st.divider()
     st.subheader("🎉 이벤트 컨트롤러")
@@ -1116,6 +1516,9 @@ with st.sidebar:
         "inventory_upgrades": st.session_state.inventory_upgrades,
         "baits": st.session_state.baits,
         "records": st.session_state.records,
+        # 🔥 추가: 데이터 저장
+        "unlocked_titles": st.session_state.unlocked_titles,
+        "equipped_title": st.session_state.equipped_title,
     }
     json_str = json.dumps(save_data, ensure_ascii=False, indent=2)
     st.download_button(
@@ -1125,13 +1528,15 @@ with st.sidebar:
         mime="application/json",
     )
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
+# 🔥 추가: 6번째 탭 "🏆 타이틀 업적" 메뉴 생성
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
     [
         "🌊 3D 낚시터",
         "🎣 낚시대 상점",
         "🎒 가방 & 판매",
         "🛒 미끼 상점",
         "📖 물고기 도감",
+        "🏆 타이틀 업적",
     ]
 )
 
@@ -1161,14 +1566,22 @@ with tab1:
     )
 
     equipped_info = FISHING_RODS[st.session_state.equipped_rod]
+
+    # 🔥 추가: 장착된 타이틀 효과 수치 합성 표시
+    t_rare_bonus = 0
+    t_xp_mult = 1.0
+    if st.session_state.equipped_title and st.session_state.equipped_title in TITLES:
+        t_rare_bonus = TITLES[st.session_state.equipped_title]["rare_bonus"]
+        t_xp_mult = TITLES[st.session_state.equipped_title]["exp_mult"]
+
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("낚시 성공률", f"{get_current_success_rate():.1f}%")
-    c2.metric("행운 수치", f"+{equipped_info['rare_bonus']}")
+    c2.metric("행운 수치", f"+{equipped_info['rare_bonus'] + t_rare_bonus}")
     c3.metric(
         "가방 공간",
         f"{len(st.session_state.inventory)}/{st.session_state.max_inventory}",
     )
-    c4.metric("XP 배수", f"{equipped_info['exp_mult']}x")
+    c4.metric("XP 배수", f"{round(equipped_info['exp_mult'] * t_xp_mult, 2)}x")
 
     st.divider()
 
@@ -1348,4 +1761,53 @@ with tab5:
                 st.caption(
                     f"등급: **{info['rarity']}** | 아직 발견하지 못한 물고기입니다."
                 )
+        st.divider()
+
+# 🔥 추가: TAB 6: 타이틀 업적 관리 UI
+with tab6:
+    check_title_unlocks()
+    st.subheader(f"🏆 타이틀 해금 및 업적 ({len(st.session_state.unlocked_titles)} / {len(TITLES)})")
+
+    if st.session_state.equipped_title:
+        if st.button("❌ 장착 중인 타이틀 해제"):
+            st.session_state.equipped_title = None
+            st.success("타이틀을 해제했습니다.")
+            st.rerun()
+
+    st.divider()
+
+    for t_name, t_data in TITLES.items():
+        is_unlocked = t_name in st.session_state.unlocked_titles
+        is_equipped = st.session_state.equipped_title == t_name
+
+        c1, c2, c3 = st.columns([2.5, 4.5, 1.5])
+
+        with c1:
+            tier_badge = f"[{t_data['tier']}등급]"
+            st.write(f"### {tier_badge} {t_name}")
+            if is_equipped:
+                st.caption("🟢 **현재 장착 중**")
+            elif is_unlocked:
+                st.caption("🔓 **해금됨**")
+            else:
+                st.caption("🔒 **잠김**")
+
+        with c2:
+            st.write(f"**설명:** {t_data['desc']}")
+            st.caption(f"🎯 **조건:** {t_data['condition_desc']}")
+            st.caption(
+                f"✨ **버프 효과:** 성공률 +{t_data['catch_rate_bonus']}% | 행운 +{t_data['rare_bonus']} | Gold {t_data['gold_mult']}배 | XP {t_data['exp_mult']}배"
+            )
+
+        with c3:
+            if is_equipped:
+                st.button("장착됨", key=f"t_eq_{t_name}", disabled=True)
+            elif is_unlocked:
+                if st.button("착용하기", key=f"t_use_{t_name}"):
+                    st.session_state.equipped_title = t_name
+                    st.success(f"[{t_name}] 타이틀을 착용했습니다!")
+                    st.rerun()
+            else:
+                st.button("미달성", key=f"t_lock_{t_name}", disabled=True)
+
         st.divider()
